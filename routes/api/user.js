@@ -3,6 +3,9 @@ const bcrypt = require("bcryptjs");
 const { check, validationResult } = require("express-validator");
 const router = express.Router();
 
+//Middleware
+const auth = require("../../middleware/auth");
+
 //@route    GET /api/user
 //@desc     Get all user || with filter
 //@access   Public
@@ -471,7 +474,7 @@ router.get("/:id", async (req, res) => {
 //@route    DELETE /api/user/:id
 //@desc     Delete a user
 //@access   Private && Admin
-router.delete("/:id/:type", [auth, adminAuth], async (req, res) => {
+router.delete("/:id/:type", [auth], async (req, res) => {
    try {
       //Remove user
       await User.findOneAndRemove({ _id: req.params.id });
