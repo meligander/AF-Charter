@@ -20,6 +20,7 @@ const ReservationSchema = new mongoose.Schema({
       required: true,
    },
    crew: {
+      type: Object,
       captain: {
          type: mongoose.Schema.Types.ObjectId,
          ref: "user",
@@ -32,19 +33,26 @@ const ReservationSchema = new mongoose.Schema({
          },
       ],
    },
-   downpayment: {
-      type: Number,
-      required: true,
-   },
-   payment: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "paymethod",
-      required: true,
-   },
-   total: {
-      type: Number,
-      required: true,
-   },
+   manifest: [
+      {
+         type: Object,
+         name: {
+            type: String,
+            required: true,
+         },
+         address: {
+            type: String,
+            required: true,
+         },
+         phone: {
+            type: String,
+            required: true,
+         },
+         dateVisa: {
+            type: Date,
+         },
+      },
+   ],
    date: {
       type: Date,
       default: Date.now,

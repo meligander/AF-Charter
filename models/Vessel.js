@@ -11,7 +11,7 @@ const VesselSchema = new mongoose.Schema({
    },
    year: {
       type: Number,
-      /* required: true, */
+      required: true,
    },
    peopleOnBoard: {
       type: Number,
@@ -19,8 +19,20 @@ const VesselSchema = new mongoose.Schema({
    peopleSleep: {
       type: Number,
    },
+   images: [
+      {
+         type: Object,
+         fileName: { type: String, required: true },
+         filePath: { type: String, required: true },
+         default: {
+            type: Boolean,
+            default: false,
+         },
+      },
+   ],
    prices: [
       {
+         type: Object,
          time: {
             type: String,
             required: true,

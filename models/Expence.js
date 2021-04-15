@@ -1,10 +1,14 @@
 const mongoose = require("mongoose");
 
-const MaintencanceSchema = new mongoose.Schema({
+const ExpenceSchema = new mongoose.Schema({
    vessel: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "vessel",
       required: true,
+   },
+   reservation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "reservation",
    },
    type: {
       type: String,
@@ -23,6 +27,6 @@ const MaintencanceSchema = new mongoose.Schema({
    },
 });
 
-const Maintenance = mongoose.model("maintenance", MaintencanceSchema);
+const Expence = mongoose.model("expence", ExpenceSchema);
 
-module.exports = Maintenance;
+module.exports = Expence;

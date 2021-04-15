@@ -1,0 +1,127 @@
+@import "../../../style/abstract/abstract.scss";
+
+.header {
+   height: 100vh;
+   position: relative;
+   background-image: linear-gradient(
+         rgba($dark-color, 0.6),
+         rgba($dark-color, 0.6)
+      ),
+      url(../../../img/header.jpg);
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-position: center top;
+   background-attachment: fixed;
+   color: $light-color;
+
+   * {
+      position: relative;
+      z-index: 3;
+   }
+
+   &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-image: linear-gradient(
+         to bottom right,
+         $dark-color,
+         $primary-color
+      );
+      opacity: 0.6;
+      z-index: 1;
+   }
+
+   &-nav {
+      font-family: "Dancing Script", cursive;
+      animation: moveInTop 1s ease-out;
+      padding: 2rem;
+      width: 100%;
+      display: flex;
+
+      &-icon {
+         img {
+            display: block;
+            width: 20rem;
+            filter: invert(100%);
+            -webkit-filter: invert(100%);
+         }
+      }
+
+      &-list {
+         display: flex;
+         justify-content: flex-end;
+         font-size: 3rem;
+         align-items: center;
+         flex: 1;
+      }
+
+      &-link {
+         cursor: pointer;
+         @include easeOut;
+         color: $light-color;
+         margin-right: 3rem;
+
+         &:hover {
+            color: $secondary-color;
+         }
+         &.last {
+            margin-right: 0;
+         }
+      }
+   }
+
+   &-main {
+      margin-top: 15rem;
+      text-align: center;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+
+      &-title {
+         font-family: "Dancing Script", cursive;
+         animation: moveInLeft 1s ease-out;
+         font-size: 7rem;
+         margin-bottom: 5rem;
+      }
+
+      &-desc {
+         font-size: 2.2rem;
+         position: relative;
+         text-transform: uppercase;
+         letter-spacing: 0.4rem;
+
+         &::before {
+            content: attr(data-text);
+            position: absolute;
+            font-size: 2.21rem;
+            z-index: 0;
+            opacity: 0;
+
+            top: -0.05rem;
+            right: 45%;
+
+            color: $secondary-color;
+            overflow: hidden;
+
+            width: 0%;
+            height: 100%;
+
+            transition: all 0.5s ease-out, opacity 0.3s ease-out 0.2s;
+         }
+
+         &:hover::before {
+            opacity: 1;
+            right: 0.05rem;
+            width: 100%;
+         }
+      }
+
+      .btn-center .btn {
+         animation: moveInBottom 1s ease-out;
+         font-size: 2.5rem;
+      }
+   }
+}

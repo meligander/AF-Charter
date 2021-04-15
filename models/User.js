@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: true,
    },
+   active: {
+      type: Boolean,
+      default: false,
+   },
    name: {
       type: String,
       required: true,
@@ -43,16 +47,13 @@ const UserSchema = new mongoose.Schema({
    dob: {
       type: Date,
    },
-   sex: {
-      type: String,
-   },
-   /*  img: {
+   img: {
       type: Object,
       default: {
          public_id: "",
          url: "",
       },
-   }, */
+   },
    date: {
       type: Date,
       default: Date.now,

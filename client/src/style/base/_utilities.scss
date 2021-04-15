@@ -1,0 +1,48 @@
+@each $space in $spaceamounts {
+   .m-#{$space} {
+      margin: #{$space}rem !important;
+   }
+
+   .my-#{$space} {
+      margin: #{$space}rem 0 !important;
+   }
+
+   .mt-#{$space} {
+      margin: #{$space}rem 0 0 0 !important;
+   }
+
+   .mb-#{$space} {
+      margin: 0 0 #{$space}rem 0 !important;
+   }
+   .ml-#{$space} {
+      margin: 0 0 0 #{$space}rem !important;
+   }
+
+   .p-#{$space} {
+      padding: #{$space}rem !important;
+   }
+
+   .py-#{$space} {
+      padding: #{$space}rem 0 !important;
+   }
+
+   .pt-#{$space} {
+      padding: #{$space}rem 0 0 0 !important;
+   }
+
+   .pb-#{$space} {
+      padding: 0 0 #{$space}rem 0 !important;
+   }
+}
+
+.text-right {
+   text-align: end !important;
+}
+
+.text-left {
+   text-align: start;
+}
+
+.text-center {
+   text-align: center;
+}

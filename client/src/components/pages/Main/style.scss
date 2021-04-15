@@ -1,0 +1,107 @@
+@import "../../../style/abstract/abstract.scss";
+
+.main {
+   padding: 6rem 2rem;
+   text-align: center;
+
+   &-gallery {
+      padding-top: 6rem;
+      position: relative;
+
+      &-right,
+      &-left {
+         position: absolute;
+         top: 50%;
+         transform: translateY(-50%);
+         perspective: 500px;
+
+         img {
+            width: 40vw;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+         }
+      }
+
+      &-right {
+         right: -0.5rem;
+
+         &-img {
+            transform: rotateY(20deg);
+         }
+      }
+
+      &-left {
+         left: -0.5rem;
+
+         &-img {
+            transform: rotateY(-20deg);
+         }
+      }
+   }
+
+   &-boat {
+      font-family: "Source Sans Pro", sans-serif;
+
+      .text {
+         width: 65vw;
+         position: relative;
+         left: 50%;
+         z-index: 4;
+         transform: translateX(-50%);
+         padding: 1rem 0;
+         background-image: linear-gradient(
+            rgba($light-color, 0.6),
+            rgba($light-color, 0.6)
+         );
+      }
+
+      &-name {
+         color: $primary-color;
+         font-size: 3.5rem;
+         margin-bottom: -10rem;
+      }
+
+      &-img {
+         width: 70vw;
+         position: relative;
+         display: inline;
+         z-index: 2;
+      }
+
+      &-price {
+         color: $dark-color;
+         font-size: 2.5rem;
+         margin-top: -8rem;
+      }
+
+      &-btn {
+         &,
+         &:link,
+         &:visited {
+            margin-top: 1rem;
+            backface-visibility: hidden;
+            text-align: end;
+            background-color: $tertiary-color;
+            color: $light-color;
+            font-size: 1.5rem;
+            padding: 0.5rem 1.8rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            position: relative;
+            z-index: 4;
+         }
+
+         &:active,
+         &:focus {
+            outline: none;
+         }
+
+         &:hover {
+            background-color: $quaternary-color;
+         }
+      }
+   }
+}

@@ -1,0 +1,45 @@
+//Buttons
+.btn {
+   &,
+   &:link,
+   &:visited {
+      display: inline-block;
+      backface-visibility: hidden;
+      background: $light-color;
+      color: $dark-color;
+      font-size: 2rem;
+      padding: 0.64rem 2.1rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 0.64rem;
+      opacity: 0.7;
+      @include easeOut;
+   }
+
+   &:hover {
+      background-color: darken($light-color, 20%);
+      transform: translateY(-0.3rem) scale(1.05);
+      box-shadow: 0 1rem 2rem rgba($dark-color, 0.2);
+   }
+
+   &:active,
+   &:focus {
+      outline: none;
+      transform: translateY(-0.1rem);
+      box-shadow: 0 0rem 1rem rgba($dark-color, 0.2);
+   }
+
+   &.btn-primary {
+      background: $primary-color;
+      color: $light-color;
+
+      &:hover {
+         background-color: lighten($primary-color, 10%);
+      }
+   }
+
+   &-center {
+      text-align: center;
+      margin-top: 2rem;
+   }
+}
