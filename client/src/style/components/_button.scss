@@ -30,12 +30,25 @@
    }
 
    &.btn-primary {
-      background: $primary-color;
-      color: $light-color;
-
-      &:hover {
-         background-color: lighten($primary-color, 10%);
-      }
+      @include background-hover($primary-color);
+   }
+   &.btn-secondary {
+      @include background-hover($secondary-color);
+   }
+   &.btn-tertiary {
+      @include background-hover($tertiary-color);
+   }
+   &.btn-dark {
+      @include background-hover($dark-color);
+   }
+   &.btn-light {
+      @include background-hover($light-color);
+   }
+   &.btn-danger {
+      @include background-hover($danger-color);
+   }
+   &.btn-success {
+      @include background-hover($success-color);
    }
 
    &-center {

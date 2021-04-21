@@ -11,12 +11,16 @@ const Header = () => {
             <div className="header-nav-icon">
                <img src={yatch} alt="AF-logo" />
             </div>
-            <ul className="header-nav-list">
-               <li className="header-nav-item">
-                  <Link className="header-nav-link">Bookings</Link>
+            <ul className="navbar-list">
+               <li className="navbar-list-item">
+                  <Link to="/contact" className="navbar-list-link">
+                     Contact Us
+                  </Link>
                </li>
-               <li className="header-nav-item">
-                  <Link className="header-nav-link last">Login</Link>
+               <li className="navbar-list-item">
+                  <Link to="/login" className="navbar-list-link last">
+                     Login
+                  </Link>
                </li>
             </ul>
          </nav>

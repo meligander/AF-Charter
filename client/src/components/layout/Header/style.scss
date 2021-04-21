@@ -36,8 +36,8 @@
    }
 
    &-nav {
-      font-family: "Dancing Script", cursive;
       animation: moveInTop 1s ease-out;
+      font-family: "Dancing Script", cursive;
       padding: 2rem;
       width: 100%;
       display: flex;
@@ -50,28 +50,10 @@
             -webkit-filter: invert(100%);
          }
       }
+   }
 
-      &-list {
-         display: flex;
-         justify-content: flex-end;
-         font-size: 3rem;
-         align-items: center;
-         flex: 1;
-      }
-
-      &-link {
-         cursor: pointer;
-         @include easeOut;
-         color: $light-color;
-         margin-right: 3rem;
-
-         &:hover {
-            color: $secondary-color;
-         }
-         &.last {
-            margin-right: 0;
-         }
-      }
+   .navbar-list-link {
+      font-size: 3rem;
    }
 
    &-main {

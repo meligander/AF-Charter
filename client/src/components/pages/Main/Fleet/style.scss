@@ -1,7 +1,7 @@
-@import "../../../style/abstract/abstract.scss";
+@import "../../../../style/abstract/abstract.scss";
 
-.main {
-   padding: 6rem 2rem;
+.fleet {
+   padding: 10rem 2rem;
    text-align: center;
 
    &-gallery {
@@ -14,13 +14,17 @@
          top: 50%;
          transform: translateY(-50%);
          perspective: 500px;
+      }
 
-         img {
-            width: 40vw;
-            position: relative;
-            z-index: 1;
-            cursor: pointer;
-         }
+      &-img {
+         width: 40vw;
+         height: 35vh;
+         background-position: center;
+         background-size: cover;
+         position: relative;
+         z-index: 1;
+         cursor: pointer;
+         @include longerEaseOut;
       }
 
       &-right {
@@ -64,9 +68,13 @@
 
       &-img {
          width: 70vw;
+         height: 60vh;
+         background-position: center;
+         background-size: cover;
          position: relative;
-         display: inline;
+         display: inline-block;
          z-index: 2;
+         @include longerEaseOut;
       }
 
       &-price {

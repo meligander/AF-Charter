@@ -1,0 +1,71 @@
+@import "../../../../style/abstract/abstract.scss";
+
+.contact {
+   margin-top: -5.5rem;
+   padding: 20rem 0 10rem;
+   background-image: linear-gradient(
+      to right bottom,
+      $light-color,
+      darken($light-color, 20%)
+   );
+
+   &-card {
+      margin: 0 auto;
+      max-width: 114rem;
+      background-image: linear-gradient(
+            105deg,
+            rgba($white-color, 0.9) 0%,
+            rgba($white-color, 0.9) 50%,
+            transparent 50%
+         ),
+         url(../../../../img/boat-2.jpg);
+      background-position: center;
+      background-size: 100%;
+      border-radius: 3px;
+      box-shadow: 0 1.5rem 2rem -2px rgba($dark-color, 0.5);
+
+      //height: 50rem;
+
+      @include respond(tab-land) {
+         background-image: linear-gradient(
+               105deg,
+               rgba($white-color, 0.9) 0%,
+               rgba($white-color, 0.9) 65%,
+               transparent 65%
+            ),
+            url(../../../../img/boat-2.jpg);
+         background-size: cover;
+      }
+
+      @include respond(tab-port) {
+         background-image: linear-gradient(
+               to right,
+               rgba($white-color, 0.9) 0%,
+               rgba($white-color, 0.9) 100%
+            ),
+            url(../../../../img/boat-2.jpg);
+      }
+
+      &-form {
+         width: 50%;
+         padding: 6rem;
+
+         .form {
+            width: 100%;
+         }
+
+         @include respond(tab-land) {
+            width: 65%;
+         }
+
+         @include respond(tab-port) {
+            width: 100%;
+         }
+      }
+   }
+
+   &-space {
+      margin: 0 2rem;
+      color: $dark-color;
+   }
+}

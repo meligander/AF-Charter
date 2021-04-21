@@ -46,3 +46,18 @@
 .text-center {
    text-align: center;
 }
+
+.bg {
+   &-primary {
+      @include background($primary-color);
+   }
+   &-secondary {
+      @include background($secondary-color);
+   }
+   &-tertiary {
+      @include background($tertiary-color);
+   }
+   &-light {
+      @include background($light-color);
+   }
+}

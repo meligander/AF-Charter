@@ -1,0 +1,62 @@
+.form {
+   width: 60%;
+   margin: 0 auto;
+   padding: 1rem 0;
+   text-align: left;
+
+   &-group {
+      margin: 1rem 0;
+   }
+
+   &-input {
+      display: block;
+      width: 100%;
+
+      padding: 0.96rem;
+      font-size: inherit;
+      font-family: inherit;
+      border-radius: 2px;
+      background-color: rgba($secondary-color, 0.1);
+      border: none;
+      //para que cuando se haga focus no se agrade el bloque entero
+      border-bottom: 3px solid transparent;
+
+      @include respond(small-phone) {
+         -webkit-appearance: none;
+         -moz-appearance: none;
+      }
+
+      &:focus {
+         outline: none;
+         box-shadow: 0 1rem 2rem rgba($dark-color, 0.1);
+         border-bottom: 3px solid $success-color;
+
+         &:invalid {
+            border-bottom: 3px solid $danger-color;
+         }
+      }
+
+      &.center {
+         text-align: center;
+         text-align-last: center;
+      }
+   }
+
+   &-label,
+   &-label-show {
+      font-size: 1.35rem;
+      margin-left: 1rem;
+      margin-top: 0.3rem;
+      display: block;
+      transition: all 0.3s;
+      color: $dark-color;
+   }
+
+   &-input:placeholder-shown + &-label,
+   .lbl {
+      //ambos asi se puede animar y que aparezca de a poco con transition
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4rem);
+   }
+}

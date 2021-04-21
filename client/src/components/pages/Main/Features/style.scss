@@ -1,0 +1,51 @@
+@import "../../../../style/abstract/abstract.scss";
+
+.feature {
+   //margin-bottom: 2rem;
+   padding: 17rem 2rem;
+   background-image: linear-gradient(
+         to right bottom,
+         rgba($light-color, 0.75),
+         rgba($dark-color, 0.75)
+      ),
+      url(../../../../img/boat-1.jpg);
+   background-size: cover;
+   background-position-y: bottom;
+   transform: skewY(-5deg);
+
+   & > * {
+      transform: skewY(5deg);
+   }
+
+   &-row {
+      display: flex;
+      justify-content: space-evenly;
+   }
+
+   &-box {
+      max-width: 23rem;
+      background-color: rgba($light-color, 0.8);
+      font-size: 1.5rem;
+      padding: 2.5rem;
+      text-align: center;
+      border-radius: 3px;
+      box-shadow: 0 1.5rem 4rem rgba($dark-color, 0.15);
+      @include easeOut;
+
+      &:hover {
+         transform: translateY(-1.5rem) scale(1.03);
+      }
+
+      &-icon {
+         margin-bottom: 1.5rem;
+         font-size: 6rem;
+         color: $primary-color;
+      }
+
+      &-header {
+         text-transform: uppercase;
+         color: $dark-color;
+         margin-bottom: 2rem;
+      }
+   }
+}

@@ -1,1 +1,59 @@
+@import "../../../style/abstract/abstract.scss";
 
+.navbar {
+   display: flex;
+   justify-content: space-between;
+   position: fixed;
+   padding: 1.5rem 2rem;
+   box-shadow: 0 2.5px 15px 1px $dark-color;
+   opacity: 0;
+   visibility: hidden;
+   background-color: $primary-color;
+   width: 100%;
+   z-index: 100;
+   @include longerEaseOut;
+
+   &.show {
+      opacity: 0.9;
+      visibility: visible;
+   }
+
+   &-logo {
+      @include longerEaseOut;
+      img {
+         display: block;
+         width: 12rem;
+         filter: invert(100%);
+         -webkit-filter: invert(100%);
+      }
+
+      &:hover {
+         transform: rotateY(360deg);
+      }
+   }
+
+   &-list {
+      font-family: "Dancing Script", cursive;
+      display: flex;
+      justify-content: flex-end;
+      font-size: 2.5rem;
+      align-items: center;
+      flex: 1;
+
+      &-item {
+         &:not(:last-child) {
+            margin-right: 3rem;
+         }
+      }
+
+      &-link {
+         cursor: pointer;
+         color: $light-color;
+         @include easeOut;
+
+         &:hover {
+            color: $secondary-color;
+         }
+      }
+   }
+}

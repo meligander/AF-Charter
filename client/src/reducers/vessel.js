@@ -15,7 +15,7 @@ const initialState = {
    error: {},
 };
 
-export default function (state = initialState, action) {
+const vesselReducer = (state = initialState, action) => {
    const { type, payload } = action;
    switch (type) {
       case VESSEL_LOADED:
@@ -68,4 +68,6 @@ export default function (state = initialState, action) {
       default:
          return state;
    }
-}
+};
+
+export default vesselReducer;

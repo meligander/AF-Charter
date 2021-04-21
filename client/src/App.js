@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import { Switch, Route } from "react-router-dom";
 
 //Redux
@@ -10,6 +11,8 @@ import setAuthToken from "./utils/setAuthToken";
 import { loadUser } from "./actions/auth";
 
 import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+
 import Main from "./components/pages/Main";
 
 import "./style/main.scss";
@@ -23,12 +26,15 @@ const App = () => {
    }, []);
    return (
       <Provider store={store}>
-         <Fragment>
-            <Navbar />
-            <Switch>
-               <Route exact path="/" component={Main} />
-            </Switch>
-         </Fragment>
+         <Router>
+            <Fragment>
+               <Navbar />
+               <Switch>
+                  <Route exact path="/" component={Main} />
+               </Switch>
+               <Footer />
+            </Fragment>
+         </Router>
       </Provider>
    );
 };

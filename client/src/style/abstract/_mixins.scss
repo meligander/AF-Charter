@@ -52,3 +52,26 @@ ORDER: Base + typography > general layout + grid > page layout > components
 @mixin longerEaseOut {
    transition: all 1s ease-out;
 }
+
+@mixin background($color) {
+   background-color: $color;
+   color: set-text-color($color);
+}
+
+@mixin background-hover($color) {
+   background-color: $color;
+   color: set-text-color($color);
+   &:hover {
+      background: lighten($color, 10%);
+      color: set-text-color((lighten($color, 10%)));
+   }
+}
+
+//Set Text Color
+@function set-text-color($color) {
+   @if (lightness($color) > 60) {
+      @return $dark-color;
+   } @else {
+      @return $light-color;
+   }
+}

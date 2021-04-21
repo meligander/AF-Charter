@@ -13,7 +13,7 @@ const initialState = {
    isAuthenticated: false,
 };
 
-export default function (state = initialState, action) {
+const authReducer = (state = initialState, action) => {
    const { type, payload } = action;
 
    switch (type) {
@@ -43,4 +43,6 @@ export default function (state = initialState, action) {
       default:
          return state;
    }
-}
+};
+
+export default authReducer;
