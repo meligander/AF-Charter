@@ -60,4 +60,7 @@
    &-light {
       @include background($light-color);
    }
+   &-white {
+      @include background($white-color);
+   }
 }

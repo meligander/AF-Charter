@@ -14,6 +14,8 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
 import Main from "./components/pages/Main";
+import Login from "./components/pages/Login";
+import Contact from "./components/pages/Contact";
 
 import "./style/main.scss";
 
@@ -31,6 +33,9 @@ const App = () => {
                <Navbar />
                <Switch>
                   <Route exact path="/" component={Main} />
+                  <Route exact path="/contact" component={Contact} />
+                  <Route exact path="/login" component={Login} />
+                  <section className="container"></section>
                </Switch>
                <Footer />
             </Fragment>

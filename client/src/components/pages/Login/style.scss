@@ -1,0 +1,57 @@
+@import "../../../style/abstract/abstract.scss";
+
+.section-login {
+   margin: 7.3rem auto 0 auto;
+   background-color: $light-color;
+   position: relative;
+   overflow: hidden;
+   padding: 4rem 3.2rem;
+}
+
+.login {
+   min-height: inherit;
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+
+   &-card {
+      display: flex;
+      width: 80vw;
+      background-color: $white-color;
+      border-radius: 0.5rem;
+
+      .form {
+         width: 55%;
+         padding: 6rem 3rem 5rem;
+
+         &-section {
+            margin: 4rem 2rem 2.5rem;
+         }
+      }
+
+      &-sign {
+         margin-top: 1.5rem;
+         color: $secondary-color;
+      }
+   }
+
+   &-img {
+      width: 45%;
+      background-image: linear-gradient(
+            rgba($white-color, 0.6),
+            rgba($white-color, 0.6)
+         ),
+         url(../../../img/background-1.jpg);
+      background-position: center;
+      background-size: cover;
+      position: relative;
+
+      &-text {
+         color: $primary-color;
+         position: absolute;
+         bottom: 2.5rem;
+         left: 2.5rem;
+      }
+   }
+}

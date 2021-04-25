@@ -26,11 +26,11 @@ const Header = () => {
          </nav>
          <div className="header-main">
             <h3 className="header-main-title">AF Charters</h3>
-            <p className="header-main-desc" data-text="Rent a Boat in Miami!">
-               Rent a Boat in Miami!
-            </p>
+            <p className="header-main-desc">Rent a Boat in Miami!</p>
             <div className="btn-center">
-               <Link className="btn">Book Now!</Link>
+               <Link to="/vessels" className="btn">
+                  Book Now!
+               </Link>
             </div>
          </div>
       </header>

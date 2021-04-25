@@ -55,4 +55,25 @@
       text-align: center;
       margin-top: 2rem;
    }
+
+   &-text {
+      &:link,
+      &:visited {
+         color: $primary-color;
+         display: inline-block;
+         text-decoration: none;
+         border-bottom: 1px solid $primary-color;
+         transition: all 0.2s;
+         backface-visibility: hidden;
+      }
+
+      &:hover {
+         transform: translateY(-2px);
+      }
+
+      &:active,
+      &:focus {
+         outline: none;
+      }
+   }
 }

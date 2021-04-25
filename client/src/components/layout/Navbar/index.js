@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withRouter, Link } from "react-router-dom";
 //import PropTypes from "prop-types";
 
@@ -7,10 +7,17 @@ import "./style.scss";
 
 const Navbar = ({ location }) => {
    const [adminValues, setAdminValues] = useState({
-      showNav: location.pathname === "/" ? false : true,
+      showNav: false,
    });
 
    const { showNav } = adminValues;
+
+   useEffect(() => {
+      setAdminValues((prev) => ({
+         ...prev,
+         showNav: location.pathname !== "/",
+      }));
+   }, [location.pathname]);
 
    window.onscroll = function () {
       if (location.pathname === "/") {
@@ -21,22 +28,38 @@ const Navbar = ({ location }) => {
    };
    return (
       <nav className={`navbar ${showNav ? "show" : ""}`}>
-         <Link className="navbar-logo" to="/">
+         <Link
+            className="navbar-logo"
+            to="/"
+            onClick={() => window.scroll(0, 0)}
+         >
             <img src={yatch} alt="AF Charter Logo" />
          </Link>
          <ul className="navbar-list">
             <li className="navbar-list-item">
-               <Link to="/vessels" className="navbar-list-link">
+               <Link
+                  to="/vessels"
+                  className="navbar-list-link"
+                  onClick={() => window.scroll(0, 0)}
+               >
                   Bookings
                </Link>
             </li>
             <li className="navbar-list-item">
-               <Link to="/contact" className="navbar-list-link">
+               <Link
+                  to="/contact"
+                  className="navbar-list-link"
+                  onClick={() => window.scroll(0, 0)}
+               >
                   Contact Us
                </Link>
             </li>
             <li className="navbar-list-item">
-               <Link to="/login" className="navbar-list-link">
+               <Link
+                  to="/login"
+                  className="navbar-list-link"
+                  onClick={() => window.scroll(0, 0)}
+               >
                   Login
                </Link>
             </li>
