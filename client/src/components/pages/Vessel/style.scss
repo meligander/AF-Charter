@@ -1,0 +1,88 @@
+@import "../../../style/abstract/abstract.scss";
+
+.vessel {
+   .heading {
+      color: $dark-color;
+   }
+
+   &-img {
+      width: 75vw;
+      height: 65vh;
+      margin: 6rem auto 3rem;
+      background-position: center;
+      background-size: cover;
+   }
+
+   .row {
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+
+      &-item {
+         padding: 2rem;
+         flex: 1 1 0;
+      }
+   }
+
+   li {
+      padding: 0.3rem 0;
+
+      .icon {
+         color: $primary-color;
+      }
+   }
+
+   &-gallery {
+      display: flex;
+      flex-wrap: wrap;
+
+      &-img {
+         width: 30rem;
+         margin: 1rem;
+         height: 20rem;
+         background-size: cover;
+         background-position: center;
+         flex-grow: 1;
+         cursor: pointer;
+         @include easeOut;
+
+         &:hover {
+            filter: brightness(120%);
+         }
+      }
+   }
+
+   .form-group {
+      margin-left: 2rem;
+   }
+
+   &-hour {
+      margin-top: 1rem;
+
+      &-title {
+         font-size: 2.5rem;
+         margin-bottom: 1rem;
+      }
+
+      &-info {
+         font-size: 2rem;
+         margin: 0 2rem 1rem;
+      }
+
+      &-item {
+         text-align: center;
+         padding: 0.6rem;
+         margin: 1rem auto;
+         background-color: $primary-color;
+         color: $light-color;
+         border-radius: 0.5rem;
+         cursor: pointer;
+         width: 70%;
+         @include easeOut;
+
+         &:hover {
+            background-color: lighten($primary-color, 10%);
+            transform: scale(1.05);
+         }
+      }
+   }
+}

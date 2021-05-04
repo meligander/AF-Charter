@@ -38,7 +38,6 @@ export const loadVessels = (filterData) => async (dispatch) => {
          filter = filter + filternames[x] + "=" + filterData[name];
       }
    }
-
    try {
       const res = await api.get(`/vessel?${filter}`);
 

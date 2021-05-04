@@ -13,6 +13,8 @@ import { loadUser } from "./actions/auth";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
+import Routes from "./components/routing/Routes";
+
 import Main from "./components/pages/Main";
 import Login from "./components/pages/Login";
 import Contact from "./components/pages/Contact";
@@ -35,7 +37,7 @@ const App = () => {
                   <Route exact path="/" component={Main} />
                   <Route exact path="/contact" component={Contact} />
                   <Route exact path="/login" component={Login} />
-                  <section className="container"></section>
+                  <Route component={Routes} />
                </Switch>
                <Footer />
             </Fragment>

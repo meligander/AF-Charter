@@ -17,6 +17,7 @@
       font-family: inherit;
       border-radius: 2px;
       background-color: rgba($secondary-color, 0.1);
+      border: none;
       //para que cuando se haga focus no se agrade el bloque entero
       border-bottom: 3px solid transparent;
 
@@ -57,5 +58,63 @@
       opacity: 0;
       visibility: hidden;
       transform: translateY(-4rem);
+   }
+
+   &-lbl-checkbox {
+      display: inline-block;
+      background-color: $white-color;
+      border: 1.5px solid lighten($dark-color, 25%);
+      color: lighten($dark-color, 35%);
+      border-radius: 25px;
+      white-space: nowrap;
+      margin: 3px 0px;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.2s;
+      padding: 8px 12px;
+      cursor: pointer;
+
+      &:before {
+         display: inline-block;
+         font-style: normal;
+         font-variant: normal;
+         text-rendering: auto;
+         -webkit-font-smoothing: antialiased;
+         font-family: "Font Awesome 5 Free";
+         font-weight: 900;
+         font-size: 12px;
+         padding: 2px 6px 2px 2px;
+         font-size: 1.5rem;
+         content: "\2716";
+         transition: transform 0.3s ease-in-out;
+      }
+   }
+
+   &-input-checkbox:checked + &-lbl-checkbox::before {
+      content: "\2713";
+      font-size: 1.5rem;
+      transform: rotate(-360deg);
+      transition: transform 0.3s ease-in-out;
+   }
+
+   &-input-checkbox:checked + &-lbl-checkbox {
+      border: 1.5px solid lighten($primary-color, 5%);
+      background-color: lighten($primary-color, 5%);
+      color: $white-color;
+      transition: all 0.2s;
+   }
+
+   &-input-checkbox {
+      display: absolute;
+      position: absolute;
+      opacity: 0;
+   }
+
+   &-input-checkbox:focus + &-lbl-checkbox {
+      border: 2px solid $secondary-color;
    }
 }

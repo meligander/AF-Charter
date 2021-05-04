@@ -85,16 +85,15 @@
          &,
          &:link,
          &:visited {
-            margin-top: 1rem;
             backface-visibility: hidden;
-            text-align: end;
             background-color: $tertiary-color;
             color: $light-color;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             padding: 0.5rem 1.8rem;
             border-radius: 0.5rem;
             border: none;
             cursor: pointer;
+            top: 2rem;
             transition: all 0.15s ease-in-out;
             position: relative;
             z-index: 4;
@@ -109,5 +108,11 @@
             background-color: $quaternary-color;
          }
       }
+   }
+
+   &-error {
+      margin-top: 6rem;
+      color: $danger-color;
+      font-size: 2.5rem;
    }
 }

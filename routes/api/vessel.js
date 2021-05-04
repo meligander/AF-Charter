@@ -20,7 +20,7 @@ const Vessel = require("../../models/Vessel");
 router.get("/:vessel_id", async (req, res) => {
    try {
       const vessel = await Vessel.findOne({
-         user: req.params.vessel_id,
+         _id: req.params.vessel_id,
       });
 
       if (!vessel) {

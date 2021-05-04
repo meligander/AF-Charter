@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { loadVessels } from "../../../../actions/vessel";
@@ -15,7 +16,6 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
    const { vesselNumb, vesselsImages } = adminValues;
 
    useEffect(() => {
-      //let timer;
       if (loading) {
          loadVessels({});
       } else {
@@ -33,18 +33,7 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
             ...prev,
             vesselsImages,
          }));
-         /* timer = setInterval(() => {
-            setAdminValues((prev) => ({
-               ...prev,
-               vesselNumb:
-                  prev.vesselNumb === vessels.length - 1
-                     ? 0
-                     : prev.vesselNumb + 1,
-            }));
-         }, 30000); */
       }
-
-      /* return () => clearInterval(timer); */
    }, [loading, vessels, loadVessels]);
 
    return (
@@ -59,9 +48,11 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
                   <div className="fleet-gallery-left">
                      <div
                         style={{
-                           backgroundImage: `url( ${
-                              vesselsImages[vesselNumb - 1]
-                           })`,
+                           ...(vesselsImages[vesselNumb - 1] !== undefined && {
+                              backgroundImage: `url( ${
+                                 vesselsImages[vesselNumb - 1]
+                              })`,
+                           }),
                         }}
                         className="fleet-gallery-img fleet-gallery-left-img"
                         onClick={() =>
@@ -79,7 +70,9 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
                   </h4>
                   <div
                      style={{
-                        backgroundImage: `url( ${vesselsImages[vesselNumb]})`,
+                        ...(vesselsImages[vesselNumb] !== undefined && {
+                           backgroundImage: `url( ${vesselsImages[vesselNumb]})`,
+                        }),
                      }}
                      className="fleet-boat-img "
                   ></div>
@@ -87,16 +80,23 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
                      From ${vessels[vesselNumb].prices[0].price}
                   </p>
                   <div className="text-center">
-                     <button className="fleet-boat-btn">More Info</button>
+                     <Link
+                        to={`/vessel/${vessels[vesselNumb]._id}`}
+                        className="fleet-boat-btn"
+                     >
+                        More Info
+                     </Link>
                   </div>
                </div>
                {vesselNumb !== vessels.length - 1 && (
                   <div className="fleet-gallery-right">
                      <div
                         style={{
-                           backgroundImage: `url( ${
-                              vesselsImages[vesselNumb + 1]
-                           })`,
+                           ...(vesselsImages[vesselNumb + 1] !== undefined && {
+                              backgroundImage: `url( ${
+                                 vesselsImages[vesselNumb + 1]
+                              })`,
+                           }),
                         }}
                         className="fleet-gallery-img fleet-gallery-right-img"
                         onClick={() =>

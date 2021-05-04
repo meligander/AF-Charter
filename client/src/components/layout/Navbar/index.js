@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withRouter, Link } from "react-router-dom";
+import { connect } from "react-redux";
 //import PropTypes from "prop-types";
 
 import yatch from "../../../img/yatch.png";
@@ -31,7 +32,9 @@ const Navbar = ({ location }) => {
          <Link
             className="navbar-logo"
             to="/"
-            onClick={() => window.scroll(0, 0)}
+            onClick={() => {
+               window.scroll(0, 0);
+            }}
          >
             <img src={yatch} alt="AF Charter Logo" />
          </Link>
@@ -40,7 +43,9 @@ const Navbar = ({ location }) => {
                <Link
                   to="/vessels"
                   className="navbar-list-link"
-                  onClick={() => window.scroll(0, 0)}
+                  onClick={() => {
+                     window.scroll(0, 0);
+                  }}
                >
                   Bookings
                </Link>
@@ -70,4 +75,6 @@ const Navbar = ({ location }) => {
 
 Navbar.propTypes = {};
 
-export default withRouter(Navbar);
+const mapStateToProps = (state) => ({});
+
+export default connect(mapStateToProps, {})(withRouter(Navbar));

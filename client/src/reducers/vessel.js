@@ -10,6 +10,7 @@ import {
 
 const initialState = {
    loading: true,
+   loadingVessel: true,
    vessel: null,
    vessels: [],
    error: {},
@@ -21,7 +22,7 @@ const vesselReducer = (state = initialState, action) => {
       case VESSEL_LOADED:
          return {
             ...state,
-            loading: false,
+            loadingVessel: false,
             vessel: payload,
             error: {},
          };
@@ -63,6 +64,7 @@ const vesselReducer = (state = initialState, action) => {
             vessel: null,
             vessels: [],
             loading: false,
+            loadingVessel: false,
             error: payload,
          };
       default:

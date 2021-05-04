@@ -1,6 +1,8 @@
 .container {
    margin: 7.3rem auto 0 auto;
    background-color: $light-color;
+   font-family: "Montserrat", sans-serif;
+   font-weight: 800;
    position: relative;
    overflow: hidden;
    padding: 4rem 3.2rem;
@@ -8,7 +10,7 @@
 
    & > * {
       background-color: $white-color;
-      padding: 4rem;
+      padding: 6rem 4rem 4rem;
       border-radius: 0.3rem;
       box-shadow: 0 1rem 2rem -2px rgba($secondary-color, 0.5);
    }

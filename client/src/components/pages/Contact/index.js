@@ -18,7 +18,7 @@ const Contact = () => {
             <div className="contact-google">
                <iframe
                   src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d114956.27897113624!2d-80.25004247514185!3d25.79091200000002!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x2381c2f228e6c91!2sSea%20Isle%20Marina%20%26%20Yachting%20Center!5e0!3m2!1ses!2sus!4v1619312544186!5m2!1ses!2sus"
-                  allowfullscreen=""
+                  allowFullScreen=""
                   title="AF Charter address"
                   loading="lazy"
                ></iframe>

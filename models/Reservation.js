@@ -7,7 +7,6 @@ const ReservationSchema = new mongoose.Schema({
    },
    dateTo: {
       type: Date,
-      required: true,
    },
    customer: {
       type: mongoose.Schema.Types.ObjectId,

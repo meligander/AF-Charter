@@ -26,6 +26,10 @@
       padding: #{$space}rem 0 !important;
    }
 
+   .px-#{$space} {
+      padding: 0 #{$space}rem 0 !important;
+   }
+
    .pt-#{$space} {
       padding: #{$space}rem 0 0 0 !important;
    }

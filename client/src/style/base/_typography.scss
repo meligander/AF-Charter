@@ -6,12 +6,20 @@
       margin-bottom: 1.6rem;
       font-size: 4.8rem;
       line-height: 6rem;
+
+      .underline {
+         top: 5.5rem;
+      }
    }
 
    &-secondary {
       margin-bottom: 1.6rem;
       font-size: 3.5rem;
       line-height: 3.5rem;
+
+      .underline {
+         top: 3.5rem;
+      }
    }
 
    &-tertiary {
@@ -26,7 +34,6 @@
       width: 15%;
       left: 50%;
       transform: translateX(-50%);
-      top: 3.5rem;
       z-index: 0;
    }
 }

@@ -19,6 +19,9 @@ const VesselSchema = new mongoose.Schema({
    peopleSleep: {
       type: Number,
    },
+   equipment: {
+      type: Array,
+   },
    images: [
       {
          type: Object,
