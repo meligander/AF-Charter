@@ -5,6 +5,11 @@
       color: $dark-color;
    }
 
+   .section-tab {
+      width: 65vw;
+      margin: 4rem !important;
+   }
+
    &-img {
       width: 75vw;
       height: 65vh;
@@ -49,10 +54,6 @@
             filter: brightness(120%);
          }
       }
-   }
-
-   .form-group {
-      margin-left: 2rem;
    }
 
    &-hour {

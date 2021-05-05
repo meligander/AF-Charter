@@ -31,7 +31,7 @@ const Photo = ({ images, number, togglePhoto }) => {
    };
 
    return (
-      <div className="photo">
+      <div className="blug-bg">
          <AiOutlineClose className="photo-close" onClick={togglePhoto} />
          <BsChevronDoubleLeft className="photo-arrow" onClick={toLeft} />
          <div

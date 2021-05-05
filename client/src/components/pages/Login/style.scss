@@ -3,6 +3,7 @@
 .section-login {
    margin: 7.3rem auto 0 auto;
    background-color: $light-color;
+   font-family: "Montserrat", sans-serif;
    position: relative;
    overflow: hidden;
    padding: 4rem 3.2rem;
@@ -31,6 +32,7 @@
       }
 
       &-sign {
+         font-size: 1.4rem;
          margin-top: 1.5rem;
          color: $secondary-color;
       }

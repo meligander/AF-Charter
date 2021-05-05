@@ -1,0 +1,80 @@
+@import "../../../style/abstract/abstract.scss";
+
+.section-tab {
+   background-color: $white-color;
+   border-radius: 0.5rem;
+   color: $primary-color;
+   position: relative;
+   z-index: 10;
+
+   .tab-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      width: 100%;
+
+      &-btn {
+         flex-grow: 1;
+         text-align: center;
+         font-family: "Montserrat", sans-serif;
+         font-weight: 800;
+         display: block;
+         padding: 1.5rem 2.5rem;
+         font-size: 2rem;
+         border: 1px solid $primary-color;
+         color: $primary-color;
+         background-color: $white-color;
+         opacity: 0.7;
+         outline: none;
+         cursor: pointer;
+         @include easeOut;
+
+         @include respond(small-phone) {
+            font-size: 2rem;
+         }
+
+         &:hover {
+            background: $primary-color;
+            color: $white-color;
+         }
+      }
+
+      &-line {
+         display: block;
+         height: 4px;
+         position: relative;
+         width: 100%;
+
+         .line {
+            height: 2.8px;
+            margin-top: -0.2rem;
+            background-color: $primary-color;
+            position: absolute;
+            @include easeOut;
+         }
+      }
+   }
+
+   .tab-content-panel {
+      display: none;
+      padding: 2rem;
+      position: relative;
+      z-index: 100;
+      border: 1px solid $primary-color;
+      border-top: none;
+      margin-top: -0.5rem;
+
+      &.even {
+         animation: appearTop 0.8s;
+      }
+
+      &.odd {
+         animation: appearBottom 0.8s;
+      }
+
+      &.active {
+         display: block;
+      }
+   }
+}

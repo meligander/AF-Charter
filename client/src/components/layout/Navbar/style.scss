@@ -49,11 +49,47 @@
 
       &-link {
          cursor: pointer;
-         color: $light-color;
+         color: $white-color;
+         overflow: hidden;
+         position: relative;
          @include easeOut;
 
+         &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 3rem;
+            right: 0;
+            height: 1.5px;
+            width: 0px;
+            background: transparent;
+            transition: all 0.6s ease;
+         }
+
+         &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 3rem;
+            left: 0;
+            height: 1.5px;
+            width: 0px;
+            background: transparent;
+            transition: all 0.6s ease;
+         }
+
          &:hover {
-            color: $secondary-color;
+            color: lighten($secondary-color, 8%);
+
+            &:after {
+               width: 100%;
+               background: lighten($secondary-color, 8%);
+            }
+
+            &:before {
+               width: 100%;
+               background: $secondary-color;
+            }
          }
       }
    }

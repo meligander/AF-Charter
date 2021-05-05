@@ -10,6 +10,7 @@ import PropTypes from "prop-types";
 import { loadVessel } from "../../../actions/vessel";
 
 import Photo from "../../modal/Photo";
+import Tab from "../../shared/Tab";
 
 import "./style.scss";
 
@@ -25,7 +26,6 @@ const Vessel = ({
       mainImg: "",
       togglePhoto: false,
       number: 0,
-      oneDay: false,
       tab: 1,
       //change it with the reservation avalability
       hoursArray: [],
@@ -38,14 +38,7 @@ const Vessel = ({
       charterValue: 0,
    });
 
-   const {
-      mainImg,
-      togglePhoto,
-      number,
-      oneDay,
-      hoursArray,
-      tab,
-   } = adminValues;
+   const { mainImg, togglePhoto, number, hoursArray, tab } = adminValues;
 
    const { date, startTime, endTime, charterValue } = formData;
 
@@ -114,17 +107,6 @@ const Vessel = ({
          ...prev,
          tab: 1,
          hoursArray: array,
-      }));
-   };
-
-   const onChangeOneDay = () => {
-      setAdminValues((prev) => ({
-         ...prev,
-         oneDay: !oneDay,
-      }));
-      setFormData((prev) => ({
-         ...prev,
-         date: today,
       }));
    };
 
@@ -256,6 +238,54 @@ const Vessel = ({
       }
    };
 
+   const Rates = () => {
+      return (
+         <ul>
+            {vessel.prices.length > 0 &&
+               vessel.prices.map((price, i) => (
+                  <li key={i}>
+                     <BiTimeFive className="icon" /> &nbsp;
+                     <span className="text-primary">
+                        {price.time} hours:
+                     </span>{" "}
+                     &nbsp; $ {price.price}
+                  </li>
+               ))}
+         </ul>
+      );
+   };
+
+   const Specifications = () => {
+      return (
+         <ul>
+            <li>
+               <ImLifebuoy className="icon" /> &nbsp;
+               <span className="text-primary">
+                  Sleeping places:
+               </span> &nbsp; {vessel.peopleSleep}
+            </li>
+            <li>
+               <ImLifebuoy className="icon" /> &nbsp;
+               <span className="text-primary">Capacity:</span> &nbsp;{" "}
+               {vessel.peopleOnBoard}
+            </li>
+         </ul>
+      );
+   };
+
+   const Equipment = () => {
+      return (
+         <ul>
+            {vessel.equipment.length > 0 &&
+               vessel.equipment.map((item, i) => (
+                  <li key={i}>
+                     <FaAnchor className="icon" /> &nbsp; {item}
+                  </li>
+               ))}
+         </ul>
+      );
+   };
+
    return (
       <div className="vessel">
          {togglePhoto && (
@@ -305,75 +335,36 @@ const Vessel = ({
                   </div>
                </div>
                <div className="row">
-                  <div className="row-item">
-                     <h4 className="heading heading-secondary ">Rates</h4>
-                     <ul>
-                        {vessel.prices.length > 0 &&
-                           vessel.prices.map((price, i) => (
-                              <li key={i}>
-                                 <BiTimeFive className="icon" /> &nbsp;
-                                 <span className="text-primary">
-                                    {price.time} hours:
-                                 </span>{" "}
-                                 &nbsp; $ {price.price}
-                              </li>
-                           ))}
-                     </ul>
-                  </div>
-                  <div className="row-item">
-                     <h4 className="heading heading-secondary">
-                        Specifications
-                     </h4>
-                     <ul>
-                        <li>
-                           <ImLifebuoy className="icon" /> &nbsp;
-                           <span className="text-primary">
-                              Sleeping places:
-                           </span>{" "}
-                           &nbsp; {vessel.peopleSleep}
-                        </li>
-                        <li>
-                           <ImLifebuoy className="icon" /> &nbsp;
-                           <span className="text-primary">Capacity:</span>{" "}
-                           &nbsp; {vessel.peopleOnBoard}
-                        </li>
-                     </ul>
-                  </div>
-                  <div className="row-item">
-                     <h4 className="heading heading-secondary">Equipment</h4>
-                     <ul>
-                        {vessel.equipment.length > 0 &&
-                           vessel.equipment.map((item, i) => (
-                              <li key={i}>
-                                 <FaAnchor className="icon" /> &nbsp; {item}
-                              </li>
-                           ))}
-                     </ul>
-                  </div>
+                  <Tab
+                     tablist={["Rates", "Specifications", "Equipment"]}
+                     panellist={[Rates, Specifications, Equipment]}
+                  />
                </div>
-               <div className="p-2">
-                  <h4 className="heading heading-secondary ">Gallery</h4>
-                  <div className="vessel-gallery">
-                     {vessel.images.length > 0 &&
-                        vessel.images.map(
-                           (img, i) =>
-                              !img.default && (
-                                 <div
-                                    key={i}
-                                    style={{
-                                       backgroundImage: `url( ${img.filePath})`,
-                                    }}
-                                    className="vessel-gallery-img"
-                                    onClick={() =>
-                                       setAdminValues((prev) => ({
-                                          ...prev,
-                                          number: i,
-                                          togglePhoto: true,
-                                       }))
-                                    }
-                                 ></div>
-                              )
-                        )}
+               <div className="row">
+                  <div>
+                     <h4 className="heading heading-secondary ">Gallery</h4>
+                     <div className="vessel-gallery">
+                        {vessel.images.length > 0 &&
+                           vessel.images.map(
+                              (img, i) =>
+                                 !img.default && (
+                                    <div
+                                       key={i}
+                                       style={{
+                                          backgroundImage: `url( ${img.filePath})`,
+                                       }}
+                                       className="vessel-gallery-img"
+                                       onClick={() =>
+                                          setAdminValues((prev) => ({
+                                             ...prev,
+                                             number: i,
+                                             togglePhoto: true,
+                                          }))
+                                       }
+                                    ></div>
+                                 )
+                           )}
+                     </div>
                   </div>
                </div>
                <h4 className="heading heading-primary text-center mt-3">
@@ -384,7 +375,6 @@ const Vessel = ({
                      <div className="my-3">
                         <Calendar
                            value={date}
-                           selectRange={oneDay}
                            onChange={(e) => onChangeDate(e)}
                            minDate={today}
                            maxDate={
@@ -395,18 +385,6 @@ const Vessel = ({
                               )
                            }
                         />
-                     </div>
-                     <div className="form-group">
-                        <input
-                           className="form-input-checkbox"
-                           type="checkbox"
-                           id="oneDay"
-                           onChange={onChangeOneDay}
-                           value={oneDay}
-                        />
-                        <label className="form-lbl-checkbox" htmlFor="oneDay">
-                           More than a day
-                        </label>
                      </div>
                   </div>
                   <div className="row-item vessel-hour">{tabOpen()}</div>
