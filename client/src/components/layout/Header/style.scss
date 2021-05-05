@@ -45,9 +45,10 @@
       &-icon {
          img {
             display: block;
-            width: 20rem;
-            filter: invert(100%);
-            -webkit-filter: invert(100%);
+            width: 12rem;
+            transform: rotateY(180deg);
+            filter: brightness(0) invert(1);
+            -webkit-filter: brightness(0) invert(1);
          }
       }
    }

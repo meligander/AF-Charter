@@ -23,9 +23,12 @@
       @include longerEaseOut;
       img {
          display: block;
-         width: 12rem;
-         filter: invert(100%);
-         -webkit-filter: invert(100%);
+         width: 8rem;
+         /*  filter: invert(100%);
+         -webkit-filter: invert(100%); */
+         filter: brightness(0) invert(1);
+         -webkit-filter: brightness(0) invert(1);
+         transform: rotateY(180deg);
       }
 
       &:hover {
