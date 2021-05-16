@@ -1,8 +1,12 @@
 @import "../../../../style/abstract/abstract.scss";
 
 .fleet {
-   padding: 10rem 2rem;
+   padding: 10rem 2rem 14rem;
    text-align: center;
+
+   @include respond(phone) {
+      padding: 6rem 2rem 8rem;
+   }
 
    &-gallery {
       padding-top: 6rem;
@@ -11,7 +15,7 @@
       &-right,
       &-left {
          position: absolute;
-         top: 50%;
+         top: 55%;
          transform: translateY(-50%);
          perspective: 500px;
       }
@@ -25,6 +29,22 @@
          z-index: 1;
          cursor: pointer;
          @include longerEaseOut;
+
+         @include respond(tab-land) {
+            height: 30vh;
+         }
+
+         @include respond(tab-port) {
+            height: 25vh;
+         }
+
+         @include respond(phone) {
+            height: 20vh;
+         }
+
+         @include respond(small-phone) {
+            height: 15vh;
+         }
       }
 
       &-right {
@@ -57,6 +77,10 @@
             rgba($light-color, 0.6),
             rgba($light-color, 0.6)
          );
+
+         @include respond(small-phone) {
+            padding: 0.8rem 0;
+         }
       }
 
       &-name {
@@ -64,6 +88,15 @@
          color: $primary-color;
          font-size: 3.5rem;
          margin-bottom: -10rem;
+
+         @include respond(phone) {
+            font-size: 2.8rem;
+         }
+
+         @include respond(small-phone) {
+            font-size: 2rem;
+            margin-bottom: -7rem;
+         }
       }
 
       &-img {
@@ -75,39 +108,35 @@
          display: inline-block;
          z-index: 2;
          @include longerEaseOut;
+
+         @include respond(tab-land) {
+            height: 50vh;
+         }
+
+         @include respond(tab-port) {
+            height: 40vh;
+         }
+
+         @include respond(phone) {
+            height: 30vh;
+         }
+
+         @include respond(small-phone) {
+            height: 20vh;
+         }
       }
 
       &-price {
          color: $dark-color;
          font-size: 2.5rem;
          margin-top: -8rem;
-      }
 
-      &-btn {
-         &,
-         &:link,
-         &:visited {
-            backface-visibility: hidden;
-            background-color: $tertiary-color;
-            color: $light-color;
-            font-size: 1.6rem;
-            padding: 0.5rem 1.8rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            top: 2rem;
-            transition: all 0.15s ease-in-out;
-            position: relative;
-            z-index: 4;
+         @include respond(phone) {
+            font-size: 2rem;
          }
 
-         &:active,
-         &:focus {
-            outline: none;
-         }
-
-         &:hover {
-            background-color: $quaternary-color;
+         @include respond(small-phone) {
+            font-size: 1.8rem;
          }
       }
    }

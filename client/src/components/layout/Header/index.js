@@ -25,16 +25,18 @@ const Header = () => {
             </ul>
          </nav>
          <div className="header-main">
-            <h3 className="header-main-title">AF Charters</h3>
-            <p className="header-main-desc">Rent a Boat in Miami!</p>
-            <div className="btn-center">
-               <Link
-                  to="/vessels"
-                  onClick={() => window.scroll(0, 0)}
-                  className="btn"
-               >
-                  Book Now!
-               </Link>
+            <div>
+               <h3 className="header-main-title">AF Charters</h3>
+               <p className="header-main-desc">Rent a Boat in Miami!</p>
+               <div className="btn-center">
+                  <Link
+                     to="/vessels"
+                     onClick={() => window.scroll(0, 0)}
+                     className="btn"
+                  >
+                     Book Now!
+                  </Link>
+               </div>
             </div>
          </div>
       </header>

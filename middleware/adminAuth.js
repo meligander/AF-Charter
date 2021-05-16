@@ -4,7 +4,7 @@ module.exports = async function (req, res, next) {
    try {
       let user = await User.findOne({ _id: req.user.id });
 
-      if (user.type !== "admin" && user.type !== "captain") {
+      if (user.type === "customer" || user.type === "mate") {
          return res.status(400).json({
             msg: "Unauthorized User",
          });

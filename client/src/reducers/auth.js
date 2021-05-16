@@ -4,6 +4,10 @@ import {
    LOGIN_FAIL,
    LOGIN_SUCCESS,
    LOGOUT,
+   SIGNUP_FAIL,
+   EMAILAUTH_SENT,
+   REMOVE_ERROR,
+   SIGNUP_SUCCESS,
 } from "../actions/types";
 
 const initialState = {
@@ -11,6 +15,8 @@ const initialState = {
    userLogged: null,
    loading: true,
    isAuthenticated: false,
+   error: "",
+   emailSent: false,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -24,6 +30,14 @@ const authReducer = (state = initialState, action) => {
             userLogged: payload,
             isAuthenticated: true,
          };
+      case SIGNUP_SUCCESS:
+         return {
+            ...state,
+            loading: false,
+            userLogged: payload.user,
+            isAuthenticated: true,
+            token: payload.token,
+         };
       case LOGIN_SUCCESS:
          return {
             ...state,
@@ -31,7 +45,6 @@ const authReducer = (state = initialState, action) => {
             token: payload.token,
          };
       case AUTH_ERROR:
-      case LOGIN_FAIL:
       case LOGOUT:
          return {
             ...state,
@@ -39,6 +52,24 @@ const authReducer = (state = initialState, action) => {
             isAuthenticated: false,
             userLogged: null,
             loading: false,
+         };
+      case SIGNUP_FAIL:
+      case LOGIN_FAIL:
+         return {
+            ...state,
+            loading: false,
+            error: payload,
+         };
+      case EMAILAUTH_SENT:
+         return {
+            ...state,
+            emailSent: true,
+            error: "",
+         };
+      case REMOVE_ERROR:
+         return {
+            ...state,
+            error: state.error.filter((errorI) => errorI.param !== payload),
          };
       default:
          return state;

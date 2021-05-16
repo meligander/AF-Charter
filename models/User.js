@@ -22,20 +22,11 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: true,
    },
-   id: {
-      type: String,
-      /* required: true, */
-   },
-   email: {
-      type: String,
-      required: true,
-   },
-   password: {
-      type: String,
-      required: true,
-   },
    cel: {
-      type: String,
+      type: Object,
+      countryCode: { type: String },
+      areaCode: { type: String },
+      phoneNumb: { type: String },
    },
    type: {
       type: String,
@@ -49,10 +40,8 @@ const UserSchema = new mongoose.Schema({
    },
    img: {
       type: Object,
-      default: {
-         public_id: "",
-         url: "",
-      },
+      fileName: { type: String, required: true },
+      filePath: { type: String, required: true },
    },
    date: {
       type: Date,

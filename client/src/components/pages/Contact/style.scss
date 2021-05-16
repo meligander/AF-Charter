@@ -13,13 +13,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 65vh;
+      height: 65.3vh;
       background-image: url(../../../img/boat-3.jpg);
       background-position: center;
       background-size: cover;
 
+      @include respond(tab-land) {
+         height: 62.7vh;
+      }
+
       &-text {
          animation: moveInTop 1s ease-out;
+         margin-top: 3rem;
          color: $white-color;
       }
    }
@@ -27,8 +32,17 @@
    &-row {
       display: flex;
 
+      @include respond(phone) {
+         flex-wrap: wrap;
+      }
+
       & > * {
          flex-grow: 1;
+
+         @include respond(phone) {
+            min-width: 25vw;
+            min-height: 18vh;
+         }
       }
    }
 

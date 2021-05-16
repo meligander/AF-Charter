@@ -26,8 +26,8 @@ ORDER: Base + typography > general layout + grid > page layout > components
       }
    }
    @if $breakpoint == phone {
-      @media only screen and (max-width: 37.5em) {
-         //600px
+      @media only screen and (max-width: 40.5em) {
+         //650px
          @content;
       }
    }
@@ -46,7 +46,7 @@ ORDER: Base + typography > general layout + grid > page layout > components
 }
 
 @mixin easeOut {
-   transition: all 0.2s ease-out;
+   transition: all 0.3s ease-out;
 }
 
 @mixin longerEaseOut {

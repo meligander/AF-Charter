@@ -6,8 +6,12 @@
    }
 
    .section-tab {
-      width: 65vw;
+      min-width: 65vw;
       margin: 4rem !important;
+
+      @include respond(phone) {
+         margin: 3rem auto 4rem !important;
+      }
    }
 
    &-img {
@@ -16,16 +20,28 @@
       margin: 6rem auto 3rem;
       background-position: center;
       background-size: cover;
+
+      @include respond(tab-land) {
+         width: 80vw;
+      }
+
+      @include respond(tab-port) {
+         height: 50vh;
+      }
+
+      @include respond(phone) {
+         height: 33vh;
+      }
+
+      @include respond(small-phone) {
+         height: 25vh;
+         margin: 4rem auto 2.5rem;
+      }
    }
 
    .row {
       align-items: flex-start !important;
       justify-content: flex-start !important;
-
-      &-item {
-         padding: 2rem;
-         flex: 1 1 0;
-      }
    }
 
    li {
@@ -49,6 +65,10 @@
          flex-grow: 1;
          cursor: pointer;
          @include easeOut;
+
+         @include respond(phone) {
+            width: 25rem;
+         }
 
          &:hover {
             filter: brightness(120%);

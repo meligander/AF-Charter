@@ -1,0 +1,49 @@
+@import "../../../style/abstract/abstract.scss";
+
+.signup {
+   &-login {
+      color: $dark-color;
+      font-size: 1.4rem;
+      margin-top: 1.5rem;
+   }
+   &-name {
+      margin: 1.5rem 0 7rem 0;
+
+      @include respond(small-phone) {
+         margin: 30rem 0 0 0;
+      }
+   }
+
+   @include respond(small-phone) {
+      .form {
+         position: inherit;
+      }
+   }
+
+   &-email {
+      display: flex;
+      height: 58vh;
+      justify-content: center;
+      text-align: center;
+      align-items: center;
+
+      &-icon {
+         color: $primary-color;
+         font-size: 5rem;
+      }
+
+      &-text {
+         font-size: 2rem;
+         font-weight: 600;
+
+         &-smaller {
+            color: $dark-color;
+            margin: 2.5rem 0 0.5rem;
+         }
+      }
+
+      .btn-text {
+         font-size: 1.6rem;
+      }
+   }
+}

@@ -38,7 +38,7 @@ const Tabs = ({ tablist, panellist }) => {
    };
 
    return (
-      <section className="section-tab mt-3">
+      <section className="section-tab ">
          <div className="tab-header">
             {tablist.map((tab, index) => (
                <button
@@ -47,9 +47,6 @@ const Tabs = ({ tablist, panellist }) => {
                   key={index}
                   onClick={() => changeActive(index)}
                   ref={refs[index]}
-                  style={{
-                     height: refs[0].current && refs[0].current.offsetHeight,
-                  }}
                >
                   {tablist.length > 3 ? (
                      <>

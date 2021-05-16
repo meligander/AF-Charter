@@ -1,8 +1,8 @@
 @import "../../../../style/abstract/abstract.scss";
 
 .contactus {
-   margin-top: -5.5rem;
-   padding: 20rem 0 10rem;
+   margin-top: -7rem;
+   padding: 22rem 0 10rem;
    background-image: linear-gradient(
       to right bottom,
       $light-color,
@@ -37,7 +37,7 @@
          background-size: cover;
       }
 
-      @include respond(tab-port) {
+      @include respond(phone) {
          background-image: linear-gradient(
                to right,
                rgba($white-color, 0.9) 0%,
@@ -58,7 +58,7 @@
             width: 65%;
          }
 
-         @include respond(tab-port) {
+         @include respond(phone) {
             width: 100%;
          }
       }
@@ -67,5 +67,11 @@
    &-space {
       margin: 0 2rem;
       color: $dark-color;
+   }
+
+   .center {
+      @include respond(phone) {
+         text-align: center;
+      }
    }
 }

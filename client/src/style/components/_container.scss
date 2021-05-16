@@ -6,13 +6,30 @@
    position: relative;
    overflow: hidden;
    padding: 4rem 3.2rem;
-   min-height: 82.7vh;
+
+   @include respond(phone) {
+      padding: 4rem 2.5rem;
+   }
 
    & > * {
       background-color: $white-color;
-      padding: 6rem 4rem 4rem;
+      padding: 6rem 5rem 4rem;
       border-radius: 0.3rem;
       box-shadow: 0 1rem 2rem -2px rgba($secondary-color, 0.5);
+      min-height: 80.9vh;
+
+      @include respond(tab-land) {
+         min-height: 79.4vh;
+      }
+
+      @include respond(phone) {
+         padding: 6rem 3rem 3rem;
+         min-height: 83.5vh;
+      }
+
+      @include respond(small-phone) {
+         padding: 6rem 2rem 3rem;
+      }
    }
 
    .row {
@@ -21,5 +38,18 @@
       margin: 0 auto;
       justify-content: space-evenly;
       align-items: center;
+
+      @include respond(phone) {
+         flex-direction: column;
+      }
+
+      &-item {
+         padding: 2rem;
+         flex: 1 1 0;
+
+         @include respond(phone) {
+            width: 100%;
+         }
+      }
    }
 }

@@ -82,7 +82,7 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
                   <div className="text-center">
                      <Link
                         to={`/vessel/${vessels[vesselNumb]._id}`}
-                        className="fleet-boat-btn"
+                        className="btn btn-fleet"
                      >
                         More Info
                      </Link>

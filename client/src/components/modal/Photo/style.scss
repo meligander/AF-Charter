@@ -1,12 +1,30 @@
 @import "../../../style/abstract/abstract.scss";
 
 .photo {
+   @include respond(phone) {
+      flex-wrap: wrap;
+   }
+
+   @include respond(small-phone) {
+      padding: 20rem 0 10rem !important;
+   }
+
    &-img {
       width: 75vw;
       height: 80vh;
       margin-top: 1rem;
       background-position: center;
       background-size: cover;
+
+      @include respond(phone) {
+         width: 90vw;
+         height: 70vh;
+      }
+
+      @include respond(small-phone) {
+         width: 90vw;
+         height: 55vh;
+      }
    }
 
    &-close {
@@ -27,6 +45,12 @@
       margin: 0 2rem;
       cursor: pointer;
       @include easeOut;
+
+      @include respond(phone) {
+         order: 2;
+         margin: 4rem 0;
+         flex-basis: 50%;
+      }
 
       &:hover {
          color: $primary-color;

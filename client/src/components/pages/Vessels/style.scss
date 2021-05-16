@@ -7,7 +7,6 @@
    flex-wrap: wrap;
 
    &-item {
-      flex: 0 0 20%;
       margin: 2rem;
 
       &-name {
@@ -20,13 +19,23 @@
    }
 
    &-figure {
-      width: 35rem;
-      height: 20rem;
+      width: 30rem;
+      height: 17rem;
       border-radius: 0.3rem;
       overflow: hidden;
       position: relative;
       box-shadow: 0 1rem 1rem -1rem $dark-color;
       background-color: $light-color;
+
+      @include respond(phone) {
+         width: 48rem;
+         height: 28rem;
+      }
+
+      @include respond(small-phone) {
+         width: 35rem;
+         height: 20rem;
+      }
 
       &-img {
          height: 100%;

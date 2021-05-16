@@ -9,6 +9,8 @@ import {
    USER_UPDATED,
 } from "./types";
 
+import { setAlert } from "./alert";
+
 export const loadUser = (user_id) => async (dispatch) => {
    try {
       const res = await api.get(`/user/${user_id}`);
@@ -66,6 +68,9 @@ export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
    try {
       let res;
 
+      if (formData.formImg)
+         await api.post("/user/upload-img", formData.formImg);
+
       if (user_id) {
          res = await api.put(`/user/${user_id}`, formData);
       } else {
@@ -80,7 +85,7 @@ export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
       if (err.response.data.errors) {
          const errors = err.response.data.errors;
          errors.forEach((error) => {
-            dispatch(setAlert(error.msg, "danger", "2"));
+            //dispatch(setAlert(error.msg, "danger", "2"));
          });
          dispatch({
             type: USERS_ERROR,
@@ -97,12 +102,11 @@ export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
                msg,
             },
          });
-         dispatch(setAlert(msg ? msg : type, "danger", "2"));
+         //dispatch(setAlert(msg ? msg : type, "danger", "2"));
       }
    }
 
    window.scrollTo(0, 0);
-   dispatch(updateLoadingSpinner(false));
 };
 
 export const clearVessels = () => (dispatch) => {

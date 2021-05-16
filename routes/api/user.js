@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const router = express.Router();
 
@@ -67,95 +68,28 @@ router.get("/:id", async (req, res) => {
    }
 });
 
-//@route    POST /api/user
-//@desc     Register user
+//@route    POST /api/user/upload
+//@desc     Register user's image
 //@access   Public
-router.post(
-   "/",
-   [
-      check("name", "Name is required").not().isEmpty(),
-      check("lastname", "Lastame is required").not().isEmpty(),
-      check("email", "Email is required").not().isEmpty(),
-      check("type", "The type is required").not().isEmpty(),
-      check(
-         "password",
-         "Please enter a password with 8 or more characters"
-      ).isLength({ min: 8 }),
-   ],
-   async (req, res) => {
-      const {
-         name,
-         lastname,
-         email,
-         id,
-         password,
-         cel,
-         type,
-         address,
-         dob,
-         img,
-      } = req.body;
+router.post("/upload-img", async (req, res) => {
+   if (req.files === null) {
+      return res.status(400).json({ msg: "No file uploaded" });
+   }
 
-      let errors = [];
-      const errorsResult = validationResult(req);
-      if (!errorsResult.isEmpty()) {
-         errors = errorsResult.array();
-         return res.status(400).json({ errors });
-      }
+   const file = req.files.file;
 
-      var regex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
-      if (email && !regex.test(email))
-         return res.status(400).json({
-            value: email,
-            msg: "Invalid email",
-            params: "email",
-            location: "body",
-         });
-
-      try {
-         //See if users exists
-         if (email) {
-            user = await User.findOne({ email });
-
-            if (user)
-               return res.status(400).json({ msg: "User already exists" });
+   file.mv(
+      `${__dirname}../../../client/public/uploads/users/${file.name}`,
+      (err) => {
+         if (err) {
+            console.error(err);
+            return res.status(500).send(err);
          }
 
-         let data = {
-            name,
-            lastname,
-            password,
-            email,
-            type,
-            ...(cel && { cel }),
-            ...(id && { id }),
-            ...(address && { address }),
-            ...(dob && { dob }),
-            ...(img && { img }),
-         };
-
-         user = new User(data);
-
-         //Encrypt password -- agregarlo a cuando se cambia el password
-         const salt = await bcrypt.genSalt(10);
-
-         user.password = await bcrypt.hash(user.password, salt);
-
-         await user.save();
-
-         user = await User.find()
-            .sort({ $natural: -1 })
-            .select("-password")
-            .limit(1);
-         user = user[0];
-
-         res.json(user);
-      } catch (err) {
-         console.error(err.message);
-         return res.status(500).send("Server Error");
+         res.json("Ok");
       }
-   }
-);
+   );
+});
 
 //@route    PUT /api/user/:id
 //@desc     Update a user

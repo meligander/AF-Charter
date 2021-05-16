@@ -10,6 +10,7 @@ import {
 
 const initialState = {
    loading: true,
+   loadingUser: true,
    user: null,
    users: [],
    error: {},
@@ -21,7 +22,7 @@ const userReducer = (state = initialState, action) => {
       case USER_LOADED:
          return {
             ...state,
-            loading: false,
+            loadingUser: false,
             user: payload,
             error: {},
          };
@@ -37,7 +38,7 @@ const userReducer = (state = initialState, action) => {
          return {
             ...state,
             loading: false,
-            user: payload,
+            users: [...state.users, payload],
             error: {},
          };
       case USER_DELETED:
@@ -52,8 +53,9 @@ const userReducer = (state = initialState, action) => {
       case USERS_ERROR:
          return {
             ...state,
-            vessel: null,
-            vessels: [],
+            user: null,
+            users: [],
+            loadingUser: false,
             loading: false,
             error: payload,
          };

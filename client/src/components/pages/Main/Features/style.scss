@@ -2,7 +2,7 @@
 
 .feature {
    //margin-bottom: 2rem;
-   padding: 17rem 2rem;
+   padding: 20rem 2rem;
    background-image: linear-gradient(
          to right bottom,
          rgba($light-color, 0.75),
@@ -13,6 +13,10 @@
    background-position-y: bottom;
    transform: skewY(-5deg);
 
+   @include respond(tab-port) {
+      padding: 14rem 2rem;
+   }
+
    & > * {
       transform: skewY(5deg);
    }
@@ -20,6 +24,10 @@
    &-row {
       display: flex;
       justify-content: space-evenly;
+
+      @include respond(tab-port) {
+         flex-wrap: wrap;
+      }
    }
 
    &-box {
@@ -31,6 +39,16 @@
       border-radius: 3px;
       box-shadow: 0 1.5rem 4rem rgba($dark-color, 0.15);
       @include easeOut;
+
+      @include respond(tab-port) {
+         padding: 4rem;
+         min-width: 15rem;
+         margin: 2.5rem 0;
+      }
+
+      @include respond(small-phone) {
+         max-width: 27rem;
+      }
 
       &:hover {
          transform: translateY(-1.5rem) scale(1.03);

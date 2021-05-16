@@ -23,7 +23,7 @@ const Photo = ({ images, number, togglePhoto }) => {
 
    const toRight = () => {
       let num = imgNum + 1;
-      if (num === images.length - 1) num = 0;
+      if (num === images.length) num = 0;
       setAdminValues((prev) => ({
          ...prev,
          imgNum: num,
@@ -31,7 +31,7 @@ const Photo = ({ images, number, togglePhoto }) => {
    };
 
    return (
-      <div className="blug-bg">
+      <div className="blug-bg photo">
          <AiOutlineClose className="photo-close" onClick={togglePhoto} />
          <BsChevronDoubleLeft className="photo-arrow" onClick={toLeft} />
          <div

@@ -1,9 +1,17 @@
+//Alert
+export const ALERT_REMOVED = "ALERT_REMOVED";
+export const ALERT_SETTED = "ALERT_SETTED";
+
 //Auth
 export const USERAUTH_LOADED = "USERAUTH_LOADED";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAIL = "LOGIN_FAIL";
 export const LOGOUT = "LOGOUT";
 export const AUTH_ERROR = "AUTH_ERROR";
+export const SIGNUP_FAIL = "SIGNUP_FAIL";
+export const SIGNUP_SUCCESS = "SIGNUP_SUCCESS";
+export const EMAILAUTH_SENT = "EMAILAUTH_SENT";
+export const REMOVE_ERROR = "REMOVE_ERROR";
 
 //Users
 export const USER_LOADED = "USER_LOADED";

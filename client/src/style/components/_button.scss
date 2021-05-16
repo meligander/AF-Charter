@@ -8,6 +8,9 @@
       background: $light-color;
       color: $dark-color;
       font-size: 2rem;
+      font-family: "Montserrat", sans-serif;
+      font-weight: lighter;
+      position: relative;
       padding: 0.64rem 2.1rem;
       border: none;
       cursor: pointer;
@@ -56,12 +59,34 @@
       margin-top: 2rem;
    }
 
+   &-fleet {
+      color: $light-color !important;
+      font-family: "Times New Roman", Times, serif !important;
+      background-color: $tertiary-color !important;
+      font-size: 1.6rem;
+      padding: 0.5rem 1.8rem;
+      border-radius: 0.5rem;
+      opacity: 1 !important;
+      z-index: 4;
+      top: 1rem;
+
+      &:hover {
+         background-color: $quaternary-color !important;
+         transform: translateY(0) scale(1);
+         box-shadow: none;
+      }
+   }
+
    &-text {
+      &,
       &:link,
       &:visited {
          color: $primary-color;
          display: inline-block;
          text-decoration: none;
+         cursor: pointer;
+         border: none;
+         background-color: inherit;
          border-bottom: 1px solid $primary-color;
          transition: all 0.2s;
          backface-visibility: hidden;
@@ -81,6 +106,70 @@
       &:active,
       &:focus {
          outline: none;
+      }
+   }
+
+   &-google {
+      border-radius: 2rem !important;
+      box-shadow: 0 0.5rem 1.5rem rgba($dark-color, 0.2) !important;
+      backface-visibility: hidden;
+      @include easeOut;
+
+      div {
+         margin: 0.15rem 0.2rem 0 !important;
+         border-radius: 2rem !important;
+      }
+
+      &:hover {
+         transform: translateY(-0.3rem) scale(1.05);
+         box-shadow: 0 1rem 2rem rgba($dark-color, 0.2) !important;
+      }
+
+      &:active,
+      &:focus {
+         transform: translateY(-0.1rem);
+         box-shadow: 0 0rem 1rem rgba($dark-color, 0.2) !important   ;
+      }
+   }
+
+   &-facebook {
+      position: relative;
+
+      .kep-login-facebook {
+         backface-visibility: hidden;
+         margin-left: 2rem;
+         font-size: 2rem;
+         padding: 0.9rem 5.7rem 0.9rem 1.1rem;
+         position: relative;
+         border: 1px solid transparent;
+         border-radius: 2rem !important;
+         font-weight: lighter;
+         font-family: Arial, Helvetica, sans-serif;
+         text-transform: unset;
+         box-shadow: 0 0.5rem 1.5rem rgba($dark-color, 0.2) !important;
+         @include easeOut;
+
+         &:hover {
+            transform: translateY(-0.3rem) scale(1.05);
+            box-shadow: 0 1rem 2rem rgba($dark-color, 0.2);
+         }
+
+         &:active,
+         &:focus {
+            transform: translateY(-0.1rem);
+            box-shadow: 0 0rem 1rem rgba($dark-color, 0.2);
+         }
+
+         &::after {
+            content: "Login";
+            display: inline-block;
+            font-family: Roboto, sans-serif;
+            font-weight: 500;
+            font-size: 1.5rem;
+            top: 1.2rem;
+            right: 1rem;
+            position: absolute;
+         }
       }
    }
 }

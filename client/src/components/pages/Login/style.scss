@@ -6,7 +6,15 @@
    font-family: "Montserrat", sans-serif;
    position: relative;
    overflow: hidden;
-   padding: 4rem 3.2rem;
+   min-height: 89.2vh;
+
+   @include respond(tab-land) {
+      min-height: 88.3vh;
+   }
+
+   @include respond(phone) {
+      min-height: 90.5vh;
+   }
 }
 
 .login {
@@ -21,13 +29,43 @@
       width: 80vw;
       background-color: $white-color;
       border-radius: 0.5rem;
+      position: relative;
+      min-height: 60vh;
+
+      @include respond(phone) {
+         min-height: 100%;
+      }
+
+      @include respond(small-phone) {
+         width: 90vw;
+      }
 
       .form {
          width: 55%;
          padding: 6rem 3rem 5rem;
 
+         @include respond(phone) {
+            width: 90%;
+            padding: 6rem 5rem 5rem;
+            background-color: $white-color;
+            z-index: 100;
+         }
+
+         @include respond(small-phone) {
+            padding: 6rem 3rem 5rem;
+         }
+
          &-section {
-            margin: 4rem 2rem 2.5rem;
+            margin: 4rem auto 2.5rem;
+            width: 70%;
+
+            @include respond(tab-land) {
+               width: 80%;
+            }
+
+            @include respond(tab-port) {
+               width: 90%;
+            }
          }
       }
 
@@ -39,6 +77,14 @@
    }
 
    &-img {
+      @include respond(phone) {
+         position: absolute;
+         top: -10rem;
+         width: 100%;
+         left: 0;
+         bottom: -10rem;
+         z-index: 1;
+      }
       width: 45%;
       background-image: linear-gradient(
             rgba($white-color, 0.6),

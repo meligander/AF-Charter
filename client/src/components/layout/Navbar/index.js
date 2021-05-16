@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { withRouter, Link } from "react-router-dom";
 import { connect } from "react-redux";
-//import PropTypes from "prop-types";
+import PropTypes from "prop-types";
+
+import { logOut } from "../../../actions/auth";
 
 import yatch from "../../../img/yatch.png";
 import "./style.scss";
 
-const Navbar = ({ location }) => {
+const Navbar = ({ location, auth: { isAuthenticated }, logOut }) => {
    const [adminValues, setAdminValues] = useState({
       showNav: false,
    });
@@ -61,11 +63,16 @@ const Navbar = ({ location }) => {
             </li>
             <li className="navbar-list-item">
                <Link
-                  to="/login"
+                  to={isAuthenticated ? "/" : "/login"}
                   className="navbar-list-link"
-                  onClick={() => window.scroll(0, 0)}
+                  onClick={() => {
+                     if (isAuthenticated) {
+                        logOut();
+                     }
+                     window.scroll(0, 0);
+                  }}
                >
-                  Login
+                  {isAuthenticated ? "Logout" : "Login"}
                </Link>
             </li>
          </ul>
@@ -73,8 +80,13 @@ const Navbar = ({ location }) => {
    );
 };
 
-Navbar.propTypes = {};
+Navbar.propTypes = {
+   auth: PropTypes.object.isRequired,
+   logOut: PropTypes.func.isRequired,
+};
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+   auth: state.auth,
+});
 
-export default connect(mapStateToProps, {})(withRouter(Navbar));
+export default connect(mapStateToProps, { logOut })(withRouter(Navbar));

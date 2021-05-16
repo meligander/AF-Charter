@@ -49,7 +49,7 @@ const ContactUs = () => {
                         Message
                      </label>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-3 center">
                      <button className="btn btn-primary">
                         Send <IoIosSend className="icon" />
                      </button>

@@ -58,8 +58,10 @@
    }
 
    &-main {
-      margin-top: 15rem;
-      text-align: center;
+      height: 80%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
 
@@ -78,6 +80,7 @@
       }
 
       .btn-center .btn {
+         font-family: "Times New Roman", Times, serif !important;
          animation: moveInBottom 1s ease-out;
          font-size: 2.5rem;
       }

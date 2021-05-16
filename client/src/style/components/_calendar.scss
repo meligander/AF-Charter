@@ -8,6 +8,10 @@
       box-sizing: border-box;
    }
 
+   @include respond(phone) {
+      margin: 0 auto;
+   }
+
    width: 350px;
    max-width: 100%;
    background-image: linear-gradient(
