@@ -15,8 +15,6 @@
       justify-content: center;
       height: 65.3vh;
       background-image: url(../../../img/boat-3.jpg);
-      background-position: center;
-      background-size: cover;
 
       @include respond(tab-land) {
          height: 62.7vh;

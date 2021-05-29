@@ -47,10 +47,9 @@ router.post(
       check("password", "Pasword is required").exists(),
    ],
    async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-         return res.status(400).json({ errors: errors.array() });
-      }
+      let errors = [];
+      const errorsResult = validationResult(req);
+      if (!errorsResult.isEmpty()) errors = errorsResult.array();
 
       const { email, password } = req.body;
 
@@ -58,24 +57,19 @@ router.post(
          //See if user exists
          let user = await User.findOne({ email });
 
-         if (!user) {
-            return res
-               .status(400)
-               .json({ errors: [{ msg: "Invalid credentials" }] });
-         }
+         if (!user) errors.push({ msg: "Invalid credentials" });
 
          const isMatch = await bcrypt.compare(password, user.password);
 
-         if (!isMatch) {
-            return res
-               .status(400)
-               .json({ errors: [{ msg: "Invalid credentials" }] });
-         }
+         if (!isMatch) errors.push({ msg: "Invalid credentials" });
+
+         if (errors.length > 0) return res.status(400).json({ errors });
 
          //Return jsonwebtoken
          const payload = {
             user: {
                id: user._id,
+               email: user.email,
             },
          };
 
@@ -183,46 +177,52 @@ router.post(
 router.post("/activation", async (req, res) => {
    const { token } = req.body;
 
-   if (token) {
-      try {
-         const data = jwt.verify(token, process.env.JWT_SECRET);
+   let data = {};
 
-         let user = new User(data);
-         const salt = await bcrypt.genSalt(10);
+   try {
+      data = jwt.verify(token, process.env.JWT_SECRET);
+   } catch (err) {
+      console.error(err.message);
+      return res.status(500).json({ msg: "Incorrect or Expired link" });
+   }
 
-         user.password = await bcrypt.hash(user.password, salt);
+   try {
+      let user = new User(data);
+      const salt = await bcrypt.genSalt(10);
 
-         const existingUser = await User.findOne({ email: user.email });
+      user.password = await bcrypt.hash(user.password, salt);
 
-         if (!existingUser) {
-            await user.save();
+      const existingUser = await User.findOne({ email: user.email });
 
-            user = await User.find()
-               .sort({ $natural: -1 })
-               .select("-password")
-               .limit(1);
-            user = user[0];
-         }
+      if (!existingUser) {
+         await user.save();
 
-         const payload = {
-            user: {
-               id: user._id,
-            },
-         };
-
-         const newToken = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: 2 * 60 * 60 /*1 hora */,
-         });
-
-         res.json({
-            user: !existingUser ? user : existingUser,
-            token: newToken,
-         });
-      } catch (err) {
-         console.error(err.message);
-         res.status(500).json({ msg: "Incorrect or Expired link" });
+         user = await User.find()
+            .sort({ $natural: -1 })
+            .select("-password")
+            .limit(1);
+         user = user[0];
       }
-   } else res.status(500).json({ msg: "Something went wrong" });
+
+      const payload = {
+         user: {
+            id: user._id,
+            email: user.email,
+         },
+      };
+
+      const newToken = jwt.sign(payload, process.env.JWT_SECRET, {
+         expiresIn: 2 * 60 * 60 /*1 hora */,
+      });
+
+      res.json({
+         user: !existingUser ? user : existingUser,
+         token: newToken,
+      });
+   } catch (err) {
+      console.log(err.message);
+      res.status(500).json({ msg: "Server Error" });
+   }
 });
 
 //@route    POST api/auth/facebooklogin
@@ -265,6 +265,7 @@ router.post("/facebooklogin", async (req, res) => {
       const payload = {
          user: {
             id: user._id,
+            email: user.email,
          },
       };
 
@@ -319,15 +320,13 @@ router.post("/googlelogin", async (req, res) => {
          await user.save();
       }
 
-      const payload = {
-         user: {
-            id: user._id,
-         },
-      };
-
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-         expiresIn: 2 * 60 * 60 /*1 hora */,
-      });
+      const token = jwt.sign(
+         { user: { id: user._id, email: user.email } },
+         process.env.JWT_SECRET,
+         {
+            expiresIn: 2 * 60 * 60 /*1 hora */,
+         }
+      );
 
       res.json({ token });
    } catch (err) {
@@ -335,5 +334,136 @@ router.post("/googlelogin", async (req, res) => {
       res.status(500).json({ msg: "Server Error" });
    }
 });
+
+//@route    PUT /api/auth/password
+//@desc     Send password update link
+//@access   Public
+router.put(
+   "/password",
+   [check("email", "Email is required").not().isEmpty()],
+   async (req, res) => {
+      const { email } = req.body;
+
+      let errors = [];
+      const errorsResult = validationResult(req);
+      if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+      try {
+         let user = await User.findOne({ email });
+
+         if (email && !user)
+            errors.push({ msg: "User with this email does not exist" });
+
+         if (errors.length > 0) return res.status(400).json({ errors });
+
+         const token = jwt.sign(
+            { _id: user._id },
+            process.env.JWT_SECRET_PASSWORD,
+            {
+               expiresIn: "20m",
+            }
+         );
+
+         await user.updateOne({ resetLink: token });
+
+         emailSender(
+            email,
+            "Password update",
+            `Hello ${user.name} ${user.lastname}!
+
+            We've received a request to change your password!
+            Follow this link to complete your password update:
+            <a href='${process.env.WEBPAGE_URI}resetpassword/${token}/'>Password Update Link</a>`
+         );
+
+         res.json({ msg: "Email sent" });
+      } catch (err) {
+         console.error(err.message);
+         return res.status(500).json({ msg: "Server Error" });
+      }
+   }
+);
+
+//@route    PUT /api/auth/reset-password
+//@desc     Reset password
+//@access   Public
+router.put(
+   "/reset-password",
+   [
+      check(
+         "password",
+         "Please enter a password with 8 or more characters"
+      ).isLength({ min: 8 }),
+      check("passwordConf", "Password Confirmation is required")
+         .not()
+         .isEmpty(),
+   ],
+   async (req, res) => {
+      const { resetLink, password, passwordConf } = req.body;
+
+      if (!resetLink)
+         return res.status(401).json({ msg: "Authentication error" });
+
+      let errors = [];
+      const errorsResult = validationResult(req);
+      if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+      const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/;
+
+      if (passwordConf !== "" && password !== passwordConf)
+         errors.push({
+            msg: "Passwords don't match",
+            param: "passwordConf",
+         });
+
+      if (!regex.test(password))
+         errors.push({
+            msg: "Password must contain an uppercase, a lower case and a numeric value",
+            param: "password",
+         });
+
+      if (errors.length > 0) return res.status(400).json({ errors });
+
+      try {
+         jwt.verify(resetLink, process.env.JWT_SECRET_PASSWORD);
+      } catch (err) {
+         console.error(err.message);
+         return res.status(401).json({ msg: "Incorrect or Expired link" });
+      }
+
+      try {
+         let user = await User.findOne({ resetLink });
+
+         if (!user)
+            return res
+               .status(400)
+               .json({ msg: "User with this token does not exist" });
+
+         const salt = await bcrypt.genSalt(10);
+
+         let data = {
+            password: "",
+            resetLink: "",
+         };
+
+         data.password = await bcrypt.hash(password, salt);
+
+         await user.updateOne(data);
+
+         const token = jwt.sign(
+            { user: { id: user._id } },
+            process.env.JWT_SECRET,
+            {
+               expiresIn: 2 * 60 * 60 /*2 hora */,
+            }
+         );
+
+         res.json({ user, token });
+      } catch (err) {
+         console.error(err.message);
+         res.status(500).json({ msg: "Server Error" });
+      }
+   }
+);
 
 module.exports = router;

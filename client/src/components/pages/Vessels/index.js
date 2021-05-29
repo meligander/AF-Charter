@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FaUsers, FaBed } from "react-icons/fa";
@@ -14,50 +14,26 @@ const Vessels = ({
    clearVessels,
    vessels: { vessels, loading },
 }) => {
-   const [adminValues, setAdminValues] = useState({
-      vesselsImages: [],
-   });
-
-   const { vesselsImages } = adminValues;
-
    useEffect(() => {
-      if (loading) {
-         loadVessels({});
-      } else {
-         let vesselsImages = [];
-         for (let x = 0; x < vessels.length; x++) {
-            const vesselImgArray = vessels[x].images;
-            for (let y = 0; y < vesselImgArray.length; y++) {
-               if (vesselImgArray[y].default) {
-                  vesselsImages.push(vesselImgArray[y].filePath);
-                  break;
-               }
-            }
-         }
-         setAdminValues((prev) => ({
-            ...prev,
-            vesselsImages,
-         }));
-      }
-   }, [loadVessels, vessels, loading]);
+      if (loading) loadVessels({});
+   }, [loadVessels, loading]);
 
    return (
-      <div>
+      <>
          <h3 className="heading heading-primary text-center text-secondary pb-4">
             Pick one of our boats!
             <div className="underline"></div>
          </h3>
          <div className="vessels">
-            {vessels.length > 0 &&
+            {!loading &&
+               vessels.length > 0 &&
                vessels.map((vessel, i) => (
                   <div className="vessels-item" key={i}>
                      <figure className="vessels-figure">
                         <div
-                           className="vessels-figure-img"
+                           className="vessels-figure-img img"
                            style={{
-                              ...(vesselsImages[i] !== undefined && {
-                                 backgroundImage: `url( ${vesselsImages[i]})`,
-                              }),
+                              backgroundImage: `url( ${vessel.mainImg.filePath})`,
                            }}
                         ></div>
                         <figcaption className="vessels-figure-caption">
@@ -85,7 +61,7 @@ const Vessels = ({
                   </div>
                ))}
          </div>
-      </div>
+      </>
    );
 };
 

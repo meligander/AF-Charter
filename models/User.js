@@ -24,9 +24,9 @@ const UserSchema = new mongoose.Schema({
    },
    cel: {
       type: Object,
-      countryCode: { type: String },
-      areaCode: { type: String },
-      phoneNumb: { type: String },
+      countryCode: { type: Number },
+      areaCode: { type: Number },
+      phoneNumb: { type: Number },
    },
    type: {
       type: String,
@@ -42,6 +42,10 @@ const UserSchema = new mongoose.Schema({
       type: Object,
       fileName: { type: String, required: true },
       filePath: { type: String, required: true },
+   },
+   resetLink: {
+      type: String,
+      default: "",
    },
    date: {
       type: Date,

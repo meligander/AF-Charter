@@ -1,4 +1,5 @@
 import api from "../utils/api";
+import history from "../utils/history";
 
 import {
    AUTH_ERROR,
@@ -10,42 +11,57 @@ import {
    SIGNUP_FAIL,
    SIGNUP_SUCCESS,
    REMOVE_ERROR,
+   PASSWORD_CHANGED,
 } from "./types";
 
 import { setAlert } from "./alert";
+import { updateLoadingSpinner } from "./mixvalues";
 
-export const loadUser = () => async (dispatch) => {
+export const loadUser = (login) => async (dispatch) => {
    try {
       const res = await api.get("/auth");
       dispatch({
          type: USERAUTH_LOADED,
          payload: res.data,
       });
+
+      if (login)
+         switch (res.data.type) {
+            case "captain":
+            case "captain&admin":
+            case "admin":
+               history.push("/dashboard");
+               break;
+            default:
+               history.push("/");
+               break;
+         }
    } catch (err) {
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: AUTH_ERROR,
+         payload: {
+            type: err.response.statusText,
+            status: err.response.status,
+            msg: err.response.data.msg,
+         },
       });
    }
 };
 
 export const loginUser = (formData) => async (dispatch) => {
-   let user = {};
-
-   for (const prop in formData) {
-      if (formData[prop] !== "") user[prop] = formData[prop];
-   }
-
    try {
-      const res = await api.post("/auth", user);
+      const res = await api.post("/auth", formData);
       dispatch({
          type: LOGIN_SUCCESS,
          payload: res.data,
       });
 
-      dispatch(loadUser());
+      dispatch(loadUser(true));
    } catch (err) {
-      if (err.response.data.errors) {
-         const errors = err.response.data.errors;
+      const errors = err.response.data.errors;
+
+      if (errors) {
          errors.forEach((error) => {
             dispatch(setAlert(error.msg, "danger", "2"));
          });
@@ -54,7 +70,6 @@ export const loginUser = (formData) => async (dispatch) => {
             payload: errors,
          });
       } else {
-         dispatch(setAlert(err.response.data.msg, "danger", "2"));
          dispatch({
             type: LOGIN_FAIL,
             payload: {
@@ -64,12 +79,13 @@ export const loginUser = (formData) => async (dispatch) => {
             },
          });
       }
-
       window.scrollTo(0, 0);
    }
 };
 
 export const facebookLogin = (fbkData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    try {
       const res = await api.post("/auth/facebooklogin", fbkData);
 
@@ -78,7 +94,7 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
          payload: res.data,
       });
 
-      dispatch(loadUser());
+      dispatch(loadUser(true));
    } catch (err) {
       dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
@@ -95,6 +111,8 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 };
 
 export const googleLogin = (googleData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    try {
       const res = await api.post("/auth/googlelogin", googleData);
 
@@ -103,7 +121,7 @@ export const googleLogin = (googleData) => async (dispatch) => {
          payload: res.data,
       });
 
-      dispatch(loadUser());
+      dispatch(loadUser(true));
    } catch (err) {
       dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
@@ -120,6 +138,8 @@ export const googleLogin = (googleData) => async (dispatch) => {
 };
 
 export const signup = (formData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    try {
       if (formData.formImg)
          await api.post("/user/upload-img", formData.formImg);
@@ -140,24 +160,114 @@ export const signup = (formData) => async (dispatch) => {
             payload: errors,
          });
       } else {
-         const msg = err.response.data.msg;
-         const type = err.response.statusText;
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
          dispatch({
             type: SIGNUP_FAIL,
             payload: {
-               type,
+               type: err.response.statusText,
                status: err.response.status,
-               msg,
+               msg: err.response.data.msg,
             },
          });
-         dispatch(setAlert(msg ? msg : type, "danger", "2"));
       }
 
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
+};
+
+export const sendPasswordLink = (email) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
+   try {
+      const res = await api.put("/auth/password", { email });
+
+      dispatch({
+         type: EMAILAUTH_SENT,
+      });
+
+      dispatch(setAlert(res.data.msg, "success", "2"));
+   } catch (err) {
+      if (err.response.data.errors) {
+         const errors = err.response.data.errors;
+         errors.forEach((error) => {
+            dispatch(setAlert(error.msg, "danger", "2"));
+         });
+         dispatch({
+            type: SIGNUP_FAIL,
+            payload: errors,
+         });
+      } else {
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
+         dispatch({
+            type: SIGNUP_FAIL,
+            payload: {
+               type: err.response.statusText,
+               status: err.response.status,
+               msg: err.response.data.msg,
+            },
+         });
+      }
+
+      window.scrollTo(0, 0);
+   }
+
+   dispatch(updateLoadingSpinner(false));
+};
+
+export const resetPassword = (formData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
+   try {
+      const res = await api.put("/auth/reset-password", formData);
+
+      dispatch({
+         type: PASSWORD_CHANGED,
+         payload: res.data,
+      });
+
+      switch (res.data.type) {
+         case "customer":
+            history.push("/vessels");
+            break;
+         default:
+            history.push("/");
+            break;
+      }
+
+      dispatch(setAlert("Password successfully changed", "success", "1"));
+   } catch (err) {
+      if (err.response.data.errors) {
+         const errors = err.response.data.errors;
+         errors.forEach((error) => {
+            dispatch(setAlert(error.msg, "danger", "2"));
+         });
+         dispatch({
+            type: SIGNUP_FAIL,
+            payload: errors,
+         });
+      } else {
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
+         dispatch({
+            type: SIGNUP_FAIL,
+            payload: {
+               type: err.response.statusText,
+               status: err.response.status,
+               msg: err.response.data.msg,
+            },
+         });
+      }
+
+      window.scrollTo(0, 0);
+   }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const activation = (token) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    try {
       const res = await api.post("/auth/activation", { token });
 
@@ -178,6 +288,8 @@ export const activation = (token) => async (dispatch) => {
 
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const removeError = (param) => (dispatch) => {
@@ -191,4 +303,5 @@ export const logOut = () => (dispatch) => {
    dispatch({
       type: LOGOUT,
    });
+   history.push("/");
 };

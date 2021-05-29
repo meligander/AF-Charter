@@ -1,16 +1,7 @@
 const mongoose = require("mongoose");
 
 const PaymentSchema = new mongoose.Schema({
-   reservation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "reservation",
-      required: true,
-   },
    charterValue: {
-      type: Number,
-      required: true,
-   },
-   crewPayment: {
       type: Number,
       required: true,
    },
@@ -33,12 +24,12 @@ const PaymentSchema = new mongoose.Schema({
          type: Number,
          required: true,
       },
-      payMethod: {
-         type: mongoose.Schema.Types.ObjectId,
-         ref: "paymethod",
-         required: true,
+      payStripe: {
+         type: String,
       },
-
+      status: {
+         type: String,
+      },
       date: {
          type: Date,
          default: Date.now,

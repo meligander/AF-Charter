@@ -1,0 +1,71 @@
+@import "../../../style/abstract/abstract.scss";
+
+.popup {
+   &-content {
+      display: flex;
+      flex-direction: column;
+      z-index: 400;
+      margin: 0 auto;
+      width: 60%;
+      background-color: $white-color;
+      border-radius: 3px;
+      box-shadow: 0 2rem 4rem rgba($dark-color, 0.2);
+      padding: 1.6rem;
+      padding-bottom: 4rem;
+      overflow: hidden;
+      animation: grow 0.35s;
+
+      @include respond(small-phone) {
+         padding-bottom: 3rem;
+         width: 93%;
+      }
+   }
+
+   &-text {
+      padding: 4rem 0 0 0;
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: $dark-color;
+
+      p:first-child {
+         font-size: 2.5rem;
+         margin-bottom: 1rem;
+      }
+   }
+
+   &-heading {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1rem 1.6rem;
+      border-bottom: 1px solid $secondary-color;
+
+      &-img {
+         width: 7rem;
+      }
+
+      &-btn {
+         background-color: inherit !important;
+         padding: 0 !important;
+
+         .icon {
+            font-size: 3rem !important;
+         }
+
+         &:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            color: $danger-color;
+         }
+      }
+   }
+
+   &.hide {
+      visibility: hidden;
+      opacity: 0;
+
+      & > .popup-content {
+         animation: shrink 0.7s;
+         animation-fill-mode: forwards;
+      }
+   }
+}

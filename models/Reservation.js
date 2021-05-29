@@ -7,6 +7,11 @@ const ReservationSchema = new mongoose.Schema({
    },
    dateTo: {
       type: Date,
+      required: true,
+   },
+   active: {
+      type: Boolean,
+      default: false,
    },
    customer: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,12 +23,15 @@ const ReservationSchema = new mongoose.Schema({
       ref: "vessel",
       required: true,
    },
+   payment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment",
+   },
    crew: {
       type: Object,
       captain: {
          type: mongoose.Schema.Types.ObjectId,
          ref: "user",
-         required: true,
       },
       mates: [
          {

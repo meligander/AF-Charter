@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { Router } from "react-router-dom";
 import { Switch, Route } from "react-router-dom";
 
 //Redux
 import store from "./store";
 import { Provider } from "react-redux";
 import setAuthToken from "./utils/setAuthToken";
+import history from "./utils/history";
 
 //actions
 import { loadUser } from "./actions/auth";
@@ -30,7 +31,7 @@ const App = () => {
    }, []);
    return (
       <Provider store={store}>
-         <Router>
+         <Router history={history}>
             <Fragment>
                <Navbar />
                <Switch>

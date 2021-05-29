@@ -9,7 +9,6 @@ const DiscrepancySchema = new mongoose.Schema({
    reservation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "reservation",
-      required: true,
    },
    vessel: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,6 +1,8 @@
 @import "../../../style/abstract/abstract.scss";
 
 .photo {
+   color: $light-color;
+
    @include respond(phone) {
       flex-wrap: wrap;
    }

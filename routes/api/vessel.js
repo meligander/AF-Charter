@@ -30,7 +30,7 @@ router.get("/:vessel_id", async (req, res) => {
       res.json(vessel);
    } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -39,23 +39,17 @@ router.get("/:vessel_id", async (req, res) => {
 //@access   Public
 router.get("/", async (req, res) => {
    try {
-      let vessels = [];
+      const filter = {
+         ...(req.query.year && { year: req.query.year }),
+         ...(req.query.name && {
+            name: { $regex: `.*${req.query.name}.*`, $options: "i" },
+         }),
+         ...(req.query.brand && {
+            brand: { $regex: `.*${req.query.brand}.*`, $options: "i" },
+         }),
+      };
 
-      if (Object.entries(req.query).length === 0) {
-         vessels = await Vessel.find().sort({ brand: 1, name: 1 });
-      } else {
-         const filter = {
-            ...(req.query.year && { year: req.query.year }),
-            ...(req.query.name && {
-               name: { $regex: `.*${req.query.name}.*`, $options: "i" },
-            }),
-            ...(req.query.brand && {
-               brand: { $regex: `.*${req.query.brand}.*`, $options: "i" },
-            }),
-         };
-
-         vessels = await Vessel.find(filter).sort({ brand: 1, name: 1 });
-      }
+      const vessels = await Vessel.find(filter).sort({ brand: 1, name: 1 });
 
       if (vessels.length === 0) {
          return res.status(400).json({
@@ -66,7 +60,7 @@ router.get("/", async (req, res) => {
       res.json(vessels);
    } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -78,11 +72,9 @@ router.post(
    [
       auth,
       adminAuth,
-      [
-         check("name", "Name is required").not().isEmpty(),
-         check("brand", "Brand is required").not().isEmpty(),
-         check("year", "Year is required").not().isEmpty(),
-      ],
+      check("name", "Name is required").not().isEmpty(),
+      check("brand", "Brand is required").not().isEmpty(),
+      check("year", "Year is required").not().isEmpty(),
    ],
    async (req, res) => {
       let errors = [];
@@ -92,14 +84,8 @@ router.post(
          return res.status(400).json({ errors });
       }
 
-      const {
-         name,
-         brand,
-         year,
-         peopleOnBoard,
-         peopleSleep,
-         prices,
-      } = req.body;
+      const { name, brand, year, peopleOnBoard, peopleSleep, prices } =
+         req.body;
 
       let images;
 
@@ -114,7 +100,7 @@ router.post(
             (err) => {
                if (err) {
                   console.error(err);
-                  return res.status(500).send(err);
+                  return res.status(500).json({ msg: err });
                }
                images = [
                   {
@@ -157,7 +143,7 @@ router.post(
          //
       } catch (err) {
          console.error(err.message);
-         res.status(500).send("Server error");
+         res.status(500).json({ msg: "Server Error" });
       }
    }
 );
@@ -173,7 +159,7 @@ router.delete("/:vessel_id", [auth, adminAuth], async (req, res) => {
       res.json({ msg: "Vessel deleted" });
    } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({ msg: "Server Error" });
    }
 });
 

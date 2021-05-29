@@ -93,9 +93,9 @@
       }
 
       &__days__day {
-         &--weekend {
+         /* &--weekend {
             color: darken($quaternary-color, 10%);
-         }
+         } */
          &--neighboringMonth {
             color: lighten($dark-color, 25%);
          }
@@ -120,17 +120,18 @@
 
       &:enabled:hover,
       &:enabled:focus {
-         background-color: lighten($light-color, 5%);
+         background-color: lighten($secondary-color, 5%);
       }
 
       &--now {
-         background: $primary-color;
+         background: lighten($tertiary-color, 5%) !important;
          color: $light-color;
 
-         &:enabled:hover,
+         /* &:enabled:hover,
          &:enabled:focus {
-            background: lighten($primary-color, 7%);
-         }
+            background-color: lighten($secondary-color, 5%);
+            color: black;
+         } */
       }
 
       &-hasActive {
@@ -143,12 +144,13 @@
       }
 
       &--active {
-         background: $tertiary-color;
+         background: $primary-color;
          color: $light-color;
 
          &:enabled:hover,
          &:enabled:focus {
-            background: lighten($tertiary-color, 7%);
+            background: lighten($primary-color, 7%);
+            color: $light-color;
          }
       }
    }

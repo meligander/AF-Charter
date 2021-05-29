@@ -1,10 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { FiLogOut } from "react-icons/fi";
+
+import { logOut } from "../../../actions/auth";
+import { clearReservations } from "../../../actions/reservation";
 
 import yatch from "../../../img/yatch.png";
 import "./style.scss";
 
-const Header = () => {
+const Header = ({
+   auth: { isAuthenticated, userLogged, loading },
+   logOut,
+   clearReservations,
+}) => {
    return (
       <header className="header">
          <nav className="header-nav">
@@ -12,14 +22,39 @@ const Header = () => {
                <img src={yatch} alt="AF-logo" />
             </div>
             <ul className="navbar-list">
-               <li className="navbar-list-item">
-                  <Link to="/contact" className="navbar-list-link">
+               {!loading && isAuthenticated && userLogged.type === "customer" && (
+                  <li className="navbar-list-item">
+                     <Link
+                        onClick={() => {
+                           window.scroll(0, 0);
+                           clearReservations();
+                        }}
+                        to="/myreservations"
+                        className="navbar-list-link"
+                     >
+                        <span className="hide-sm">My</span> Reservations
+                     </Link>
+                  </li>
+               )}
+               <li className="navbar-list-item hide-sm">
+                  <Link
+                     to="/contact"
+                     onClick={() => window.scroll(0, 0)}
+                     className="navbar-list-link"
+                  >
                      Contact Us
                   </Link>
                </li>
                <li className="navbar-list-item">
-                  <Link to="/login" className="navbar-list-link last">
-                     Login
+                  <Link
+                     to={!isAuthenticated ? "/login" : "#"}
+                     onClick={() => {
+                        if (isAuthenticated) logOut();
+                        window.scroll(0, 0);
+                     }}
+                     className="navbar-list-link last"
+                  >
+                     {isAuthenticated ? <FiLogOut className="icon" /> : "Login"}
                   </Link>
                </li>
             </ul>
@@ -43,4 +78,17 @@ const Header = () => {
    );
 };
 
-export default Header;
+Header.propTypes = {
+   auth: PropTypes.object.isRequired,
+   logOut: PropTypes.func.isRequired,
+   clearReservations: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+   auth: state.auth,
+});
+
+export default connect(mapStateToProps, {
+   logOut,
+   clearReservations,
+})(Header);

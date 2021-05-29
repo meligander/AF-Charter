@@ -30,11 +30,6 @@
       background-color: $white-color;
       border-radius: 0.5rem;
       position: relative;
-      min-height: 60vh;
-
-      @include respond(phone) {
-         min-height: 100%;
-      }
 
       @include respond(small-phone) {
          width: 90vw;
@@ -42,7 +37,7 @@
 
       .form {
          width: 55%;
-         padding: 6rem 3rem 5rem;
+         padding: 6rem 3rem 4rem;
 
          @include respond(phone) {
             width: 90%;
@@ -73,6 +68,10 @@
          font-size: 1.4rem;
          margin-top: 1.5rem;
          color: $secondary-color;
+
+         &:nth-child(3) {
+            margin-top: 0.5rem;
+         }
       }
    }
 
@@ -91,8 +90,6 @@
             rgba($white-color, 0.6)
          ),
          url(../../../img/background-1.jpg);
-      background-position: center;
-      background-size: cover;
       position: relative;
 
       &-text {

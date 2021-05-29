@@ -19,8 +19,6 @@
             transparent 50%
          ),
          url(../../../../img/boat-2.jpg);
-      background-position: center;
-      background-size: 100%;
       border-radius: 3px;
       box-shadow: 0 1.5rem 2rem -2px rgba($dark-color, 0.5);
 
@@ -60,6 +58,10 @@
 
          @include respond(phone) {
             width: 100%;
+         }
+
+         @include respond(small-phone) {
+            padding: 4rem;
          }
       }
    }

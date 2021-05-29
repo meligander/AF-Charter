@@ -1,0 +1,39 @@
+@import "../../../style/abstract/abstract.scss";
+
+.schedule {
+   &-info {
+      font-size: 2rem;
+      margin: 0 2rem 1rem;
+
+      .text-primary {
+         font-size: 2.5rem;
+      }
+   }
+
+   &-item {
+      text-align: center;
+      padding: 0.6rem;
+      margin: 1rem auto;
+      background-color: $primary-color;
+      color: $light-color;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      backface-visibility: hidden;
+      width: 70%;
+      @include easeOut;
+
+      &:hover {
+         background-color: lighten($primary-color, 10%);
+         transform: scale(1.05);
+      }
+   }
+
+   .form {
+      width: 90%;
+      padding-top: 0;
+
+      .radio-group {
+         justify-content: space-evenly;
+      }
+   }
+}

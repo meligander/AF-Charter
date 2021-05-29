@@ -1,0 +1,31 @@
+@import "../../../style/abstract/abstract.scss";
+
+.payment {
+   &-form {
+      &-group {
+         padding: 0;
+         border-style: none;
+         background-color: $light-color;
+         will-change: opacity, transform;
+         box-shadow: 0.2rem 1rem 2rem -0.5rem rgba($dark-color, 0.5);
+         border-radius: 4px;
+      }
+
+      &-row {
+         margin-left: 1.5rem;
+      }
+   }
+
+   .StripeElement--webkit-autofill {
+      background: transparent !important;
+   }
+
+   .StripeElement {
+      width: 100%;
+      padding: 1rem 1.5rem 1rem 0;
+   }
+
+   .icon {
+      margin-bottom: -0.65rem;
+   }
+}

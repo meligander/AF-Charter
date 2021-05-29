@@ -8,6 +8,7 @@ import {
    EMAILAUTH_SENT,
    REMOVE_ERROR,
    SIGNUP_SUCCESS,
+   PASSWORD_CHANGED,
 } from "../actions/types";
 
 const initialState = {
@@ -52,6 +53,15 @@ const authReducer = (state = initialState, action) => {
             isAuthenticated: false,
             userLogged: null,
             loading: false,
+            error: payload ? payload : "",
+         };
+      case PASSWORD_CHANGED:
+         return {
+            ...state,
+            token: payload.token,
+            loading: false,
+            userLogged: payload.user,
+            isAuthenticated: true,
          };
       case SIGNUP_FAIL:
       case LOGIN_FAIL:

@@ -75,3 +75,15 @@ ORDER: Base + typography > general layout + grid > page layout > components
       @return $light-color;
    }
 }
+
+@include respond(small-phone) {
+   .hide-sm {
+      display: none !important;
+   }
+}
+
+@include respond(phone) {
+   .hide-md {
+      display: none;
+   }
+}

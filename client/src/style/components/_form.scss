@@ -119,14 +119,27 @@
       transform: translateY(-4rem);
    }
 
-   &-lbl-checkbox {
+   .radio-group,
+   .checkbox-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      & > *:not(:last-child) {
+         margin-right: 1.5rem;
+      }
+   }
+
+   //Form Checkbox
+   &-lbl-checkbox,
+   &-lbl-radio {
       display: inline-block;
       background-color: $white-color;
       border: 1.5px solid lighten($dark-color, 25%);
       color: lighten($dark-color, 35%);
-      border-radius: 25px;
+      border-radius: 2.5rem;
       white-space: nowrap;
-      margin: 3px 0px;
+      margin: 0.3rem;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -134,7 +147,7 @@
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       transition: all 0.2s;
-      padding: 8px 12px;
+      padding: 0.8rem 1.2rem;
       cursor: pointer;
 
       &:before {
@@ -143,40 +156,37 @@
          font-variant: normal;
          text-rendering: auto;
          -webkit-font-smoothing: antialiased;
-         font-family: "Font Awesome 5 Free";
          font-weight: 900;
-         font-size: 12px;
-         padding: 2px 6px 2px 2px;
+         padding: 0.2rem 1rem 0.2rem 0.2rem;
          font-size: 1.5rem;
          content: "\2716";
          transition: transform 0.3s ease-in-out;
       }
    }
 
-   &-input-checkbox:checked + &-lbl-checkbox::before {
+   &-input-checkbox:checked + &-lbl-checkbox::before,
+   &-input-radio:checked + &-lbl-radio::before {
       content: "\2713";
-      font-size: 1.5rem;
       transform: rotate(-360deg);
       transition: transform 0.3s ease-in-out;
    }
 
-   &-input-checkbox:checked + &-lbl-checkbox {
+   &-input-checkbox:checked + &-lbl-checkbox,
+   &-input-radio:checked + &-lbl-radio {
       border: 1.5px solid lighten($primary-color, 5%);
       background-color: lighten($primary-color, 5%);
-      color: $white-color;
+      color: $light-color;
       transition: all 0.2s;
    }
 
-   &-input-checkbox {
+   &-input-checkbox,
+   &-input-radio {
       display: absolute;
       position: absolute;
       opacity: 0;
    }
 
-   &-input-checkbox:focus + &-lbl-checkbox {
-      border: 2px solid $secondary-color;
-   }
-
+   //Form Img
    &-img {
       position: absolute;
       max-width: fit-content;

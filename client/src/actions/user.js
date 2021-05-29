@@ -1,4 +1,5 @@
 import api from "../utils/api";
+//import history from "../utils/history";
 
 import {
    USERS_CLEARED,
@@ -10,8 +11,10 @@ import {
 } from "./types";
 
 import { setAlert } from "./alert";
+import { updateLoadingSpinner } from "./mixvalues";
 
 export const loadUser = (user_id) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
    try {
       const res = await api.get(`/user/${user_id}`);
       dispatch({
@@ -19,6 +22,7 @@ export const loadUser = (user_id) => async (dispatch) => {
          payload: res.data,
       });
    } catch (err) {
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: USERS_ERROR,
          payload: {
@@ -28,9 +32,12 @@ export const loadUser = (user_id) => async (dispatch) => {
          },
       });
    }
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const loadUsers = (filterData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    let filter = "";
    const filternames = Object.keys(filterData);
    for (let x = 0; x < filternames.length; x++) {
@@ -49,22 +56,50 @@ export const loadUsers = (filterData) => async (dispatch) => {
          payload: res.data,
       });
    } catch (err) {
-      const msg = err.response.data.msg;
-      const type = err.response.statusText;
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: USERS_ERROR,
          payload: {
-            type,
+            type: err.response.statusText,
             status: err.response.status,
-            msg,
+            msg: err.response.data.msg,
          },
       });
-      dispatch(setAlert(msg ? msg : type, "danger", "2"));
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
+export const checkAvailableCaptains =
+   (dateFrom, dateTo) => async (dispatch) => {
+      dispatch(updateLoadingSpinner(true));
+
+      try {
+         const res = await api.get(`/user/${dateFrom}/${dateTo}`);
+
+         dispatch({
+            type: USERS_LOADED,
+            payload: res.data,
+         });
+      } catch (err) {
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
+         dispatch({
+            type: USERS_ERROR,
+            payload: {
+               type: err.response.statusText,
+               status: err.response.status,
+               msg: err.response.data.msg,
+            },
+         });
+         window.scrollTo(0, 0);
+      }
+
+      dispatch(updateLoadingSpinner(false));
+   };
+
 export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
    try {
       let res;
 
@@ -72,9 +107,9 @@ export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
          await api.post("/user/upload-img", formData.formImg);
 
       if (user_id) {
-         res = await api.put(`/user/${user_id}`, formData);
+         res = await api.post(`/user/${user_id}`, formData);
       } else {
-         res = await api.post("/user", formData);
+         res = await api.post("/user/0", formData);
       }
 
       dispatch({
@@ -85,30 +120,29 @@ export const registerUpdateUser = (formData, user_id) => async (dispatch) => {
       if (err.response.data.errors) {
          const errors = err.response.data.errors;
          errors.forEach((error) => {
-            //dispatch(setAlert(error.msg, "danger", "2"));
+            dispatch(setAlert(error.msg, "danger", "2"));
          });
          dispatch({
             type: USERS_ERROR,
             payload: errors,
          });
       } else {
-         const msg = err.response.data.msg;
-         const type = err.response.statusText;
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
          dispatch({
             type: USERS_ERROR,
             payload: {
-               type,
+               type: err.response.statusText,
                status: err.response.status,
-               msg,
+               msg: err.response.data.msg,
             },
          });
-         //dispatch(setAlert(msg ? msg : type, "danger", "2"));
       }
    }
 
    window.scrollTo(0, 0);
+   dispatch(updateLoadingSpinner(false));
 };
 
-export const clearVessels = () => (dispatch) => {
+export const clearUsers = () => (dispatch) => {
    dispatch({ type: USERS_CLEARED });
 };

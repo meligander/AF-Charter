@@ -17,8 +17,11 @@ app.use(express.urlencoded({ limit: "50mb", extended: false }));
 app.use(fileUpload());
 app.use(cors());
 
-app.use("/api/user", require("./routes/api/user"));
 app.use("/api/auth", require("./routes/api/auth"));
+app.use("/api/day", require("./routes/api/day"));
+app.use("/api/payment", require("./routes/api/payment"));
+app.use("/api/reservation", require("./routes/api/reservation"));
+app.use("/api/user", require("./routes/api/user"));
 app.use("/api/vessel", require("./routes/api/vessel"));
 
 const PORT = process.env.PORT || 5000;

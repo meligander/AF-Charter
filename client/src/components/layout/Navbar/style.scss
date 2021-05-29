@@ -57,43 +57,46 @@
          position: relative;
          @include easeOut;
 
-         &::after {
+         &::after,
+         &::before {
             content: "";
             display: block;
             position: absolute;
-            top: 3.5rem;
-            right: 0;
+            top: 3.2rem;
             height: 1.5px;
             width: 0px;
             background: transparent;
             transition: all 0.6s ease;
          }
 
+         &::after {
+            right: 0;
+         }
+
          &::before {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 3.5rem;
             left: 0;
-            height: 1.5px;
-            width: 0px;
-            background: transparent;
-            transition: all 0.6s ease;
          }
 
          &:hover {
             color: lighten($secondary-color, 8%);
 
-            &:after {
+            &::after,
+            &::before {
                width: 100%;
+            }
+
+            &::after {
                background: lighten($secondary-color, 8%);
             }
 
-            &:before {
-               width: 100%;
+            &::before {
                background: $secondary-color;
             }
          }
       }
+   }
+
+   .icon {
+      margin-bottom: -0.55rem;
    }
 }

@@ -3,11 +3,10 @@
 .alert {
    text-align: center;
    padding: 0.8rem;
-   font-size: $default-font-size;
+   line-height: 3rem;
    margin-bottom: 2rem;
    opacity: 0.8;
-   background: $light-color;
-   color: $dark-color;
+   @include background($light-color);
 
    @include respond(small-phone) {
       margin: 1rem 0;

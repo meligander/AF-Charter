@@ -1,0 +1,20 @@
+@import "../../../style/abstract/abstract.scss";
+
+.reservation-info {
+   padding: 3rem 0;
+
+   &-img {
+      width: 100%;
+      height: 25rem;
+   }
+
+   &.row {
+      &:not(:last-child) {
+         border-bottom: 2px solid $primary-color;
+      }
+
+      .row-item.vessel {
+         align-self: center;
+      }
+   }
+}

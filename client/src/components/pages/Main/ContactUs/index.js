@@ -7,7 +7,7 @@ import "./style.scss";
 const ContactUs = () => {
    return (
       <section className="contactus">
-         <div className="contactus-card">
+         <div className="contactus-card img">
             <div className="contactus-card-form">
                <form className="form">
                   <h2 className="heading heading-secondary text-primary pb-2">

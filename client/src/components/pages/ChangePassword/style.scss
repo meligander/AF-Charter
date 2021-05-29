@@ -1,0 +1,23 @@
+@import "../../../style/abstract/abstract.scss";
+
+.changepassword {
+   min-height: 60vh;
+   display: flex;
+   align-items: center;
+
+   .form {
+      width: 40%;
+
+      @include respond(tab-land) {
+         width: 50%;
+      }
+
+      @include respond(phone) {
+         width: 60%;
+      }
+
+      @include respond(small-phone) {
+         width: 80%;
+      }
+   }
+}

@@ -5,13 +5,13 @@ module.exports = async function (req, res, next) {
       let user = await User.findOne({ _id: req.user.id });
 
       if (user.type === "customer" || user.type === "mate") {
-         return res.status(400).json({
+         return res.status(401).json({
             msg: "Unauthorized User",
          });
       }
       next();
    } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server Auth Error");
+      return res.status(500).json({ msg: "Server Auth Error" });
    }
 };

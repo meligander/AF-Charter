@@ -3,8 +3,7 @@ import { connect } from "react-redux";
 import { withRouter, Link } from "react-router-dom";
 import { FaUserPlus, FaUserAlt } from "react-icons/fa";
 import { AiOutlineCloudUpload } from "react-icons/ai";
-import { BiMailSend } from "react-icons/bi";
-import { VscSave } from "react-icons/vsc";
+import { BiMailSend, BiSave } from "react-icons/bi";
 import PropTypes from "prop-types";
 
 import { signup, removeError } from "../../../actions/auth";
@@ -421,7 +420,7 @@ const AccountInfo = ({
                            {location.pathname === "/signup" ? (
                               "Sign Up"
                            ) : (
-                              <VscSave className="icon-save" />
+                              <BiSave className="icon-save" />
                            )}
                         </button>
                         <p className="signup-login">

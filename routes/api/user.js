@@ -1,8 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const router = express.Router();
+const moment = require("moment");
 
 //Middleware
 const auth = require("../../middleware/auth");
@@ -10,6 +10,7 @@ const adminAuth = require("../../middleware/adminAuth");
 
 //Model
 const User = require("../../models/User");
+const Reservation = require("../../models/Reservation");
 
 //@route    GET /api/user
 //@desc     Get all user || with filter
@@ -51,7 +52,7 @@ router.get("/", [auth, adminAuth], async (req, res) => {
 //@route    GET /api/user/:id
 //@desc     Get a user
 //@access   Private
-router.get("/:id", async (req, res) => {
+router.get("/:id", [auth], async (req, res) => {
    try {
       const user = await User.findOne({ _id: req.params.id }).select(
          "-password"
@@ -62,6 +63,52 @@ router.get("/:id", async (req, res) => {
       }
 
       res.json(user);
+   } catch (err) {
+      console.error(err.message);
+      return res.status(500).send("Server Error");
+   }
+});
+
+//@route    GET /api/user/available-captain/:dateFrom/:dateTo
+//@desc     Get all the captains availability for a charter
+//@access   Public
+router.get("/:dateFrom/:dateTo", async (req, res) => {
+   let dateFrom = moment(new Date(req.params.dateFrom));
+   let dateTo = moment(new Date(req.params.dateTo));
+
+   dateFrom = new Date(dateFrom.format("YYYY-MM-DD[T]HH:mm:SS[Z]"));
+   dateTo = new Date(dateTo.format("YYYY-MM-DD[T]HH:mm:SS[Z]"));
+
+   try {
+      let users = await User.find({
+         type: { $in: ["captain", "admin&captain"] },
+      }).select("-password");
+
+      const reservations = await Reservation.find({
+         dateFrom: {
+            $gte: new Date(dateFrom).setUTCHours(0, 0, 0),
+            $lte: new Date(dateFrom).setUTCHours(23, 59, 59),
+         },
+      });
+
+      //check => 8-10
+      //reservation => 9-12
+      for (let x = 0; x < reservations.length; x++) {
+         if (
+            reservations[x].crew &&
+            reservations[x].crew.captain &&
+            ((dateFrom > reservations[x].dateFrom &&
+               dateFrom <= reservations[x].dateTo) ||
+               (dateTo >= reservations[x].dateFrom &&
+                  dateTo < reservations[x].dateTo))
+         ) {
+            users = users.filter(
+               (user) => user._id.toString() !== reservations[x].crew.captain
+            );
+         }
+      }
+
+      res.json(users);
    } catch (err) {
       console.error(err.message);
       return res.status(500).send("Server Error");
@@ -92,46 +139,74 @@ router.post("/upload-img", async (req, res) => {
 });
 
 //@route    PUT /api/user/:id
-//@desc     Update a user
+//@desc     Register or Update a user
 //@access   Private
 router.put(
    "/:id",
    [
       auth,
-      check("name", "El nombre es necesario").not().isEmpty(),
-      check("lastname", "El apellido es necesario").not().isEmpty(),
+      check("name", "Name is required").not().isEmpty(),
+      check("lastname", "Lastame is required").not().isEmpty(),
    ],
    async (req, res) => {
-      const { name, lastname, id, active, cel, type, address, dob } = req.body;
+      const { name, lastname, email, cel, type, address, dob, active } =
+         req.body;
+
+      let user;
 
       let errors = [];
       const errorsResult = validationResult(req);
-      if (!errorsResult.isEmpty()) {
-         errors = errorsResult.array();
-         return res.status(400).json({ errors });
-      }
+      if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+      const regex1 =
+         /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
 
       try {
-         let user = await User.find({ _id: req.user.id });
+         let salt;
+
+         if (req.params.id === "0") {
+            if (!email)
+               errors.push({ msg: "Email is required", param: "email" });
+
+            if (!regex1.test(email))
+               errors.push({ msg: "Invalid email", param: "email" });
+
+            user = await User.findOne({ email });
+
+            if (user)
+               errors.push({ msg: "User already exists", param: "email" });
+
+            salt = await bcrypt.genSalt(10);
+         }
+
+         if (errors.length > 0) return res.status(400).json({ errors });
 
          let data = {
             name,
             lastname,
             active,
-            type,
-            ...(cel ? { cel } : !cel && user.cel && { cel: "" }),
-            ...(id ? { id } : !id && user.id && { id: "" }),
-            ...(address
-               ? { address }
-               : !address && user.address && { address: "" }),
-            ...(dob ? { dob } : !dob && user.dob && { dob: "" }),
+            ...(type && { type }),
+            ...(req.params.id === "0" && {
+               password: await bcrypt.hash("12345678", salt),
+               email,
+            }),
+            cel,
+            address,
+            dob,
          };
 
-         user = await User.findOneAndUpdate(
-            { _id: user._id },
-            { $set: data },
-            { new: true }
-         );
+         console.log(data);
+
+         if (req.params.id === "0") {
+            user = new User(data);
+            user.save();
+         } else {
+            user = await User.findOneAndUpdate(
+               { _id: user._id },
+               { $set: data },
+               { new: true }
+            );
+         }
 
          res.json(user);
       } catch (err) {
@@ -141,101 +216,10 @@ router.put(
    }
 );
 
-//@route    PUT /api/user/credentials/:id
-//@desc     Update user's credentials
-//@access   Private
-/* router.put("/credentials/:id", auth, async (req, res) => {
-   const { password, password2, email } = req.body;
-   try {
-      const oldCredentials = await User.findOne({ _id: req.params.id });
-
-      if (!password && email === oldCredentials.email)
-         return res.status(400).json({
-            msg: "Modifique alguno de los datos para poder guardar los cambios",
-         });
-
-      if ((password !== "" || password2 !== "") && password !== password2)
-         return res
-            .status(400)
-            .json({ msg: "Las contraseñas deben coincidir" });
-
-      //See if users exists
-      if (email) {
-         user = await User.findOne({ email });
-         if (user && user.id !== req.user.id && user.email !== email)
-            return res
-               .status(400)
-               .json({ msg: "Ya existe un usuario con ese mail" });
-      }
-
-      let data = {
-         ...(email
-            ? { email }
-            : !email && oldCredentials.email && { email: "" }),
-      };
-
-      if (password) {
-         if (password.length < 6) {
-            return res
-               .status(400)
-               .json({ msg: "La contraseña debe contener 6 carácteres o más" });
-         }
-
-         //Encrypt password -- agregarlo a cuando se cambia el password
-         const salt = await bcrypt.genSalt(10);
-
-         data.password = await bcrypt.hash(password, salt);
-      }
-
-      user = await User.findOneAndUpdate(
-         { _id: req.params.id },
-         { $set: data },
-         { new: true }
-      )
-         .select("-password")
-         .populate({ path: "town", select: "name" })
-         .populate({ path: "neighbourhood", select: "name" })
-         .populate({ path: "children", select: "-password" });
-
-      if ((email && password) || email !== oldCredentials.email) {
-         if (password && email !== oldCredentials.email)
-            emailSender(
-               email,
-               "Cambio de credenciales",
-               `El email y la constraseña se han modificado correctamente. 
-               Desde ahora en más utilice este email para poder ingresar a nuestra página web.`
-            );
-         else {
-            if (password)
-               emailSender(
-                  email,
-                  "Cambio de contraseña",
-                  "Se ha modificado correctamente la constraseña para poder ingresar a nuestra página web."
-               );
-            else {
-               if (oldCredentials.email === "")
-                  newUserEmail(oldCredentials.type, email);
-               else
-                  emailSender(
-                     email,
-                     "Cambio de email",
-                     `Ahora puede ingresar a nuestra página web utilizando este email.`
-                  );
-            }
-         }
-      }
-
-      res.json(user);
-   } catch (err) {
-      console.error(err.message);
-      return res.status(500).send("Server Error");
-   }
-}); */
-
 //@route    DELETE /api/user/:id
 //@desc     Delete a user
 //@access   Private && Admin
-router.delete("/:id/:type", [auth], async (req, res) => {
+router.delete("/:id/:type", [auth, adminAuth], async (req, res) => {
    try {
       //Remove user
       await User.findOneAndRemove({ _id: req.params.id });

@@ -1,4 +1,5 @@
 import api from "../utils/api";
+//import history from "../utils/history";
 
 import {
    VESSEL_LOADED,
@@ -9,14 +10,23 @@ import {
    VESSELS_ERROR,
 } from "./types";
 
-export const loadVessel = (vessel_id) => async (dispatch) => {
+import { setAlert } from "./alert";
+import { updateLoadingSpinner } from "./mixvalues";
+import { deleteUnpaidReservation } from "./reservation";
+
+export const loadVessel = (vessel_id, loadByItself) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    try {
+      dispatch(deleteUnpaidReservation());
+
       const res = await api.get(`/vessel/${vessel_id}`);
       dispatch({
          type: VESSEL_LOADED,
          payload: res.data,
       });
    } catch (err) {
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: VESSELS_ERROR,
          payload: {
@@ -25,10 +35,15 @@ export const loadVessel = (vessel_id) => async (dispatch) => {
             msg: err.response.data.msg,
          },
       });
+      window.scrollTo(0, 0);
    }
+
+   if (loadByItself) dispatch(updateLoadingSpinner(false));
 };
 
 export const loadVessels = (filterData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
    let filter = "";
    const filternames = Object.keys(filterData);
    for (let x = 0; x < filternames.length; x++) {
@@ -46,64 +61,64 @@ export const loadVessels = (filterData) => async (dispatch) => {
          payload: res.data,
       });
    } catch (err) {
-      const msg = err.response.data.msg;
-      const type = err.response.statusText;
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: VESSELS_ERROR,
          payload: {
-            type,
+            type: err.response.statusText,
             status: err.response.status,
-            msg,
+            msg: err.response.data.msg,
          },
       });
-      //dispatch(setAlert(msg ? msg : type, "danger", "2"));
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
-export const registerUpdateVessel = (formData, vessel_id) => async (
-   dispatch
-) => {
-   try {
-      let res;
+export const registerUpdateVessel =
+   (formData, vessel_id) => async (dispatch) => {
+      dispatch(updateLoadingSpinner(true));
 
-      if (vessel_id) {
-         res = await api.post(`/vessel/${vessel_id}`, formData);
-      } else {
-         res = await api.post("/vessel/0", formData);
+      try {
+         let res;
+
+         if (vessel_id) {
+            res = await api.post(`/vessel/${vessel_id}`, formData);
+         } else {
+            res = await api.post("/vessel/0", formData);
+         }
+
+         dispatch({
+            type: vessel_id ? VESSEL_UPDATED : VESSEL_REGISTERED,
+            payload: res.data,
+         });
+      } catch (err) {
+         if (err.response.data.errors) {
+            const errors = err.response.data.errors;
+            errors.forEach((error) => {
+               dispatch(setAlert(error.msg, "danger", "2"));
+            });
+            dispatch({
+               type: VESSELS_ERROR,
+               payload: errors,
+            });
+         } else {
+            dispatch(setAlert(err.response.data.msg, "danger", "2"));
+            dispatch({
+               type: VESSELS_ERROR,
+               payload: {
+                  type: err.response.statusText,
+                  status: err.response.status,
+                  msg: err.response.data.msg,
+               },
+            });
+         }
       }
 
-      dispatch({
-         type: vessel_id ? VESSEL_UPDATED : VESSEL_REGISTERED,
-         payload: res.data,
-      });
-   } catch (err) {
-      if (err.response.data.errors) {
-         const errors = err.response.data.errors;
-         errors.forEach((error) => {
-            //dispatch(setAlert(error.msg, "danger", "2"));
-         });
-         dispatch({
-            type: VESSELS_ERROR,
-            payload: errors,
-         });
-      } else {
-         const msg = err.response.data.msg;
-         const type = err.response.statusText;
-         dispatch({
-            type: VESSELS_ERROR,
-            payload: {
-               type,
-               status: err.response.status,
-               msg,
-            },
-         });
-         //dispatch(setAlert(msg ? msg : type, "danger", "2"));
-      }
-   }
-
-   window.scrollTo(0, 0);
-};
+      window.scrollTo(0, 0);
+      dispatch(updateLoadingSpinner(false));
+   };
 
 export const clearVessels = () => (dispatch) => {
    dispatch({ type: VESSELS_CLEARED });

@@ -27,12 +27,13 @@ const VesselSchema = new mongoose.Schema({
          type: Object,
          fileName: { type: String, required: true },
          filePath: { type: String, required: true },
-         default: {
-            type: Boolean,
-            default: false,
-         },
       },
    ],
+   mainImg: {
+      type: Object,
+      fileName: { type: String, required: true },
+      filePath: { type: String, required: true },
+   },
    prices: [
       {
          type: Object,
