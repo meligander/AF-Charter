@@ -24,7 +24,10 @@ const PaymentSchema = new mongoose.Schema({
          type: Number,
          required: true,
       },
-      payStripe: {
+      type: {
+         type: String,
+      },
+      id: {
          type: String,
       },
       status: {
@@ -32,22 +35,24 @@ const PaymentSchema = new mongoose.Schema({
       },
       date: {
          type: Date,
-         default: Date.now,
       },
    },
-   finalPayment: {
+   balance: {
       type: Object,
       amount: {
          type: Number,
-         required: true,
       },
-      payMethod: {
-         type: mongoose.Schema.Types.ObjectId,
-         ref: "paymethod",
+      type: {
+         type: String,
+      },
+      id: {
+         type: String,
+      },
+      status: {
+         type: String,
       },
       date: {
          type: Date,
-         default: Date.now,
       },
    },
 });

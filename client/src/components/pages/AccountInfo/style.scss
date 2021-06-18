@@ -14,9 +14,30 @@
       }
    }
 
-   @include respond(small-phone) {
-      .form {
+   .form {
+      @include respond(small-phone) {
          position: inherit;
+      }
+
+      &-img {
+         position: absolute;
+         max-width: fit-content;
+         top: 0.5rem;
+         right: 10rem;
+
+         @include respond(tab-land) {
+            right: 5rem;
+         }
+
+         @include respond(tab-port) {
+            right: 2rem;
+         }
+
+         @include respond(small-phone) {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 24.5rem;
+         }
       }
    }
 

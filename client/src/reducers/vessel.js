@@ -6,6 +6,9 @@ import {
    VESSEL_DELETED,
    VESSELS_CLEARED,
    VESSELS_ERROR,
+   VESSEL_ERROR,
+   VESSEL_CLEARED,
+   REMOVEVESSEL_ERROR,
 } from "../actions/types";
 
 const initialState = {
@@ -44,6 +47,8 @@ const vesselReducer = (state = initialState, action) => {
          return {
             ...state,
             loading: false,
+            vessel: payload,
+            loadingVessel: false,
             vessels: state.vessels.map((vessel) =>
                vessel._id !== payload._id ? vessel : payload
             ),
@@ -58,6 +63,13 @@ const vesselReducer = (state = initialState, action) => {
          };
       case VESSELS_CLEARED:
          return initialState;
+      case VESSEL_CLEARED:
+         return {
+            ...state,
+            vessel: null,
+            loadingVessel: true,
+            error: {},
+         };
       case VESSELS_ERROR:
          return {
             ...state,
@@ -66,6 +78,18 @@ const vesselReducer = (state = initialState, action) => {
             loading: false,
             loadingVessel: false,
             error: payload,
+         };
+      case VESSEL_ERROR:
+         return {
+            ...state,
+            vessel: null,
+            loadingVessel: false,
+            error: payload,
+         };
+      case REMOVEVESSEL_ERROR:
+         return {
+            ...state,
+            error: state.error.filter((errorI) => errorI.param !== payload),
          };
       default:
          return state;

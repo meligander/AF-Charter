@@ -118,6 +118,16 @@
          border-bottom: 1px solid $light-color;
       }
 
+      &.secondary {
+         color: $secondary-color;
+         border-bottom: none;
+      }
+
+      &.danger {
+         color: $danger-color;
+         border-bottom: none;
+      }
+
       &:hover {
          transform: translateY(-2px);
       }

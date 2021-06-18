@@ -15,10 +15,12 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 
 import Routes from "./components/routing/Routes";
+import PrivateRoutes from "./components/routing/PrivateRoutes";
 
 import Main from "./components/pages/Main";
 import Login from "./components/pages/Login";
 import Contact from "./components/pages/Contact";
+import Dashboard from "./components/pages/Dashboard";
 
 import "./style/main.scss";
 
@@ -38,6 +40,12 @@ const App = () => {
                   <Route exact path="/" component={Main} />
                   <Route exact path="/contact" component={Contact} />
                   <Route exact path="/login" component={Login} />
+                  <PrivateRoutes
+                     exact
+                     path="/dashboard"
+                     types={["captain", "admin", "admin&captain"]}
+                     component={Dashboard}
+                  />
                   <Route component={Routes} />
                </Switch>
                <Footer />

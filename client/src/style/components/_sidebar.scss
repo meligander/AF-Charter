@@ -1,0 +1,102 @@
+.section-sidebar {
+   display: flex;
+
+   @include respond(small-phone) {
+      flex-direction: column;
+   }
+
+   .sidebar {
+      //primer valor es grow (el tamano de uno de los items con respecto a los otros,
+      //lo ponemos en 0 si no queremos que aumente si hay espacio de mas) el segundo es shrink
+      //(si no queremos que se achique cuando achicamos la pantalla, lo ponemos en 0. Sino en 1)
+      //el ultimo valor es el porcentaje en relacion a los otros elementos del row
+      flex: 0 0 25%;
+
+      display: flex;
+      flex-direction: column;
+      background-color: $dark-color;
+
+      @include respond(small-phone) {
+         border: none;
+      }
+
+      &-info {
+         width: 75%;
+
+         @include respond(small-phone) {
+            width: 100%;
+         }
+      }
+   }
+
+   .side-nav {
+      font-size: 2rem;
+      margin: 4rem 0.8rem;
+
+      @include respond(small-phone) {
+         display: flex;
+         margin: 0;
+      }
+
+      &-item {
+         position: relative;
+
+         @include respond(small-phone) {
+            flex: 1;
+            padding: 1rem 0;
+         }
+
+         &:hover > .side-nav-link {
+            transition: color 0.7s;
+            color: $primary-color;
+         }
+      }
+
+      &-item::before {
+         content: "";
+         position: absolute;
+         top: 0;
+         //left: 0.5rem;
+         height: 100%;
+         width: 3px;
+         background-color: $light-color;
+
+         transform: scaleY(0);
+         transition: transform 0.2s, width 0.4s cubic-bezier(1, 0, 0, 1) 0.2s,
+            background-color 0.1s;
+      }
+
+      &-item:hover::before {
+         transform: scaleY(1);
+         width: 98%;
+      }
+
+      &-link:link,
+      &-link:visited {
+         color: $white-color;
+         display: flex;
+         margin: 0.8rem 0;
+         padding: 1.5rem 2.5rem;
+         align-items: center;
+         position: relative;
+         //z-index solo funciona cuando hay position
+         z-index: 10;
+
+         @include respond(small-phone) {
+            flex-direction: column;
+            padding: 1.5rem 0.5rem;
+         }
+      }
+
+      &-icon {
+         margin-right: 2rem;
+
+         @include respond(small-phone) {
+            margin-right: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-bottom: 0.7rem;
+         }
+      }
+   }
+}

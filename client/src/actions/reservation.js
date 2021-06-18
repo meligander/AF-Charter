@@ -10,6 +10,7 @@ import {
    RESERVATION_LOADED,
    RESERVATION_REGISTERED,
    RESERVATION_UPDATED,
+   RESERVATION_CLEARED,
 } from "./types";
 
 import { setAlert } from "./alert";
@@ -40,7 +41,7 @@ export const loadReservation = (reservation_id) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const loadReservations = (filterData) => async (dispatch) => {
+export const loadReservations = (filterData, noSign) => async (dispatch) => {
    dispatch(updateLoadingSpinner(true));
 
    let filter = "";
@@ -62,7 +63,7 @@ export const loadReservations = (filterData) => async (dispatch) => {
          payload: res.data,
       });
    } catch (err) {
-      dispatch(setAlert(err.response.data.msg, "danger", "2"));
+      if (!noSign) dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: RESERVATIONS_ERROR,
          payload: {
@@ -110,7 +111,13 @@ export const registerReservation = (formData) => async (dispatch) => {
                payload: errors,
             });
          } else {
-            dispatch(setAlert(err.response.data.msg, "danger", "3"));
+            dispatch(
+               setAlert(
+                  err.response.data.msg,
+                  "danger",
+                  err.response.status === 401 ? "2" : "3"
+               )
+            );
             dispatch({
                type: RESERVATIONS_ERROR,
                payload: {
@@ -127,7 +134,7 @@ export const registerReservation = (formData) => async (dispatch) => {
 };
 
 export const updateReservation =
-   (formData, reservation_id) => async (dispatch) => {
+   (formData, reservation_id, type) => async (dispatch) => {
       dispatch(updateLoadingSpinner(true));
       try {
          let res = await api.put(`/reservation/${reservation_id}`, formData);
@@ -136,6 +143,10 @@ export const updateReservation =
             type: RESERVATION_UPDATED,
             payload: res.data,
          });
+         if (type === "customer") history.push("/myreservations");
+         dispatch(setAlert("Reservation Updated", "success", "1"));
+
+         window.scrollTo(0, 0);
       } catch (err) {
          if (err.response.data.errors) {
             const errors = err.response.data.errors;
@@ -147,7 +158,13 @@ export const updateReservation =
                payload: errors,
             });
          } else {
-            dispatch(setAlert(err.response.data.msg, "danger", "3"));
+            dispatch(
+               setAlert(
+                  err.response.data.msg,
+                  "danger",
+                  err.response.status === 401 ? "2" : "3"
+               )
+            );
             dispatch({
                type: RESERVATIONS_ERROR,
                payload: {
@@ -159,7 +176,6 @@ export const updateReservation =
          }
       }
 
-      window.scrollTo(0, 0);
       dispatch(updateLoadingSpinner(false));
    };
 
@@ -167,9 +183,11 @@ export const cancelDeleteReservation = (reservation) => async (dispatch) => {
    dispatch(updateLoadingSpinner(true));
 
    try {
-      if (reservation.payment.downpayment.payStripe) {
+      if (reservation.payment.downpayment.type === "stripe") {
          await api.put(`/reservation/cancel/${reservation._id}`);
-         await api.put(`/payment/cancel/${reservation.payment._id}`);
+         await api.put(
+            `/payment/cancel/${reservation.payment._id}/downpayment`
+         );
       } else await api.delete(`/reservation/${reservation._id}`);
 
       dispatch({
@@ -211,6 +229,10 @@ export const deleteUnpaidReservation = () => async (dispatch) => {
          },
       });
    }
+};
+
+export const clearReservation = () => (dispatch) => {
+   dispatch({ type: RESERVATION_CLEARED });
 };
 
 export const clearReservations = () => (dispatch) => {

@@ -5,13 +5,13 @@ import { loadStripe } from "@stripe/stripe-js";
 import Form from "./Form";
 import "./style.scss";
 
-const Payment = () => {
+const Payment = ({ type }) => {
    const stripeTestPromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
    return (
       <div className="payment">
          <Elements stripe={stripeTestPromise}>
-            <Form />
+            <Form type={type} />
          </Elements>
       </div>
    );

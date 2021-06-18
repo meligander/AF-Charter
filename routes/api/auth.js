@@ -15,7 +15,7 @@ require("dotenv").config({
 const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 
 //Sending Email
-const emailSender = require("../../config/emailSender");
+const { sendEmail, sentToCompany } = require("../../config/emailSender");
 
 //Middleware
 const auth = require("../../middleware/auth");
@@ -58,10 +58,14 @@ router.post(
          let user = await User.findOne({ email });
 
          if (!user) errors.push({ msg: "Invalid credentials" });
+         else {
+            const isMatch = await bcrypt.compare(password, user.password);
 
-         const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) errors.push({ msg: "Invalid credentials" });
 
-         if (!isMatch) errors.push({ msg: "Invalid credentials" });
+            if (!user.active)
+               errors.push({ msg: "I'm sorry, your account has been blocked" });
+         }
 
          if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -114,7 +118,7 @@ router.post(
          /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
       const regex2 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/;
 
-      if (!regex1.test(email))
+      if (email && !regex1.test(email))
          errors.push({ msg: "Invalid email", param: "email" });
 
       try {
@@ -153,7 +157,7 @@ router.post(
             expiresIn: "20m",
          });
 
-         emailSender(
+         sendEmail(
             email,
             "Account activation",
             `Welcome ${name} ${lastname}!
@@ -260,6 +264,11 @@ router.post("/facebooklogin", async (req, res) => {
          user.password = await bcrypt.hash(user.password, salt);
 
          await user.save();
+      } else {
+         if (!user.active)
+            return res
+               .status(400)
+               .json({ msg: "I'm sorry, your account has been blocked" });
       }
 
       const payload = {
@@ -318,6 +327,11 @@ router.post("/googlelogin", async (req, res) => {
          user.password = await bcrypt.hash(user.password, salt);
 
          await user.save();
+      } else {
+         if (!user.active)
+            return res
+               .status(400)
+               .json({ msg: "I'm sorry, your account has been blocked" });
       }
 
       const token = jwt.sign(
@@ -334,6 +348,46 @@ router.post("/googlelogin", async (req, res) => {
       res.status(500).json({ msg: "Server Error" });
    }
 });
+
+//@route    POST api/auth/send-email
+//@desc     Send an email to the company
+//@access   Public
+router.post(
+   "/send-email",
+   [
+      check("name", "Name is required").not().isEmpty(),
+      check("email", "Email is required").not().isEmpty(),
+      check("message", "Message is required").not().isEmpty(),
+   ],
+   async (req, res) => {
+      const { name, email, message } = req.body;
+
+      let errors = [];
+      const errorsResult = validationResult(req);
+      if (!errorsResult.isEmpty()) errors = errorsResult.array();
+
+      const regex1 =
+         /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
+
+      if (email && !regex1.test(email))
+         errors.push({ msg: "Invalid email", param: "email" });
+
+      if (errors.length > 0) return res.status(400).json({ errors });
+
+      try {
+         sentToCompany(
+            `Name: ${name} <br/>
+            Email: ${email} <br/>
+            Message: <br/>${message}`
+         );
+
+         res.json({ msg: "Email Sent" });
+      } catch (err) {
+         console.log(err.message);
+         res.status(500).json({ msg: "Server Error" });
+      }
+   }
+);
 
 //@route    PUT /api/auth/password
 //@desc     Send password update link
@@ -366,7 +420,7 @@ router.put(
 
          await user.updateOne({ resetLink: token });
 
-         emailSender(
+         sendEmail(
             email,
             "Password update",
             `Hello ${user.name} ${user.lastname}!

@@ -11,6 +11,7 @@ import {
    googleLogin,
    loginUser,
    sendPasswordLink,
+   removeAuthError,
 } from "../../../actions/auth";
 import { setAlert } from "../../../actions/alert";
 
@@ -19,11 +20,13 @@ import Alert from "../../shared/Alert";
 import "./style.scss";
 
 const Login = ({
+   auth: { error },
    facebookLogin,
    googleLogin,
    loginUser,
    setAlert,
    sendPasswordLink,
+   removeAuthError,
 }) => {
    const [formData, setFormData] = useState({
       email: "",
@@ -43,6 +46,8 @@ const Login = ({
          ...formData,
          [e.target.name]: e.target.value,
       });
+      if (error.constructor === Array && error.length > 0)
+         removeAuthError(e.target.id);
    };
 
    const onSubmit = (e) => {
@@ -82,7 +87,14 @@ const Login = ({
                         <div className="form-section">
                            <div className="form-group">
                               <input
-                                 className="form-input"
+                                 className={`form-input ${
+                                    error.constructor === Array &&
+                                    error.some(
+                                       (value) => value.param === "email"
+                                    )
+                                       ? "invalid"
+                                       : ""
+                                 }`}
                                  type="email"
                                  name="email"
                                  value={email}
@@ -112,7 +124,14 @@ const Login = ({
                         <div className="form-section">
                            <div className="form-group">
                               <input
-                                 className="form-input"
+                                 className={`form-input ${
+                                    error.constructor === Array &&
+                                    error.some(
+                                       (value) => value.param === "email"
+                                    )
+                                       ? "invalid"
+                                       : ""
+                                 }`}
                                  type="email"
                                  name="email"
                                  value={email}
@@ -125,7 +144,14 @@ const Login = ({
                            </div>
                            <div className="form-group">
                               <input
-                                 className="form-input"
+                                 className={`form-input ${
+                                    error.constructor === Array &&
+                                    error.some(
+                                       (value) => value.param === "password"
+                                    )
+                                       ? "invalid"
+                                       : ""
+                                 }`}
                                  type="password"
                                  value={password}
                                  name="password"
@@ -196,17 +222,24 @@ const Login = ({
 };
 
 Login.propTypes = {
+   auth: PropTypes.object.isRequired,
    facebookLogin: PropTypes.func.isRequired,
    googleLogin: PropTypes.func.isRequired,
    loginUser: PropTypes.func.isRequired,
    setAlert: PropTypes.func.isRequired,
    sendPasswordLink: PropTypes.func.isRequired,
+   removeAuthError: PropTypes.func.isRequired,
 };
 
-export default connect(null, {
+const mapStateToProps = (state) => ({
+   auth: state.auth,
+});
+
+export default connect(mapStateToProps, {
    facebookLogin,
    googleLogin,
    loginUser,
    setAlert,
    sendPasswordLink,
+   removeAuthError,
 })(Login);

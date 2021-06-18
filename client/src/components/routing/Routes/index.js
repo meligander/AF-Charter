@@ -11,6 +11,11 @@ import Alert from "../../shared/Alert";
 import ChangePassword from "../../pages/ChangePassword";
 import MyReservations from "../../pages/MyReservations";
 import ChangeReservation from "../../pages/ChangeReservation";
+import VesselsList from "../../pages/VesselsList";
+import EditVessel from "../../pages/EditVessel";
+import ManageImages from "../../pages/ManageImages";
+import ReservationsList from "../../pages/ReservationsList";
+import AdminReservation from "../../pages/AdminReservation";
 
 const Routes = () => {
    return (
@@ -21,6 +26,7 @@ const Routes = () => {
                <Route exact path="/vessels" component={Vessels} />
                <Route exact path="/vessel/:vessel_id" component={Vessel} />
                <Route exact path="/signup" component={AccountInfo} />
+               <Route exact path="/profile" component={AccountInfo} />
                <Route exact path="/activation/:token" component={Activation} />
                <Route
                   exact
@@ -36,14 +42,50 @@ const Routes = () => {
                <PrivateRoutes
                   exact
                   path="/reservation/:reservation_id"
-                  types={["customer", "captain"]}
+                  types={["customer", "captain", "admin", "admin&captain"]}
                   component={ChangeReservation}
                />
                <PrivateRoutes
                   exact
                   path="/payment/:reservation_id"
-                  types={["customer", "captain"]}
+                  types={["customer", "captain", "admin", "admin&captain"]}
                   component={ChangeReservation}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/admin-reservation/:reservation_id"
+                  types={["admin", "admin&captain"]}
+                  component={AdminReservation}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/vessels-list"
+                  types={["admin", "admin&captain"]}
+                  component={VesselsList}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/reservations-list"
+                  types={["admin", "admin&captain"]}
+                  component={ReservationsList}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/edit-vessel/:vessel_id"
+                  types={["admin", "admin&captain"]}
+                  component={EditVessel}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/new-vessel"
+                  types={["admin", "admin&captain"]}
+                  component={EditVessel}
+               />
+               <PrivateRoutes
+                  exact
+                  path={`/images/:vessel_id`}
+                  types={["admin", "admin&captain"]}
+                  component={ManageImages}
                />
             </Switch>
          </div>

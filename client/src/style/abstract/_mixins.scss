@@ -87,3 +87,9 @@ ORDER: Base + typography > general layout + grid > page layout > components
       display: none;
    }
 }
+
+@media only screen and (min-width: 31em) {
+   .show-sm {
+      display: none;
+   }
+}

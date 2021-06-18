@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { MdAttachMoney } from "react-icons/md";
 import PropTypes from "prop-types";
 
-import { makeAPayment } from "../../../../actions/payment";
+import { makeStripePayment } from "../../../../actions/payment";
+import { updateLoadingSpinner } from "../../../../actions/mixvalues";
 import { setAlert } from "../../../../actions/alert";
+
+import PopUp from "../../../modal/PopUp";
 
 const CARD_OPTIONS = {
    iconStyle: "solid",
@@ -27,13 +30,30 @@ const CARD_OPTIONS = {
    },
 };
 
-const Form = ({ reservations: { reservation }, makeAPayment, setAlert }) => {
+const Form = ({
+   reservations: { reservation },
+   auth: { loggedUser },
+   makeStripePayment,
+   updateLoadingSpinner,
+   setAlert,
+   type,
+}) => {
    const stripe = useStripe();
    const elements = useElements();
 
-   const handleSubmit = async (e) => {
-      e.preventDefault();
+   const amount =
+      type === "downpayment"
+         ? reservation.payment.downpayment.amount
+         : reservation.payment.balance.amount;
 
+   const [adminValues, setAdminValues] = useState({
+      modalConfirm: false,
+   });
+
+   const { modalConfirm } = adminValues;
+
+   const handleSubmit = async () => {
+      updateLoadingSpinner(true);
       const { error, paymentMethod } = await stripe.createPaymentMethod({
          type: "card",
          card: elements.getElement(CardElement),
@@ -42,12 +62,14 @@ const Form = ({ reservations: { reservation }, makeAPayment, setAlert }) => {
       if (!error) {
          const { id } = paymentMethod;
 
-         makeAPayment(
+         makeStripePayment(
             {
-               amount: reservation.payment.downpayment.amount * 100,
+               amount: amount * 100,
                id,
+               type,
             },
-            reservation.payment._id
+            reservation.payment._id,
+            loggedUser.type
          );
       } else {
          console.error(error);
@@ -55,8 +77,29 @@ const Form = ({ reservations: { reservation }, makeAPayment, setAlert }) => {
       }
    };
 
+   const toggleModal = (e) => {
+      if (e) e.preventDefault();
+      setAdminValues((prev) => ({
+         ...prev,
+         modalConfirm: !modalConfirm,
+      }));
+   };
+
    return (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={toggleModal}>
+         <PopUp
+            type="confirmation"
+            confirm={handleSubmit}
+            setToggleModal={toggleModal}
+            toggleModal={modalConfirm}
+            text={`Are you sure you want to make the ${type} payment?`}
+            subtext={
+               reservation.payment[type] &&
+               reservation.payment[type].status === "success"
+                  ? "If you change the payment method, the previous one will be canceled"
+                  : undefined
+            }
+         />
          <fieldset className="payment-form-group">
             <div className="payment-form-row">
                <CardElement options={CARD_OPTIONS} />
@@ -73,12 +116,20 @@ const Form = ({ reservations: { reservation }, makeAPayment, setAlert }) => {
 
 Form.propTypes = {
    reservations: PropTypes.object.isRequired,
-   makeAPayment: PropTypes.func.isRequired,
+   auth: PropTypes.object.isRequired,
+   makeStripePayment: PropTypes.func.isRequired,
    setAlert: PropTypes.func.isRequired,
+   updateLoadingSpinner: PropTypes.func.isRequired,
+   type: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    reservations: state.reservations,
+   auth: state.auth,
 });
 
-export default connect(mapStateToProps, { setAlert, makeAPayment })(Form);
+export default connect(mapStateToProps, {
+   setAlert,
+   makeStripePayment,
+   updateLoadingSpinner,
+})(Form);

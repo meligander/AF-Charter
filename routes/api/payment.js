@@ -10,7 +10,7 @@ require("dotenv").config({
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 //Sending Email
-const emailSender = require("../../config/emailSender");
+const { sendEmail } = require("../../config/emailSender");
 
 //Middleware
 const auth = require("../../middleware/auth");
@@ -26,19 +26,22 @@ router.get("/:payment_id", [auth], async (req, res) => {
    try {
       let payment = await Payment.findOne({
          _id: req.params.payment_id,
-      });
+      }).lean();
 
       if (!payment) {
          return res.status(400).json({ msg: "Payment not found" });
       }
-      if (payment.downpayment.payStripe) {
-         const stripePayment = await stripe.paymentIntents.retrieve(
-            payment.downpayment.payStripe,
-            { apiKey: process.env.STRIPE_SECRET_KEY }
-         );
-         payment.downpayment.payStripe = stripePayment;
 
-         console.log(stripePayment.charges.data[0].receipt_url);
+      for (let x = 0; x < 2; x++) {
+         const objectName = x === 1 ? "downpayment" : "balance";
+         if (payment[objectName] && payment[objectName].type === "stripe") {
+            const stripePayment = await stripe.paymentIntents.retrieve(
+               payment[objectName].id,
+               { apiKey: process.env.STRIPE_SECRET_KEY }
+            );
+
+            payment[objectName].id = stripePayment;
+         }
       }
 
       res.json(payment);
@@ -52,7 +55,7 @@ router.get("/:payment_id", [auth], async (req, res) => {
 //@desc     Make a stripe payment
 //@access   Private
 router.put("/:payment_id", [auth, cors()], async (req, res) => {
-   let { amount, id } = req.body;
+   let { amount, id, type } = req.body;
 
    try {
       const stripePayment = await stripe.paymentIntents.create({
@@ -69,14 +72,18 @@ router.put("/:payment_id", [auth, cors()], async (req, res) => {
          payment = await Payment.findOneAndUpdate(
             { _id: req.params.payment_id },
             {
-               "downpayment.payStripe": stripePayment.id,
-               "donwpayment.status": "Success",
-               "downpayment.date": new Date(),
+               [type]: {
+                  amount: amount / 100,
+                  type: "stripe",
+                  id: stripePayment.id,
+                  status: "success",
+                  date: new Date(),
+               },
             },
             { new: true }
          );
 
-         emailSender(
+         sendEmail(
             req.user.email,
             "Receipt",
             `Thanks for choosing AF Charter!
@@ -87,7 +94,7 @@ router.put("/:payment_id", [auth, cors()], async (req, res) => {
       }
 
       if (!payment)
-         return res.status(400).json({ msg: "Payment did not go through" });
+         return res.status(400).json({ msg: "The payment did not go through" });
 
       res.json(payment);
    } catch (err) {
@@ -96,24 +103,74 @@ router.put("/:payment_id", [auth, cors()], async (req, res) => {
    }
 });
 
-//@route    PUT api/payment/:payment_id
-//@desc     Cancel a stripe payment
-//@access   Private
-router.put("/cancel/:payment_id", [auth, cors()], async (req, res) => {
+//@route    PUT api/payment/cash/:payment_id
+//@desc     Make a cash payment
+//@access   Private & Admin
+router.put("/cash/:payment_id", [auth, adminAuth], async (req, res) => {
+   let { amount, type } = req.body;
+
    try {
-      const payment = await Payment.findOne({
+      payment = await Payment.findOneAndUpdate(
+         { _id: req.params.payment_id },
+         {
+            [type]: {
+               amount,
+               type: "cash",
+               status: "success",
+               date: new Date(),
+            },
+         },
+         { new: true }
+      );
+
+      if (!payment)
+         return res.status(400).json({ msg: "The payment did not go through" });
+
+      res.json(payment);
+   } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ msg: "Server Error" });
+   }
+});
+
+//@route    PUT api/payment/cancel/:payment_id
+//@desc     Cancel a payment
+//@access   Private
+router.put("/cancel/:payment_id/:type", [auth, cors()], async (req, res) => {
+   try {
+      const type = req.params.type;
+
+      let payment = await Payment.findOne({
          _id: req.params.payment_id,
-      });
+      }).lean();
 
-      const paymentIntent = await stripe.refunds.create({
-         payment_intent: payment.downpayment.payStripe,
-      });
+      if (payment[type].type === "stripe") {
+         await stripe.refunds.create({
+            payment_intent: payment.downpayment.id,
+         });
 
-      payment.updateOne({
-         "downpayment.status": "Canceled",
-      });
+         sendEmail(
+            req.user.email,
+            "Receipt",
+            `Your reservation payment has been canceled. 
 
-      res.json(paymentIntent);
+         Your refund receipt is in the following Link
+         <a href='${stripePayment.charges.data[0].receipt_url}'>Receipt</a>`
+         );
+      }
+
+      payment = await Payment.findOneAndUpdate(
+         { _id: payment._id },
+         {
+            [type]: {
+               ...payment[type],
+               status: "canceled",
+            },
+         },
+         { new: true }
+      );
+
+      res.json(payment);
    } catch (err) {
       console.error(err.message);
       res.status(500).json({ msg: "Server Error" });

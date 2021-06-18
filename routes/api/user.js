@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const { check, validationResult } = require("express-validator");
 const router = express.Router();
+const fs = require("fs");
 const moment = require("moment");
 
 //Middleware
@@ -23,13 +24,20 @@ router.get("/", [auth, adminAuth], async (req, res) => {
          users = await User.find().sort({ lastname: 1, name: 1 });
       } else {
          let filter = {
-            type: req.query.type ? req.query.type : { $ne: "customer" },
+            type: !req.query.type
+               ? { $ne: "customer" }
+               : req.query.type === "captain"
+               ? {
+                    $in: ["captain", "admin&captain"],
+                 }
+               : req.query.type,
             ...(req.query.name && {
                name: { $regex: `.*${req.query.name}.*`, $options: "i" },
             }),
             ...(req.query.lastname && {
                lastname: { $regex: `.*${req.query.lastname}.*`, $options: "i" },
             }),
+            ...(req.query.active && { active: req.query.active }),
          };
 
          users = await User.find(filter)
@@ -69,19 +77,17 @@ router.get("/:id", [auth], async (req, res) => {
    }
 });
 
-//@route    GET /api/user/available-captain/:dateFrom/:dateTo
-//@desc     Get all the captains availability for a charter
+//@route    GET /api/user/:dateFrom/:dateTo/:reservation_id
+//@desc     Get all the available captains for a charter
 //@access   Public
-router.get("/:dateFrom/:dateTo", async (req, res) => {
-   let dateFrom = moment(new Date(req.params.dateFrom));
-   let dateTo = moment(new Date(req.params.dateTo));
-
-   dateFrom = new Date(dateFrom.format("YYYY-MM-DD[T]HH:mm:SS[Z]"));
-   dateTo = new Date(dateTo.format("YYYY-MM-DD[T]HH:mm:SS[Z]"));
+router.get("/:dateFrom/:dateTo/:reservation_id", async (req, res) => {
+   let dateFrom = new Date(req.params.dateFrom);
+   let dateTo = new Date(req.params.dateTo);
 
    try {
       let users = await User.find({
          type: { $in: ["captain", "admin&captain"] },
+         active: true,
       }).select("-password");
 
       const reservations = await Reservation.find({
@@ -94,16 +100,22 @@ router.get("/:dateFrom/:dateTo", async (req, res) => {
       //check => 8-10
       //reservation => 9-12
       for (let x = 0; x < reservations.length; x++) {
+         const isReserv = req.params.reservation_id
+            ? req.params.reservation_id !== reservations[x]._id.toString()
+            : true;
          if (
             reservations[x].crew &&
             reservations[x].crew.captain &&
+            isReserv &&
             ((dateFrom > reservations[x].dateFrom &&
                dateFrom <= reservations[x].dateTo) ||
                (dateTo >= reservations[x].dateFrom &&
                   dateTo < reservations[x].dateTo))
          ) {
             users = users.filter(
-               (user) => user._id.toString() !== reservations[x].crew.captain
+               (user) =>
+                  user._id.toString() !==
+                  reservations[x].crew.captain.toString()
             );
          }
       }
@@ -149,7 +161,7 @@ router.put(
       check("lastname", "Lastame is required").not().isEmpty(),
    ],
    async (req, res) => {
-      const { name, lastname, email, cel, type, address, dob, active } =
+      const { name, lastname, email, cel, type, address, dob, active, img } =
          req.body;
 
       let user;
@@ -185,22 +197,28 @@ router.put(
             name,
             lastname,
             active,
-            ...(type && { type }),
-            ...(req.params.id === "0" && {
-               password: await bcrypt.hash("12345678", salt),
-               email,
-            }),
+            type,
             cel,
             address,
             dob,
+            ...(req.params.id === "0" && {
+               password: await bcrypt.hash(user.password, salt),
+            }),
+            ...(img && {
+               img: { fileName: img, filePath: `/uploads/users/${img}` },
+            }),
          };
-
-         console.log(data);
 
          if (req.params.id === "0") {
             user = new User(data);
             user.save();
          } else {
+            user = await User.findOne({ _id: req.user.id });
+            if (img)
+               fs.unlinkSync(
+                  `${__dirname}../../../client/public${user.img.filePath}`
+               );
+
             user = await User.findOneAndUpdate(
                { _id: user._id },
                { $set: data },

@@ -7,7 +7,7 @@ import Loading from "../../modal/Loading";
 
 const PrivateRoutes = ({
    component: Component,
-   auth: { userLogged, loading, token },
+   auth: { loggedUser, loading, token },
    types,
    path,
 }) => {
@@ -17,7 +17,7 @@ const PrivateRoutes = ({
          pass = true;
       } else {
          for (let x = 0; x < types.length; x++) {
-            if (types[x] === userLogged.type) {
+            if (types[x] === loggedUser.type) {
                pass = true;
                break;
             }

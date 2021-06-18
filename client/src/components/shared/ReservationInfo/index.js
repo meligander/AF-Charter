@@ -3,7 +3,7 @@ import Moment from "react-moment";
 import { Link } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 import { MdAttachMoney } from "react-icons/md";
-import { ImCancelCircle } from "react-icons/im";
+import { AiOutlineDelete } from "react-icons/ai";
 import PropTypes from "prop-types";
 
 import PopUp from "../../modal/PopUp";
@@ -22,14 +22,15 @@ const ReservationInfo = ({
 
    const [adminValues, setAdminValues] = useState({
       toggleModal: false,
-      amount: reservation.payment.downpayment.payStripe
-         ? Math.round(
-              (reservation.payment.downpayment.amount * 0.029 +
-                 0.3 +
-                 Number.EPSILON) *
-                 100
-           ) / 100
-         : 0,
+      amount:
+         reservation.payment.downpayment.type === "stripe"
+            ? Math.round(
+                 (reservation.payment.downpayment.amount * 0.029 +
+                    0.3 +
+                    Number.EPSILON) *
+                    100
+              ) / 100
+            : 0,
    });
 
    const { toggleModal, amount } = adminValues;
@@ -37,6 +38,7 @@ const ReservationInfo = ({
    return (
       <div className="row reservation-info">
          <PopUp
+            type="confirmation"
             confirm={() => cancelDeleteReservation(reservation)}
             setToggleModal={() =>
                setAdminValues((prev) => ({
@@ -47,9 +49,7 @@ const ReservationInfo = ({
             toggleModal={toggleModal}
             text="Are you sure you want to cancel the reservation?"
             subtext={
-               amount !== 0
-                  ? `You will have to pay $${amount} anyways.`
-                  : undefined
+               amount !== 0 ? `You have to pay $${amount} anyways.` : undefined
             }
          />
          <div className="row-item vessel">
@@ -104,7 +104,7 @@ const ReservationInfo = ({
                   <tr>
                      <td className="myreservations-info-title">Paid:</td>
                      <td>
-                        {reservation.payment.downpayment.payStripe
+                        {reservation.payment.downpayment.status === "success"
                            ? "Yes"
                            : "No"}
                      </td>
@@ -155,7 +155,7 @@ const ReservationInfo = ({
                      className="btn btn-danger"
                   >
                      {/* Cancel&nbsp; */}
-                     <ImCancelCircle className="icon" />
+                     <AiOutlineDelete className="icon" />
                   </button>
                </div>
             )}

@@ -11,7 +11,6 @@ const VesselSchema = new mongoose.Schema({
    },
    year: {
       type: Number,
-      required: true,
    },
    peopleOnBoard: {
       type: Number,
@@ -20,6 +19,9 @@ const VesselSchema = new mongoose.Schema({
       type: Number,
    },
    equipment: {
+      type: Array,
+   },
+   waterToys: {
       type: Array,
    },
    images: [
@@ -31,8 +33,8 @@ const VesselSchema = new mongoose.Schema({
    ],
    mainImg: {
       type: Object,
-      fileName: { type: String, required: true },
-      filePath: { type: String, required: true },
+      fileName: { type: String, default: "" },
+      filePath: { type: String, default: "" },
    },
    prices: [
       {
@@ -47,6 +49,10 @@ const VesselSchema = new mongoose.Schema({
          },
       },
    ],
+   active: {
+      type: Boolean,
+      required: true,
+   },
    date: {
       type: Date,
       default: Date.now,

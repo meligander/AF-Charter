@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Moment from "react-moment";
 import moment from "moment";
 import Calendar from "react-calendar";
@@ -9,41 +9,56 @@ import {
    checkDayAvailability,
    checkMonthAvailability,
 } from "../../../actions/day";
+import {
+   updateReservation,
+   registerReservation,
+} from "../../../actions/reservation";
 import { checkAvailableCaptains } from "../../../actions/user";
 
 import Alert from "../../shared/Alert";
+import PopUp from "../../modal/PopUp";
 
 import "./style.scss";
 
 const Schedule = ({
-   vessel,
-   type,
-   reservation,
-   saveData,
+   auth: { loggedUser },
+   vessels: { vessel: vesselInfo },
+   reservations: { reservation },
    days: { day, availableHours, loadingAvailableHours, disabledDays },
    users: { users, loading },
    checkMonthAvailability,
    checkDayAvailability,
    checkAvailableCaptains,
+   updateReservation,
+   registerReservation,
 }) => {
    const today = new Date();
    today.setDate(today.getDate() + 1);
-   today.setHours(0, 0, 0, 0);
+   today.setHours(0, 0, 0);
+
+   const type = reservation ? "update" : "reserve";
 
    let hoursDiff = 0;
+   let originalDateFrom;
+   let originalDateTo;
 
    if (reservation) {
-      const originalDateFrom = new Date(reservation.dateFrom);
-      const originalDateTo = new Date(reservation.dateTo);
+      originalDateFrom = moment(reservation.dateFrom).utc();
+      originalDateTo = moment(reservation.dateTo).utc();
 
       const milliseconds = Math.abs(originalDateFrom - originalDateTo);
       hoursDiff = milliseconds / 36e5;
+
+      originalDateFrom = originalDateFrom.format("YYYY-MM-DD[T]HH:mm:SS[Z]");
+      originalDateTo = originalDateTo.format("YYYY-MM-DD[T]HH:mm:SS[Z]");
    }
 
    const [adminValues, setAdminValues] = useState({
-      date: today,
-      tab: 1,
+      date: new Date(),
+      tab: 0,
       possiblesDateTo: [],
+      vessel: reservation ? reservation.vessel : vesselInfo,
+      toggleModal: false,
    });
 
    const [formData, setFormData] = useState({
@@ -58,27 +73,24 @@ const Schedule = ({
 
    const { dateTo, dateFrom, captain, charterValue } = formData;
 
-   const { date, tab, possiblesDateTo } = adminValues;
+   const { date, tab, possiblesDateTo, vessel, toggleModal } = adminValues;
 
    useEffect(() => {
       const today = new Date();
-      today.setDate(today.getDate() + 1);
-      today.setHours(0, 0, 0, 0);
+
       checkMonthAvailability(
-         vessel._id,
+         reservation ? reservation.vessel._id : vesselInfo._id,
          today.getMonth(),
          today.getFullYear(),
-         type === "update" && hoursDiff,
-         false
+         reservation && hoursDiff,
+         reservation && originalDateFrom
       );
-      checkDayAvailability(vessel._id, today, type === "update" && hoursDiff);
    }, [
-      checkAvailableCaptains,
-      checkDayAvailability,
+      reservation,
       checkMonthAvailability,
-      vessel._id,
       hoursDiff,
-      type,
+      vesselInfo,
+      originalDateFrom,
    ]);
 
    const onChange = (e) => {
@@ -94,7 +106,13 @@ const Schedule = ({
          date: changedDate,
          tab: 1,
       }));
-      checkDayAvailability(vessel._id, changedDate, hoursDiff);
+      checkDayAvailability(
+         vessel._id,
+         moment(changedDate).format("YYYY-MM-DD[T00:00:00Z]"),
+         hoursDiff,
+         reservation ? originalDateFrom : null,
+         reservation ? originalDateTo : null
+      );
    };
 
    const selectDateFrom = (time) => {
@@ -108,7 +126,11 @@ const Schedule = ({
          newToDate = new Date(newDate);
          newToDate.setHours(newDate.getHours() + hoursDiff);
 
-         checkAvailableCaptains(newDate, newToDate);
+         checkAvailableCaptains(
+            moment(newDate).format("YYYY-MM-DD[T]HH:mm:SS[Z]"),
+            moment(newToDate).format("YYYY-MM-DD[T]HH:mm:SS[Z]"),
+            reservation && reservation._id
+         );
       } else {
          for (let x = 0; x < vessel.prices.length; x++) {
             const newTime = time + vessel.prices[x].time;
@@ -143,7 +165,11 @@ const Schedule = ({
       const newDate = new Date(date);
       newDate.setHours(dateFrom.getHours() + vessel.prices[item].time);
 
-      checkAvailableCaptains(dateFrom, newDate);
+      checkAvailableCaptains(
+         moment(dateFrom).format("YYYY-MM-DD[T]HH:mm:SS[Z]"),
+         moment(newDate).format("YYYY-MM-DD[T]HH:mm:SS[Z]"),
+         reservation && reservation._id
+      );
 
       setFormData((prev) => ({
          ...prev,
@@ -183,6 +209,14 @@ const Schedule = ({
 
    const tabOpen = () => {
       switch (tab) {
+         case 0:
+            return (
+               <>
+                  <h5 className="heading heading-secondary text-secondary">
+                     Pick up a Date
+                  </h5>
+               </>
+            );
          case 1:
             return (
                !loadingAvailableHours && (
@@ -231,63 +265,91 @@ const Schedule = ({
             return (
                <>
                   <p className="heading-tertiary text-dark">New Info:</p>
-                  <Alert type="3" />
-                  <p className="schedule-info">
-                     <span className="text-primary">{`Date${
-                        diff ? "s" : ""
-                     }:`}</span>{" "}
-                     &nbsp;
-                     <Moment date={dateFrom} format="MM/DD/YY" />
-                     {`${
-                        diff
-                           ? "- " + <Moment date={dateTo} format="MM/DD/YY" />
-                           : ""
-                     }`}
-                  </p>
-                  <p className="schedule-info">
-                     <span className="text-primary">Time:</span> &nbsp;
-                     <Moment format="h a" date={dateFrom} /> -{" "}
-                     <Moment format="h a" date={dateTo} />
-                  </p>
-                  {type === "reserve" && (
-                     <p className="schedule-info">
-                        <span className="text-primary">Price:</span> $
-                        {charterValue}
-                     </p>
-                  )}
-                  <p className="schedule-info text-primary">Captain:</p>
                   <form
                      className="form"
                      onSubmit={(e) => {
                         e.preventDefault();
-                        saveData(formData);
+
+                        if (type === "update") {
+                           setAdminValues((prev) => ({
+                              ...prev,
+                              toggleModal: !toggleModal,
+                           }));
+                        } else {
+                           registerReservation({
+                              ...formData,
+                              customer: loggedUser,
+                              vessel: vessel._id,
+                              dateFrom: moment(dateFrom).format(
+                                 "YYYY-MM-DD[T]HH:mm:SS[Z]"
+                              ),
+                              dateTo: moment(dateTo).format(
+                                 "YYYY-MM-DD[T]HH:mm:SS[Z]"
+                              ),
+                           });
+                        }
                      }}
                   >
-                     <div className="radio-group" id="radio-group">
-                        {!loading && users.length > 0 ? (
-                           users.map((user, i) => (
-                              <React.Fragment key={user._id}>
-                                 <input
-                                    className="form-input-radio"
-                                    type="radio"
-                                    value={user._id}
-                                    onChange={onChange}
-                                    checked={captain === user._id}
-                                    name="captain"
-                                    id={`rb${i}`}
-                                 />
-                                 <label
-                                    className="form-lbl-radio"
-                                    htmlFor={`rb${i}`}
-                                 >
-                                    {`${user.name} ${user.lastname}`}
-                                 </label>
-                              </React.Fragment>
-                           ))
-                        ) : (
-                           <p className="text-danger">No captain available</p>
-                        )}
-                     </div>
+                     <Alert type="3" />
+                     <p className="schedule-info">
+                        <span className="text-primary">{`Date${
+                           diff ? "s" : ""
+                        }:`}</span>{" "}
+                        &nbsp;
+                        <Moment date={dateFrom} format="MM/DD/YY" />
+                        {`${
+                           diff
+                              ? "- " +
+                                <Moment date={dateTo} format="MM/DD/YY" />
+                              : ""
+                        }`}
+                     </p>
+                     <p className="schedule-info">
+                        <span className="text-primary">Time:</span> &nbsp;
+                        <Moment format="h a" date={dateFrom} /> -{" "}
+                        <Moment format="h a" date={dateTo} />
+                     </p>
+                     {type === "reserve" && (
+                        <p className="schedule-info">
+                           <span className="text-primary">Price:</span> $
+                           {charterValue}
+                        </p>
+                     )}
+                     {loggedUser.type === "customer" && (
+                        <>
+                           <p className="schedule-info">
+                              <span className="text-primary">Captain:</span>
+                           </p>
+                           <div className="radio-group" id="radio-group">
+                              {!loading && users.length > 0 ? (
+                                 users.map((user, i) => (
+                                    <React.Fragment key={user._id}>
+                                       <input
+                                          className="form-input-radio"
+                                          type="radio"
+                                          value={user._id}
+                                          onChange={onChange}
+                                          checked={captain === user._id}
+                                          name="captain"
+                                          id={`rb${i}`}
+                                       />
+                                       <label
+                                          className="form-lbl-radio"
+                                          htmlFor={`rb${i}`}
+                                       >
+                                          {`${user.name} ${user.lastname}`}
+                                       </label>
+                                    </React.Fragment>
+                                 ))
+                              ) : (
+                                 <p className="text-danger">
+                                    No available captains
+                                 </p>
+                              )}
+                           </div>
+                        </>
+                     )}
+
                      <div className="btn-center mt-4">
                         <button type="submit" className="btn btn-primary">
                            {type === "update" ? "Update" : "Reserve Now!"}
@@ -303,6 +365,35 @@ const Schedule = ({
 
    return (
       <div className="schedule row pt-2">
+         {type === "update" && (
+            <PopUp
+               toggleModal={toggleModal}
+               setToggleModal={() =>
+                  setAdminValues((prev) => ({
+                     ...prev,
+                     toggleModal: !toggleModal,
+                  }))
+               }
+               confirm={() =>
+                  updateReservation(
+                     {
+                        captain,
+                        dateFrom: moment(dateFrom).format(
+                           "YYYY-MM-DD[T]HH:mm:SS[Z]"
+                        ),
+                        dateTo: moment(dateTo).format(
+                           "YYYY-MM-DD[T]HH:mm:SS[Z]"
+                        ),
+                     },
+                     reservation._id,
+                     loggedUser.type
+                  )
+               }
+               text="Are you sure you want to modify the reservation?"
+               type="confirmation"
+            />
+         )}
+
          <div className="row-item">
             <div className="my-3">
                <Calendar
@@ -323,6 +414,7 @@ const Schedule = ({
                            e.activeStartDate.getMonth(),
                            e.activeStartDate.getFullYear(),
                            hoursDiff,
+                           reservation ? originalDateFrom : null,
                            true
                         );
                      }
@@ -337,24 +429,30 @@ const Schedule = ({
 };
 
 Schedule.propTypes = {
-   type: PropTypes.string.isRequired,
-   reservation: PropTypes.object,
-   vessel: PropTypes.object.isRequired,
+   auth: PropTypes.object.isRequired,
+   reservations: PropTypes.object.isRequired,
+   vessels: PropTypes.object.isRequired,
    days: PropTypes.object.isRequired,
    users: PropTypes.object.isRequired,
    checkAvailableCaptains: PropTypes.func.isRequired,
    checkDayAvailability: PropTypes.func.isRequired,
    checkMonthAvailability: PropTypes.func.isRequired,
-   saveData: PropTypes.func.isRequired,
+   updateReservation: PropTypes.func.isRequired,
+   registerReservation: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
+   auth: state.auth,
    days: state.days,
    users: state.users,
+   reservations: state.reservations,
+   vessels: state.vessels,
 });
 
 export default connect(mapStateToProps, {
    checkAvailableCaptains,
    checkDayAvailability,
    checkMonthAvailability,
+   updateReservation,
+   registerReservation,
 })(Schedule);

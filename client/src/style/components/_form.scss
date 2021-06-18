@@ -13,6 +13,16 @@
       width: 85%;
    }
 
+   &.filter {
+      border: 1px dotted $light-color;
+      padding: 2rem;
+      margin: 3rem auto 4rem;
+
+      @include respond(small-phone) {
+         width: 95%;
+      }
+   }
+
    &-group {
       margin: 1rem 0;
       font-weight: 800;
@@ -54,9 +64,6 @@
          display: inline-flex;
          width: 100%;
 
-         .form-input {
-            min-width: 50%;
-         }
          .form-label {
             width: 100%;
          }
@@ -124,10 +131,6 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-
-      & > *:not(:last-child) {
-         margin-right: 1.5rem;
-      }
    }
 
    //Form Checkbox
@@ -139,7 +142,7 @@
       color: lighten($dark-color, 35%);
       border-radius: 2.5rem;
       white-space: nowrap;
-      margin: 0.3rem;
+      margin: 1rem 1.5rem;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -149,6 +152,10 @@
       transition: all 0.2s;
       padding: 0.8rem 1.2rem;
       cursor: pointer;
+
+      &:hover {
+         background-color: lighten($light-color, 8%);
+      }
 
       &:before {
          display: inline-block;
@@ -177,6 +184,10 @@
       background-color: lighten($primary-color, 5%);
       color: $light-color;
       transition: all 0.2s;
+
+      &:hover {
+         background-color: lighten($primary-color, 8%);
+      }
    }
 
    &-input-checkbox,
@@ -188,25 +199,6 @@
 
    //Form Img
    &-img {
-      position: absolute;
-      max-width: fit-content;
-      top: 0.5rem;
-      right: 10rem;
-
-      @include respond(tab-land) {
-         right: 5rem;
-      }
-
-      @include respond(tab-port) {
-         right: 2rem;
-      }
-
-      @include respond(small-phone) {
-         left: 50%;
-         transform: translateX(-50%);
-         top: 24.5rem;
-      }
-
       &-prev {
          border-radius: 50%;
          object-fit: cover;

@@ -13,11 +13,13 @@ import { setAlert } from "./alert";
 import { updateLoadingSpinner } from "./mixvalues";
 
 export const checkDayAvailability =
-   (vessel_id, date, time) => async (dispatch) => {
+   (vessel_id, date, time, from, to) => async (dispatch) => {
       dispatch(updateLoadingSpinner(true));
       try {
          const res = await api.get(
-            `/day/${vessel_id}/${date}/${time ? time : "0"}`
+            `/day/${vessel_id}/${date}/${time ? time : "0"}/${
+               from ? from : "0"
+            }/${to ? to : "0"}`
          );
          dispatch({
             type: DAYAVAILABILITY_LOADED,
@@ -40,12 +42,14 @@ export const checkDayAvailability =
    };
 
 export const checkMonthAvailability =
-   (vessel_id, month, year, time, loadByItself) => async (dispatch) => {
+   (vessel_id, month, year, time, date, loadByItself) => async (dispatch) => {
       if (loadByItself) dispatch(updateLoadingSpinner(true));
 
       try {
          const res = await api.get(
-            `/day/month/${vessel_id}/${month}/${year}/${time ? time : "0"}`
+            `/day/month/${vessel_id}/${month}/${year}/${time ? time : "0"}/${
+               date ? date : "0"
+            }`
          );
 
          dispatch({

@@ -6,14 +6,15 @@ import {
    LOGOUT,
    SIGNUP_FAIL,
    EMAILAUTH_SENT,
-   REMOVE_ERROR,
+   REMOVEAUTH_ERROR,
    SIGNUP_SUCCESS,
    PASSWORD_CHANGED,
+   EMAIL_ERROR,
 } from "../actions/types";
 
 const initialState = {
    token: localStorage.getItem("token"),
-   userLogged: null,
+   loggedUser: null,
    loading: true,
    isAuthenticated: false,
    error: "",
@@ -28,14 +29,14 @@ const authReducer = (state = initialState, action) => {
          return {
             ...state,
             loading: false,
-            userLogged: payload,
+            loggedUser: payload,
             isAuthenticated: true,
          };
       case SIGNUP_SUCCESS:
          return {
             ...state,
             loading: false,
-            userLogged: payload.user,
+            loggedUser: payload.user,
             isAuthenticated: true,
             token: payload.token,
          };
@@ -46,12 +47,11 @@ const authReducer = (state = initialState, action) => {
             token: payload.token,
          };
       case AUTH_ERROR:
-      case LOGOUT:
          return {
             ...state,
             token: null,
             isAuthenticated: false,
-            userLogged: null,
+            loggedUser: null,
             loading: false,
             error: payload ? payload : "",
          };
@@ -60,15 +60,19 @@ const authReducer = (state = initialState, action) => {
             ...state,
             token: payload.token,
             loading: false,
-            userLogged: payload.user,
+            loggedUser: payload.user,
             isAuthenticated: true,
          };
+      case EMAIL_ERROR:
       case SIGNUP_FAIL:
       case LOGIN_FAIL:
          return {
             ...state,
-            loading: false,
             error: payload,
+            loading: false,
+            token: null,
+            isAuthenticated: false,
+            loggedUser: null,
          };
       case EMAILAUTH_SENT:
          return {
@@ -76,10 +80,19 @@ const authReducer = (state = initialState, action) => {
             emailSent: true,
             error: "",
          };
-      case REMOVE_ERROR:
+      case REMOVEAUTH_ERROR:
          return {
             ...state,
             error: state.error.filter((errorI) => errorI.param !== payload),
+         };
+      case LOGOUT:
+         return {
+            ...state,
+            token: null,
+            isAuthenticated: false,
+            loggedUser: null,
+            loading: true,
+            error: "",
          };
       default:
          return state;

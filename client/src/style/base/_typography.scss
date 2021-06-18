@@ -9,7 +9,7 @@
    &-primary {
       margin-bottom: 1.6rem;
       font-size: 4.8rem;
-      line-height: 6rem;
+      line-height: 5.8rem;
 
       .underline {
          top: 5.5rem;
@@ -23,7 +23,7 @@
    &-secondary {
       margin-bottom: 1.6rem;
       font-size: 3.5rem;
-      line-height: 3.5rem;
+      line-height: 4.2rem;
 
       .underline {
          top: 3.5rem;
@@ -51,25 +51,31 @@
       color: $primary-color;
 
       @include respond(small-phone) {
-         position: absolute;
-         top: 6.5rem;
-         left: 4rem;
+         margin-right: 1rem;
       }
    }
 }
 
+.indentation {
+   margin-left: 2rem;
+}
+
 .text {
    &-primary {
-      color: $primary-color;
+      color: $primary-color !important;
    }
    &-secondary {
-      color: $secondary-color;
+      color: $secondary-color !important;
    }
    &-dark {
-      color: $dark-color;
+      color: $dark-color !important;
    }
    &-danger {
-      color: $danger-color;
+      color: $danger-color !important;
+      font-weight: 500;
+   }
+   &-success {
+      color: $success-color !important;
       font-weight: 500;
    }
 

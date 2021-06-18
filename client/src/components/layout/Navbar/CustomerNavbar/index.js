@@ -7,7 +7,19 @@ import "../style.scss";
 const CustomerNavbar = ({ clearReservations }) => {
    return (
       <>
-         <li className="navbar-list-item">
+         <li className="navbar-list-item hide-sm">
+            <Link
+               to="/vessels"
+               className="navbar-list-link"
+               onClick={() => {
+                  window.scroll(0, 0);
+                  clearReservations();
+               }}
+            >
+               Book Now!
+            </Link>
+         </li>
+         <li className="navbar-list-item hide-sm">
             <Link
                to="/myreservations"
                className="navbar-list-link"
@@ -16,16 +28,16 @@ const CustomerNavbar = ({ clearReservations }) => {
                   clearReservations();
                }}
             >
-               <span className="hide-sm">My </span>Reservations
+               My Reservations
             </Link>
          </li>
-         <li className="navbar-list-item">
+         <li className="navbar-list-item hide-sm">
             <Link
                to="/contact"
                className="navbar-list-link"
                onClick={() => window.scroll(0, 0)}
             >
-               Contact<span className="hide-sm"> Us</span>
+               Contact Us
             </Link>
          </li>
       </>

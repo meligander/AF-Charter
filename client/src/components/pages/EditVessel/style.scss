@@ -1,0 +1,96 @@
+@import "../../../style/abstract/abstract.scss";
+
+.edit-vessel {
+   .form {
+      @include respond(small-phone) {
+         width: 95%;
+      }
+
+      &-img {
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         align-items: center;
+         margin: 3rem 0;
+
+         &-prev {
+            width: 80%;
+            height: 40rem;
+            border-radius: 2rem;
+            border: 1px solid $light-color;
+            margin-bottom: 2rem;
+
+            @include respond(tab-land) {
+               width: 90%;
+               height: 30rem;
+            }
+
+            @include respond(small-phone) {
+               width: 100%;
+               height: 20rem;
+            }
+         }
+      }
+   }
+
+   &-subtitle {
+      font-size: 2rem;
+      color: $secondary-color;
+      margin: 2rem 0 1rem;
+      font-weight: 500;
+   }
+
+   &-prices {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 !important;
+      padding: 1rem 1rem 0.5rem;
+
+      &-1 {
+         width: 95%;
+
+         @include respond(small-phone) {
+            width: 90%;
+         }
+      }
+
+      &-2 {
+         width: 5%;
+
+         @include respond(small-phone) {
+            width: 10%;
+         }
+      }
+
+      .icon {
+         font-size: 3rem;
+         margin: 0;
+      }
+
+      .two-in-row {
+         justify-content: space-evenly;
+      }
+
+      .form {
+         &-input {
+            width: 25%;
+            @include respond(small-phone) {
+               width: 30%;
+            }
+         }
+
+         &-label {
+            width: 24% !important;
+
+            @include respond(small-phone) {
+               width: 29% !important;
+            }
+         }
+      }
+
+      &:hover {
+         background-color: lighten($light-color, 10%);
+      }
+   }
+}

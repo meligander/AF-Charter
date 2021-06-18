@@ -17,35 +17,42 @@ const MyReservations = ({
    clearReservations,
    cancelDeleteReservation,
    setAlert,
-   auth: { userLogged, loading },
+   auth: { loggedUser, loading },
    reservations: { reservations, loading: loadingR },
 }) => {
    useEffect(() => {
-      if (!loading && loadingR) {
-         loadReservations({ customer: userLogged._id, active: true });
-         if (!loadingR) {
-            let unpaid = false;
-            for (let x = 0; x < reservations.length; x++) {
-               if (!reservations[x].payment.downpayment.payStripe) {
-                  unpaid = true;
-                  break;
-               }
+      if (!loading && loadingR)
+         loadReservations({ customer: loggedUser._id, active: true }, true);
+      else {
+         let unpaid = false;
+         for (let x = 0; x < reservations.length; x++) {
+            if (!reservations[x].payment.downpayment.status) {
+               unpaid = true;
+               break;
             }
-
-            if (unpaid)
-               setAlert(
-                  "You have up to 24 hours to pay the resevation downpayment or it will be deleted",
-                  "danger",
-                  "2"
-               );
          }
+
+         if (unpaid)
+            setAlert(
+               "You have up to 24 hours to pay the resevation downpayment or it will be deleted",
+               "danger",
+               "2"
+            );
       }
-      // eslint-disable-next-line
-   }, [loadReservations, userLogged, loading, setAlert, loadingR]);
+   }, [
+      loadReservations,
+      reservations,
+      loggedUser,
+      loading,
+      setAlert,
+      loadingR,
+   ]);
 
    return (
       <>
-         <h2 className="heading heading-primary">My Reservations</h2>
+         <h2 className="heading heading-primary text-primary">
+            My Reservations
+         </h2>
          <Alert type="2" />
          <div className="myreservations">
             {!loadingR && (

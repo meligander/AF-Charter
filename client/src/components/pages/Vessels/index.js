@@ -9,13 +9,13 @@ import { loadVessels, clearVessels } from "../../../actions/vessel";
 
 import "./style.scss";
 
-const Vessels = ({
+const Vessel = ({
    loadVessels,
    clearVessels,
    vessels: { vessels, loading },
 }) => {
    useEffect(() => {
-      if (loading) loadVessels({});
+      if (loading) loadVessels({ active: true });
    }, [loadVessels, loading]);
 
    return (
@@ -65,7 +65,7 @@ const Vessels = ({
    );
 };
 
-Vessels.propTypes = {
+Vessel.propTypes = {
    loadVessels: PropTypes.func.isRequired,
    clearVessels: PropTypes.func.isRequired,
    vessels: PropTypes.object.isRequired,
@@ -75,4 +75,4 @@ const mapStateToProps = (state) => ({
    vessels: state.vessels,
 });
 
-export default connect(mapStateToProps, { loadVessels, clearVessels })(Vessels);
+export default connect(mapStateToProps, { loadVessels, clearVessels })(Vessel);

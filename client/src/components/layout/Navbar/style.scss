@@ -5,7 +5,7 @@
    justify-content: space-between;
    position: fixed;
    top: 0;
-   padding: 1.5rem 2rem;
+   padding: 1.1rem 2rem;
    box-shadow: 0 2.5px 15px 1px $dark-color;
    opacity: 0;
    visibility: hidden;
@@ -14,6 +14,10 @@
    z-index: 100;
    @include longerEaseOut;
 
+   @include respond(small-phone) {
+      padding: 1rem 1.5rem;
+   }
+
    &.show {
       opacity: 0.9;
       visibility: visible;
@@ -21,14 +25,18 @@
 
    &-logo {
       @include longerEaseOut;
+      width: min-content;
+
       img {
-         display: block;
+         margin-top: 0.2rem;
          width: 8rem;
-         /*  filter: invert(100%);
-         -webkit-filter: invert(100%); */
          filter: brightness(0) invert(1);
          -webkit-filter: brightness(0) invert(1);
          transform: rotateY(180deg);
+
+         @include respond(small-phone) {
+            width: 7rem;
+         }
       }
 
       &:hover {
@@ -47,6 +55,36 @@
       &-item {
          &:not(:last-child) {
             margin-right: 3rem;
+
+            @include respond(small-phone) {
+               margin-right: 2rem;
+            }
+         }
+      }
+
+      &-img {
+         width: 4.7rem;
+         height: 4.7rem;
+         border-radius: 50%;
+         border: 2px solid $secondary-color;
+         cursor: pointer;
+         @include easeOut;
+
+         &:hover {
+            transform: scale(1.05);
+         }
+
+         &.not {
+            background-color: $light-color;
+            color: $secondary-color;
+            display: flex;
+            justify-content: center;
+            align-content: center;
+
+            .icon {
+               margin: 0;
+               align-self: center;
+            }
          }
       }
 
@@ -97,6 +135,6 @@
    }
 
    .icon {
-      margin-bottom: -0.55rem;
+      margin-bottom: -0.5rem;
    }
 }

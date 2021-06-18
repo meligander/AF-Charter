@@ -11,7 +11,7 @@ import yatch from "../../../img/yatch.png";
 import "./style.scss";
 
 const Header = ({
-   auth: { isAuthenticated, userLogged, loading },
+   auth: { isAuthenticated, loggedUser, loading },
    logOut,
    clearReservations,
 }) => {
@@ -22,8 +22,8 @@ const Header = ({
                <img src={yatch} alt="AF-logo" />
             </div>
             <ul className="navbar-list">
-               {!loading && isAuthenticated && userLogged.type === "customer" && (
-                  <li className="navbar-list-item">
+               {!loading && isAuthenticated && loggedUser.type === "customer" && (
+                  <li className="navbar-list-item hide-sm">
                      <Link
                         onClick={() => {
                            window.scroll(0, 0);
@@ -32,11 +32,15 @@ const Header = ({
                         to="/myreservations"
                         className="navbar-list-link"
                      >
-                        <span className="hide-sm">My</span> Reservations
+                        My Reservations
                      </Link>
                   </li>
                )}
-               <li className="navbar-list-item hide-sm">
+               <li
+                  className={`navbar-list-item ${
+                     isAuthenticated ? "hide-sm" : ""
+                  }`}
+               >
                   <Link
                      to="/contact"
                      onClick={() => window.scroll(0, 0)}

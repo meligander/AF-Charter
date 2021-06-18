@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { BiSave } from "react-icons/bi";
 
-import { resetPassword, removeError } from "../../../actions/auth";
+import { resetPassword, removeAuthError } from "../../../actions/auth";
 
 import Alert from "../../shared/Alert";
 
@@ -11,7 +11,7 @@ import "./style.scss";
 
 const ChangePassword = ({
    resetPassword,
-   removeError,
+   removeAuthError,
    auth: { error },
    match,
 }) => {
@@ -32,7 +32,8 @@ const ChangePassword = ({
          ...prev,
          [e.target.id]: e.target.value,
       }));
-      if (error.length > 0) removeError(e.target.id);
+      if (error.constructor === Array && error.length > 0)
+         removeAuthError(e.target.id);
    };
 
    return (
@@ -44,7 +45,7 @@ const ChangePassword = ({
                <div className="form-group">
                   <input
                      className={`form-input ${
-                        error.length > 0 &&
+                        error.constructor === Array &&
                         error.some((value) => value.param === "password")
                            ? "invalid"
                            : ""
@@ -62,7 +63,7 @@ const ChangePassword = ({
                <div className="form-group">
                   <input
                      className={`form-input ${
-                        error.length > 0 &&
+                        error.constructor === Array &&
                         error.some((value) => value.param === "passwordConf")
                            ? "invalid"
                            : ""
@@ -90,7 +91,7 @@ const ChangePassword = ({
 
 ChangePassword.propTypes = {
    resetPassword: PropTypes.func.isRequired,
-   removeError: PropTypes.func.isRequired,
+   removeAuthError: PropTypes.func.isRequired,
    auth: PropTypes.object.isRequired,
 };
 
@@ -98,6 +99,6 @@ const mapStateToProps = (state) => ({
    auth: state.auth,
 });
 
-export default connect(mapStateToProps, { resetPassword, removeError })(
+export default connect(mapStateToProps, { resetPassword, removeAuthError })(
    ChangePassword
 );

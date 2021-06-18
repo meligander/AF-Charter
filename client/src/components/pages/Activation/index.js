@@ -6,7 +6,7 @@ import { activation } from "../../../actions/auth";
 
 const Activation = ({
    match,
-   auth: { loading, userLogged, error },
+   auth: { loading, loggedUser, error },
    activation,
 }) => {
    const token = match.params.token;
@@ -28,10 +28,10 @@ const Activation = ({
                   </p>
                </>
             ) : (
-               userLogged !== null && (
+               loggedUser !== null && (
                   <>
                      <h2 className="heading heading-primary text-primary">
-                        Welcome {userLogged.name + " " + userLogged.lastname}!
+                        Welcome {loggedUser.name + " " + loggedUser.lastname}!
                      </h2>
                      <p className="heading-tertiary m-3 py-3">
                         Welcome to Charter AF! You can start using our services

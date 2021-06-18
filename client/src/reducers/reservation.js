@@ -1,7 +1,10 @@
 import {
+   PAYMENT_CANCELED,
+   PAYMENT_REGISTERED,
    RESERVATIONS_CLEARED,
    RESERVATIONS_ERROR,
    RESERVATIONS_LOADED,
+   RESERVATION_CLEARED,
    RESERVATION_DELETED,
    RESERVATION_LOADED,
    RESERVATION_REGISTERED,
@@ -37,8 +40,8 @@ const reservationReducer = (state = initialState, action) => {
       case RESERVATION_UPDATED:
          return {
             ...state,
-            loading: false,
-            reservations: [...state.reservations, payload],
+            loadingReservation: false,
+            reservation: payload,
             error: {},
          };
       case RESERVATION_DELETED:
@@ -50,14 +53,30 @@ const reservationReducer = (state = initialState, action) => {
             loading: false,
             error: {},
          };
+      case PAYMENT_CANCELED:
+      case PAYMENT_REGISTERED:
+         return {
+            ...state,
+            reservation: {
+               ...state.reservation,
+               payment: payload,
+            },
+         };
       case RESERVATIONS_CLEARED:
          return initialState;
+      case RESERVATION_CLEARED:
+         return {
+            ...state,
+            loadingReservation: true,
+            reservation: null,
+            error: {},
+         };
       case RESERVATIONS_ERROR:
          return {
             ...state,
-            user: null,
-            users: [],
-            loadingUser: false,
+            reservation: null,
+            reservations: [],
+            loadingReservation: false,
             loading: false,
             error: payload,
          };

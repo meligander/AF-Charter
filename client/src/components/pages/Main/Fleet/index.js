@@ -4,10 +4,15 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import { loadVessels } from "../../../../actions/vessel";
+import { clearReservations } from "../../../../actions/reservation";
 
 import "./style.scss";
 
-const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
+const Fleet = ({
+   loadVessels,
+   vessels: { vessels, loading },
+   clearReservations,
+}) => {
    const [adminValues, setAdminValues] = useState({
       vesselNumb: 0,
    });
@@ -15,7 +20,7 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
    const { vesselNumb } = adminValues;
 
    useEffect(() => {
-      if (loading) loadVessels({});
+      if (loading) loadVessels({ active: true });
    }, [loading, loadVessels]);
 
    return (
@@ -62,6 +67,10 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
                         <Link
                            to={`/vessel/${vessels[vesselNumb]._id}`}
                            className="btn btn-fleet"
+                           onClick={() => {
+                              window.scroll(0, 0);
+                              clearReservations();
+                           }}
                         >
                            More Info
                         </Link>
@@ -97,10 +106,13 @@ const Fleet = ({ loadVessels, vessels: { vessels, loading } }) => {
 Fleet.propTypes = {
    vessels: PropTypes.object.isRequired,
    loadVessels: PropTypes.func.isRequired,
+   clearReservations: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    vessels: state.vessels,
 });
 
-export default connect(mapStateToProps, { loadVessels })(Fleet);
+export default connect(mapStateToProps, { loadVessels, clearReservations })(
+   Fleet
+);

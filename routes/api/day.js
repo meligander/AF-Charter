@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const moment = require("moment");
 
 //Middleware
 const auth = require("../../middleware/auth");
@@ -8,16 +9,13 @@ const adminAuth = require("../../middleware/adminAuth");
 //Models
 const Day = require("../../models/Day");
 
-//@route    GET api/day/:vessel_id/:date/:time
+//@route    GET api/day/:vessel_id/:date/:time/:reservation_id
 //@desc     Get day availability
 //@access   Public
-router.get("/:vessel_id/:date/:time", async (req, res) => {
+router.get("/:vessel_id/:date/:time/:from/:to", async (req, res) => {
    try {
       let availableHours = [];
-
       const pastDate = new Date(req.params.date);
-      pastDate.setUTCHours(0, 0, 0, 0);
-
       let day = await Day.findOne({
          date: {
             $gte: pastDate,
@@ -43,6 +41,48 @@ router.get("/:vessel_id/:date/:time", async (req, res) => {
          };
       }
 
+      if (
+         req.params.from !== "0" &&
+         moment(req.params.from).format("MM-DD-YYYY") ===
+            moment(day.date).utc().format("MM-DD-YYYY")
+      ) {
+         const originalDateFrom = moment(req.params.from).utc();
+         const originalDateTo = moment(req.params.to).utc();
+         let add = false;
+
+         for (let x = 0; x < day.availableHours.length; x++) {
+            if (originalDateTo.hours() + 1 === day.availableHours[x][0]) {
+               day.availableHours[x][0] =
+                  originalDateFrom.hours() <= 9 ? 8 : originalDateFrom.hours();
+               add = true;
+               break;
+            }
+            if (originalDateFrom.hours() === day.availableHours[x][1] + 1) {
+               if (originalDateTo.hours() > 18) day.availableHours[x][1] = 18;
+               else {
+                  if (
+                     day.availableHours[x + 1] &&
+                     originalDateTo.hours() + 1 === day.availableHours[x + 1][0]
+                  ) {
+                     day.availableHours[x][1] = day.availableHours[x + 1][1];
+                     day.availableHours.splice(x + 1, 1);
+                     x--;
+                  } else day.availableHours[x][1] = originalDateTo.hours();
+               }
+               add = true;
+               break;
+            }
+         }
+
+         if (!add)
+            day.availableHours.push([
+               originalDateFrom.hours(),
+               Number(originalDateTo.format("H")) > 18
+                  ? 18
+                  : Number(originalDateTo.format("H")),
+            ]);
+      }
+
       for (let x = 0; x < day.availableHours.length; x++) {
          let from = day.availableHours[x][0];
          const to = day.availableHours[x][1];
@@ -62,13 +102,16 @@ router.get("/:vessel_id/:date/:time", async (req, res) => {
    }
 });
 
-//@route    GET api/day/:vessel_id/:month/:year/:time
+//@route    GET api/day/:vessel_id/:month/:year/:time/:reservation_id
 //@desc     Get unavailability of a month
 //@access   Public
-router.get("/month/:vessel_id/:month/:year/:time", async (req, res) => {
+router.get("/month/:vessel_id/:month/:year/:time/:date", async (req, res) => {
    try {
       const monthDays = getDaysInMonth(req.params.month, req.params.year);
       let unavailableDates = [];
+      const date =
+         req.params.date !== "0" &&
+         moment(req.params.date).utc().format("YYYY-MM-DD");
 
       const days = await Day.find({
          date: {
@@ -97,20 +140,28 @@ router.get("/month/:vessel_id/:month/:year/:time", async (req, res) => {
             : 2;
 
       for (let x = 0; x < days.length; x++) {
-         if (days[x].availableHours.length === 0)
+         const dayDate = moment(days[x].date).utc().format("YYYY-MM-DD");
+
+         if (
+            days[x].availableHours.length === 0 &&
+            (!date || (date && date !== dayDate))
+         )
             unavailableDates.push(days[x].date);
          else {
             let pass = true;
             for (let y = 0; y < days[x].availableHours.length; y++) {
                if (
                   days[x].availableHours[y][1] - days[x].availableHours[y][0] >=
-                  lowest
+                     lowest ||
+                  days[x].availableHours[y][1] !== 18 ||
+                  (date && date === dayDate)
                ) {
                   pass = false;
                   break;
                }
             }
-            if (pass) unavailableDates.push(days[x].date);
+            if (pass && (!date || (date && date !== dayDate)))
+               unavailableDates.push(days[x].date);
          }
       }
 

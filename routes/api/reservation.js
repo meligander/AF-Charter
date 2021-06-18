@@ -5,7 +5,6 @@ const { check, validationResult } = require("express-validator");
 
 //Middleware
 const auth = require("../../middleware/auth");
-const adminAuth = require("../../middleware/adminAuth");
 
 //Models
 const Reservation = require("../../models/Reservation");
@@ -52,13 +51,13 @@ router.get("/", [auth], async (req, res) => {
          ...(req.query.customer && { customer: req.query.customer }),
          ...(req.query.vessel && { vessel: req.query.vessel }),
          ...(req.query.captain && { "crew.captain": req.query.captain }),
-         ...((req.query.startDate || req.query.endDate) && {
+         ...((req.query.dateFrom || req.query.dateTo) && {
             dateFrom: {
-               ...(req.query.startDate && {
-                  $gte: new Date(req.query.startDate).setUTCHours(00, 00, 00),
+               ...(req.query.dateFrom && {
+                  $gte: new Date(req.query.dateFrom).setUTCHours(00, 00, 00),
                }),
-               ...(req.query.endDate && {
-                  $lte: new Date(req.query.endDate).setUTCHours(23, 59, 59),
+               ...(req.query.dateTo && {
+                  $lte: new Date(req.query.dateTo).setUTCHours(23, 59, 59),
                }),
             },
          }),
@@ -76,7 +75,8 @@ router.get("/", [auth], async (req, res) => {
             path: "crew.captain",
             model: "user",
             select: ["name", "lastname"],
-         });
+         })
+         .limit(req.query.limit && Number(req.query.limit));
 
       if (reservations.length === 0) {
          return res.status(400).json({
@@ -104,21 +104,20 @@ router.post(
 
       if (errors.length > 0) return res.status(400).json({ errors });
 
-      let { dateFrom, dateTo, customer, vessel, captain, mates, charterValue } =
+      let { dateFrom, dateTo, customer, vessel, captain, charterValue } =
          req.body;
 
-      dateFrom = moment(dateFrom);
-      dateTo = moment(dateTo);
+      dateFrom = new Date(dateFrom);
+      dateTo = new Date(dateTo);
 
       const reservationFields = {
-         dateFrom: new Date(dateFrom.format("YYYY-MM-DD[T]HH:mm:SS[Z]")),
-         dateTo: new Date(dateTo.format("YYYY-MM-DD[T]HH:mm:SS[Z]")),
+         dateFrom,
+         dateTo,
          customer: customer._id,
          active: true,
          vessel,
          crew: {
-            ...(captain && { captain }),
-            ...(mates && mates.lenght > 0 && { mates }),
+            captain,
          },
       };
 
@@ -128,6 +127,9 @@ router.post(
          taxes:
             Math.round((charterValue * 0.0705 + Number.EPSILON) * 100) / 100,
          downpayment: {
+            amount: 0,
+         },
+         balance: {
             amount: 0,
          },
       };
@@ -140,6 +142,14 @@ router.post(
       paymentFields.downpayment.amount =
          Math.round((paymentFields.total * 0.2 + Number.EPSILON) * 100) / 100;
 
+      paymentFields.balance.amount =
+         Math.round(
+            (paymentFields.total -
+               paymentFields.downpayment.amount +
+               Number.EPSILON) *
+               100
+         ) / 100;
+
       const payment = new Payment(paymentFields);
 
       reservationFields.payment = payment._id;
@@ -149,7 +159,7 @@ router.post(
       try {
          await payment.save();
          await reservation.save();
-         await removeAvailability(dateFrom, dateTo, reservation);
+         await removeAvailability(reservation);
 
          reservation = await Reservation.find()
             .sort({ $natural: -1 })
@@ -178,30 +188,45 @@ router.post(
 //@desc     Update a reservation
 //@access   Private
 router.put("/:reservation_id", [auth], async (req, res) => {
-   let { dateFrom, dateTo, captain, mates } = req.body;
+   let { dateFrom, dateTo, captain, mates, vessel } = req.body;
 
-   dateFrom = moment(dateFrom);
-   dateTo = moment(dateTo);
+   dateFrom = dateFrom && new Date(dateFrom);
+   dateTo = dateTo && new Date(dateTo);
 
    const reservationFields = {
-      dateFrom: new Date(dateFrom.format("YYYY-MM-DD[T]HH:mm:SS[Z]")),
-      dateTo: new Date(dateTo.format("YYYY-MM-DD[T]HH:mm:SS[Z]")),
+      ...(dateFrom && { dateFrom }),
+      ...(dateTo && { dateTo }),
+      ...(vessel && { vessel }),
       crew: {
          ...(captain && { captain }),
-         ...(mates && mates.lenght > 0 && { mates }),
+         ...(mates && mates.length > 0 && { mates }),
       },
    };
 
    try {
-      const reservation = await Reservation.findOne({
-         _id: req.params.reservation_id,
-      });
+      const reservation = await Reservation.findOneAndUpdate(
+         { _id: req.params.reservation_id },
+         reservationFields,
+         { new: true }
+      )
+         .populate({
+            path: "vessel",
+         })
+         .populate({
+            path: "payment",
+         })
+         .populate({
+            path: "crew.captain",
+            model: "user",
+            select: ["name", "lastname"],
+         });
 
-      addAvailability(reservation);
-      removeAvailability(dateFrom, dateTo, reservation);
-      reservation.updateOne(reservationFields);
+      if (dateFrom && dateTo) {
+         await addAvailability(reservation);
+         await removeAvailability(reservation);
+      }
 
-      return res.json(newValue[2]);
+      return res.json(reservation);
    } catch (err) {
       console.error(err.message);
       res.status(500).json({ msg: "Server Error" });
@@ -218,8 +243,8 @@ router.put("/cancel/:reservation_id", [auth], async (req, res) => {
          _id: req.params.reservation_id,
       });
 
-      addAvailability(reservation);
-      reservation.updateOne({ active: false });
+      await addAvailability(reservation);
+      await reservation.updateOne({ active: false });
 
       res.json({ msg: "Reservation canceled" });
    } catch (err) {
@@ -229,9 +254,9 @@ router.put("/cancel/:reservation_id", [auth], async (req, res) => {
 });
 
 //@route    DELETE api/reservation
-//@desc     Delete reservations that have not been payed and update the expired ones
+//@desc     Delete reservations that have not been payed
 //@access   Public
-router.delete("/", [auth], async (req, res) => {
+router.delete("/", async (req, res) => {
    try {
       const today = moment().utc();
 
@@ -243,14 +268,39 @@ router.delete("/", [auth], async (req, res) => {
       for (let x = 0; x < reservations.length; x++) {
          const date = moment(reservations[x].date).utc();
          if (
-            !reservations[x].payment.downpayment.payStripe &&
+            !reservations[x].payment.downpayment.status &&
             (today - date) / 36e5 > 24
          ) {
-            reservations[x].remove();
+            await Payment.findOneAndRemove({
+               _id: reservations[x].payment._id,
+            });
+            const day = await Day.findOne({
+               date: {
+                  $gte: new Date(reservations[x].dateFrom).setUTCHours(0, 0, 0),
+                  $lte: new Date(reservations[x].dateFrom).setUTCHours(
+                     23,
+                     59,
+                     59
+                  ),
+               },
+            });
+
+            if (day.reservations.length === 1) await day.remove();
+            else
+               await day.updateOne({
+                  reservations: day.reservations.filter(
+                     (item) =>
+                        item.toString() !== reservations[x]._id.toString()
+                  ),
+               });
+
+            await reservations[x].remove();
          }
-         if (reservations[x].dateTo < today)
-            reservations[x].updateOne({ active: false });
       }
+
+      const oldDays = await Day.find({ date: { $lt: today } });
+
+      for (let x = 0; x < oldDays.length; x++) oldDays[x].remove();
 
       res.json({ msg: "Reservations updated" });
    } catch (err) {
@@ -261,7 +311,7 @@ router.delete("/", [auth], async (req, res) => {
 
 //@route    DELETE api/reservation/:reservation_id
 //@desc     Delete a reservation
-//@access   Private && Admin
+//@access   Private
 router.delete("/:reservation_id", [auth], async (req, res) => {
    try {
       //Remove reservation
@@ -269,8 +319,10 @@ router.delete("/:reservation_id", [auth], async (req, res) => {
          _id: req.params.reservation_id,
       });
 
-      addAvailability(reservation);
-      reservation.remove();
+      await Payment.findOneAndDelete({ _id: reservation.payment });
+
+      await addAvailability(reservation);
+      await reservation.remove();
 
       res.json({ msg: "Reservation deleted" });
    } catch (err) {
@@ -303,7 +355,16 @@ const addAvailability = async (reservation) => {
       }
       if (reservation.dateFrom.getUTCHours() === availableHours[x][1] + 1) {
          if (reservation.dateTo.getUTCHours() > 18) availableHours[x][1] = 18;
-         else availableHours[x][1] = reservation.dateTo.getUTCHours();
+         else {
+            if (
+               day.availableHours[x + 1] &&
+               reservation.dateTo.getUTCHours() + 1 ===
+                  day.availableHours[x + 1][0]
+            ) {
+               day.availableHours[x][1] = day.availableHours[x + 1][1];
+               day.availableHours.splice(x + 1, 1);
+            } else day.availableHours[x][1] = reservation.dateTo.getUTCHours();
+         }
          add = true;
          break;
       }
@@ -311,24 +372,41 @@ const addAvailability = async (reservation) => {
    if (!add)
       availableHours.push([
          reservation.dateFrom.getUTCHours(),
-         reservation.dateTo.getUTCHours(),
+         reservation.dateTo.getUTCHours() > 18
+            ? 18
+            : reservation.dateTo.getUTCHours(),
       ]);
 
-   await day.updateOne({ availableHours });
+   let reservations = day.reservations.filter(
+      (item) => item._id.toString() !== reservation._id.toString()
+   );
+
+   if (reservations.length === 0) await day.remove();
+   else
+      await day.updateOne({
+         availableHours,
+         reservations,
+      });
 };
 
-const removeAvailability = async (dateFrom, dateTo, reservation) => {
+const removeAvailability = async (reservation) => {
+   const from = new Date(
+      moment(reservation.dateFrom).format("YYYY-MM-DD[T00:00:00Z]")
+   );
+
    let day = await Day.findOne({
       date: {
-         $gte: new Date(dateFrom.format("YYYY-MM-DD[T00:00:00Z]")),
-         $lte: new Date(dateFrom.format("YYYY-MM-DD[T23:59:59Z]")),
+         $gte: from,
+         $lte: new Date(
+            moment(reservation.dateFrom).format("YYYY-MM-DD[T23:59:59Z]")
+         ),
       },
       vessel: reservation.vessel,
    });
 
    let dayFields = {
       availableHours: !day ? [[8, 18]] : day.availableHours,
-      date: new Date(dateFrom.format("YYYY-MM-DD[T00:00:00Z]")),
+      date: from,
       vessel: reservation.vessel,
       reservations: !day
          ? [reservation._id]
@@ -344,15 +422,26 @@ const removeAvailability = async (dateFrom, dateTo, reservation) => {
       let to = dayFields.availableHours[x][1];
 
       if (
-         from <= dateFrom.hours() &&
-         (to > dateTo.hours() || dateTo.date() > dateFrom.date() || to === 18)
+         from <= reservation.dateFrom.getUTCHours() &&
+         (to > reservation.dateTo.getUTCHours() ||
+            reservation.dateTo.getUTCDate() >
+               reservation.dateFrom.getUTCDate() ||
+            to === 18)
       ) {
-         if (dateTo.date() === dateFrom.date() && to - dateTo.hours() > 0) {
-            dayFields.availableHours.push([dateTo.hours() + 1, to]);
+         if (
+            reservation.dateTo.getUTCDate() ===
+               reservation.dateFrom.getUTCDate() &&
+            to - reservation.dateTo.getUTCHours() > 0
+         ) {
+            dayFields.availableHours.push([
+               reservation.dateTo.getUTCHours() + 1,
+               to,
+            ]);
          }
 
-         if (dateFrom.hours() - from > 1) {
-            dayFields.availableHours[x][1] = dateFrom.hours() - 1;
+         if (reservation.dateFrom.getUTCHours() - from > 1) {
+            dayFields.availableHours[x][1] =
+               reservation.dateFrom.getUTCHours() - 1;
          } else dayFields.availableHours.splice(x, 1);
 
          break;

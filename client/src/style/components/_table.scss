@@ -2,7 +2,17 @@ table {
    border-collapse: collapse;
    width: 100%;
    margin: 0 auto;
+   font-size: 1.75rem;
    --table-layout: fixed;
+
+   @include respond(small-phone) {
+      font-size: 1.6rem;
+   }
+
+   .border-btm {
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid $primary-color;
+   }
 
    th,
    td {
@@ -22,14 +32,32 @@ table {
 
       @include respond(small-phone) {
          width: 90%;
+         font-size: 1.6rem;
       }
 
       td {
          text-align: start;
       }
+
       tr > *:first-child {
          color: $primary-color;
          font-size: 2.5rem;
+
+         @include respond(small-phone) {
+            font-size: 1.8rem;
+         }
+      }
+   }
+
+   @each $child in $tablechildren {
+      &.icon-#{$child} {
+         td:nth-child(#{$child}),
+         td:nth-child(#{$child + 1}) {
+            width: 5%;
+         }
+         .btn-text {
+            font-size: 2rem;
+         }
       }
    }
 }

@@ -1,0 +1,112 @@
+@import "../../../style/abstract/abstract.scss";
+
+.drop {
+   &-container {
+      display: flex;
+      width: 60rem;
+      min-height: 20rem;
+      align-items: center;
+      justify-content: center;
+      border: 3px dashed $primary-color;
+      cursor: pointer;
+      margin: 0 auto;
+
+      @include respond(small-phone) {
+         width: 100%;
+      }
+
+      &.lighter {
+         border: 3px dashed $secondary-color;
+         background-color: lighten($secondary-color, 55%);
+
+         .drop-container-icon {
+            color: $secondary-color;
+         }
+      }
+
+      &-message {
+         font-size: 2rem;
+         color: $dark-color;
+         text-align: center;
+      }
+
+      &-icon {
+         font-size: 5rem;
+         margin: 1rem auto;
+         color: $primary-color;
+         display: block;
+      }
+
+      &-file-input {
+         display: none;
+      }
+   }
+
+   &-file {
+      display: flex;
+      flex-direction: column;
+      margin: 3rem 0;
+
+      &-display {
+         width: 100%;
+         height: 100%;
+         display: flex;
+         justify-content: space-around;
+         align-items: center;
+      }
+
+      &-name {
+         color: $dark-color;
+         //margin-left: -10rem;
+         font-size: 1.8rem;
+      }
+
+      &-type {
+         position: relative;
+         color: #abc;
+         font-size: 8rem;
+         width: min-content;
+
+         &-name {
+            position: absolute;
+            border-radius: 2px;
+            font-size: 1.4rem;
+            padding: 0.1rem 0.3rem;
+            top: 3.7rem;
+            left: 0.7rem;
+            box-shadow: 1px 1px 2px #abc;
+            color: #fff;
+            background: $primary-color;
+            text-transform: uppercase;
+         }
+      }
+
+      &-remove {
+         font-size: 3rem;
+         color: $danger-color;
+         margin-bottom: -0.6rem;
+         transition: all 0.2s ease-out;
+
+         &:hover {
+            transform: scale(1.1) translateY(-0.1rem);
+            color: lighten($danger-color, 5%);
+         }
+      }
+   }
+
+   &-error,
+   &-file-error {
+      color: $danger-color;
+      text-align: center;
+   }
+
+   &-error {
+      font-size: 2rem;
+      font-weight: bold;
+   }
+
+   &-file-error {
+      display: block;
+      margin-top: 0.5rem;
+   }
+}

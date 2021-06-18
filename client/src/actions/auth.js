@@ -10,8 +10,9 @@ import {
    USERAUTH_LOADED,
    SIGNUP_FAIL,
    SIGNUP_SUCCESS,
-   REMOVE_ERROR,
+   REMOVEAUTH_ERROR,
    PASSWORD_CHANGED,
+   EMAIL_ERROR,
 } from "./types";
 
 import { setAlert } from "./alert";
@@ -50,6 +51,7 @@ export const loadUser = (login) => async (dispatch) => {
 };
 
 export const loginUser = (formData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
    try {
       const res = await api.post("/auth", formData);
       dispatch({
@@ -81,6 +83,7 @@ export const loginUser = (formData) => async (dispatch) => {
       }
       window.scrollTo(0, 0);
    }
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const facebookLogin = (fbkData) => async (dispatch) => {
@@ -108,6 +111,8 @@ export const facebookLogin = (fbkData) => async (dispatch) => {
 
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const googleLogin = (googleData) => async (dispatch) => {
@@ -135,6 +140,8 @@ export const googleLogin = (googleData) => async (dispatch) => {
 
       window.scrollTo(0, 0);
    }
+
+   dispatch(updateLoadingSpinner(false));
 };
 
 export const signup = (formData) => async (dispatch) => {
@@ -292,9 +299,46 @@ export const activation = (token) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const removeError = (param) => (dispatch) => {
+export const sendEmail = (formData) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
+   try {
+      await api.post("/auth/send-email", formData);
+
+      dispatch({
+         type: EMAILAUTH_SENT,
+      });
+
+      dispatch(setAlert("Email Sent", "success", "2"));
+   } catch (err) {
+      if (err.response.data.errors) {
+         const errors = err.response.data.errors;
+         errors.forEach((error) => {
+            dispatch(setAlert(error.msg, "danger", "2"));
+         });
+         dispatch({
+            type: EMAIL_ERROR,
+            payload: errors,
+         });
+      } else {
+         dispatch(setAlert(err.response.data.msg, "danger", "2"));
+         dispatch({
+            type: EMAIL_ERROR,
+            payload: {
+               type: err.response.statusText,
+               status: err.response.status,
+               msg: err.response.data.msg,
+            },
+         });
+      }
+   }
+
+   dispatch(updateLoadingSpinner(false));
+};
+
+export const removeAuthError = (param) => (dispatch) => {
    dispatch({
-      type: REMOVE_ERROR,
+      type: REMOVEAUTH_ERROR,
       payload: param,
    });
 };
@@ -303,5 +347,5 @@ export const logOut = () => (dispatch) => {
    dispatch({
       type: LOGOUT,
    });
-   history.push("/");
+   history.push("/login");
 };

@@ -49,16 +49,27 @@
             transform: rotateY(180deg);
             filter: brightness(0) invert(1);
             -webkit-filter: brightness(0) invert(1);
+
+            @include respond(small-phone) {
+               width: 9rem;
+            }
          }
       }
    }
 
-   .navbar-list-link {
-      font-size: 3rem;
+   .navbar-list {
+      &-link {
+         font-size: 3rem;
 
-      &::before,
-      &::after {
-         top: 3.8rem;
+         &::before,
+         &::after {
+            top: 3.8rem;
+         }
+      }
+
+      &-img {
+         width: 5.5rem;
+         height: 5.5rem;
       }
    }
 

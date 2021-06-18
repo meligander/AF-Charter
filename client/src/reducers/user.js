@@ -6,6 +6,9 @@ import {
    USER_DELETED,
    USERS_CLEARED,
    USERS_ERROR,
+   REMOVEUSER_ERROR,
+   USERSSECONDARY_ERROR,
+   USERSSECONDARY_LOADED,
 } from "../actions/types";
 
 const initialState = {
@@ -13,6 +16,8 @@ const initialState = {
    loadingUser: true,
    user: null,
    users: [],
+   usersAux: [],
+   loadingAux: true,
    error: {},
 };
 
@@ -31,6 +36,13 @@ const userReducer = (state = initialState, action) => {
             ...state,
             loading: false,
             users: payload,
+            error: {},
+         };
+      case USERSSECONDARY_LOADED:
+         return {
+            ...state,
+            loadingAux: false,
+            usersAux: payload,
             error: {},
          };
       case USER_REGISTERED:
@@ -58,6 +70,18 @@ const userReducer = (state = initialState, action) => {
             loadingUser: false,
             loading: false,
             error: payload,
+         };
+      case USERSSECONDARY_ERROR:
+         return {
+            ...state,
+            usersAux: [],
+            loadingAux: false,
+            error: payload,
+         };
+      case REMOVEUSER_ERROR:
+         return {
+            ...state,
+            error: state.error.filter((errorI) => errorI.param !== payload),
          };
       default:
          return state;

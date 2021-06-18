@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { GiSailboat } from "react-icons/gi";
 import { BiTimeFive } from "react-icons/bi";
+import { BsDot } from "react-icons/bs";
 import { ImLifebuoy } from "react-icons/im";
 import { FaAnchor } from "react-icons/fa";
 import PropTypes from "prop-types";
 
 import { loadVessel } from "../../../actions/vessel";
-import { registerReservation } from "../../../actions/reservation";
-import {
-   checkDayAvailability,
-   checkMonthAvailability,
-} from "../../../actions/day";
 
-import Photo from "../../modal/Photo";
+import Gallery from "../../shared/Gallery";
 import Tab from "../../shared/Tab";
 import Schedule from "../../shared/Schedule";
 
@@ -21,38 +17,14 @@ import "./style.scss";
 
 const Vessel = ({
    loadVessel,
-   registerReservation,
-   auth: { userLogged },
    vessels: { vessel, loadingVessel: loading },
    match,
 }) => {
    const _id = match.params.vessel_id;
 
-   const [adminValues, setAdminValues] = useState({
-      togglePhoto: false,
-      number: 0,
-   });
-
-   const { togglePhoto, number } = adminValues;
-
    useEffect(() => {
-      if (loading) loadVessel(_id, false);
+      if (loading) loadVessel(_id);
    }, [loading, loadVessel, _id]);
-
-   const toggleBig = () => {
-      setAdminValues((prev) => ({
-         ...prev,
-         togglePhoto: false,
-      }));
-   };
-
-   const saveData = (formData) => {
-      registerReservation({
-         ...formData,
-         customer: userLogged,
-         vessel: _id,
-      });
-   };
 
    const Rates = () => {
       return (
@@ -98,6 +70,20 @@ const Vessel = ({
                      <FaAnchor className="icon" /> &nbsp; {item}
                   </li>
                ))}
+            {vessel.waterToys.length > 0 && (
+               <>
+                  <li>
+                     <FaAnchor className="icon" /> &nbsp; Water Toys:
+                     <ul>
+                        {vessel.waterToys.map((itemW, i2) => (
+                           <li className="indentation" key={`w${i2}`}>
+                              <BsDot className="icon" /> {itemW}
+                           </li>
+                        ))}
+                     </ul>
+                  </li>
+               </>
+            )}
          </ul>
       );
    };
@@ -105,13 +91,6 @@ const Vessel = ({
    return (
       !loading && (
          <div className="vessel">
-            {togglePhoto && (
-               <Photo
-                  images={vessel.images}
-                  number={number}
-                  togglePhoto={toggleBig}
-               />
-            )}
             <h2 className="heading heading-primary text-center">
                {vessel.name} <div className="underline"></div>
             </h2>
@@ -155,34 +134,13 @@ const Vessel = ({
             <div className="row">
                <div>
                   <h4 className="heading heading-secondary ">Gallery</h4>
-                  <div className="vessel-gallery">
-                     {vessel.images.length > 0 &&
-                        vessel.images.map(
-                           (img, i) =>
-                              !img.default && (
-                                 <div
-                                    key={i}
-                                    style={{
-                                       backgroundImage: `url( ${img.filePath})`,
-                                    }}
-                                    className="vessel-gallery-img img"
-                                    onClick={() =>
-                                       setAdminValues((prev) => ({
-                                          ...prev,
-                                          number: i,
-                                          togglePhoto: true,
-                                       }))
-                                    }
-                                 ></div>
-                              )
-                        )}
-                  </div>
+                  <Gallery originalImages={vessel.images} />
                </div>
             </div>
             <h4 className="heading heading-primary text-center mt-3">
                Availability
             </h4>
-            <Schedule vessel={vessel} type="reserve" saveData={saveData} />
+            <Schedule />
          </div>
       )
    );
@@ -190,23 +148,13 @@ const Vessel = ({
 
 Vessel.propTypes = {
    loadVessel: PropTypes.func.isRequired,
-   registerReservation: PropTypes.func.isRequired,
-   checkDayAvailability: PropTypes.func.isRequired,
-   checkMonthAvailability: PropTypes.func.isRequired,
    vessels: PropTypes.object.isRequired,
-   auth: PropTypes.object.isRequired,
-   days: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    vessels: state.vessels,
-   days: state.days,
-   auth: state.auth,
 });
 
 export default connect(mapStateToProps, {
    loadVessel,
-   registerReservation,
-   checkDayAvailability,
-   checkMonthAvailability,
 })(Vessel);

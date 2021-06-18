@@ -59,16 +59,17 @@
          @include respond(phone) {
             width: 100%;
          }
-
-         @include respond(small-phone) {
-            padding: 4rem;
-         }
       }
    }
 
    &-space {
       margin: 0 2rem;
       color: $dark-color;
+
+      @include respond(small-phone) {
+         display: block;
+         margin: 1rem 0;
+      }
    }
 
    .center {

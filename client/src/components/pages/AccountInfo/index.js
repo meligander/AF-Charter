@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
+import moment from "moment";
 import { withRouter, Link } from "react-router-dom";
 import { FaUserPlus, FaUserAlt } from "react-icons/fa";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import { BiMailSend, BiSave } from "react-icons/bi";
 import PropTypes from "prop-types";
 
-import { signup, removeError } from "../../../actions/auth";
+import { signup, removeAuthError } from "../../../actions/auth";
+import { registerUpdateUser, removeUserError } from "../../../actions/user";
 
 import Alert from "../../shared/Alert";
 
 import "./style.scss";
 
 const AccountInfo = ({
-   auth: { userLogged, isAuthenticated, loading, emailSent, error },
+   auth: { loggedUser, isAuthenticated, loading, emailSent, error },
+   users: { error: userError },
    location,
    signup,
-   removeError,
+   removeAuthError,
+   registerUpdateUser,
+   removeUserError,
 }) => {
    const [formData, setFormData] = useState({
       name: "",
@@ -33,6 +38,7 @@ const AccountInfo = ({
       address: "",
       dob: "",
       img: "",
+      active: "",
    });
 
    const [adminValues, setAdminValues] = useState({
@@ -53,42 +59,66 @@ const AccountInfo = ({
       dob,
       img,
       passwordConf,
+      active,
    } = formData;
 
    const { isAdmin, previewSource, fileInputState, selectedFile } = adminValues;
 
    useEffect(() => {
-      if (!loading && userLogged) {
+      if (!loading && loggedUser) {
+         setFormData((prev) => ({
+            ...prev,
+            name: loggedUser.name,
+            lastname: loggedUser.lastname,
+            type: loggedUser.type,
+            email: loggedUser.email,
+            active: loggedUser.active,
+            ...(loggedUser.address && { address: loggedUser.address }),
+            ...(loggedUser.dob && {
+               dob: moment(loggedUser.dob).utc().format("YYYY-MM-DD"),
+            }),
+            cel: {
+               ...prev.cel,
+               ...(loggedUser.cel.areaCode && {
+                  countryCode: loggedUser.cel.countryCode,
+               }),
+               ...(loggedUser.cel.areaCode && {
+                  areaCode: loggedUser.cel.areaCode,
+               }),
+               ...(loggedUser.cel.phoneNumb && {
+                  phoneNumb: loggedUser.cel.phoneNumb,
+               }),
+            },
+         }));
          setAdminValues((prev) => ({
             ...prev,
             isAdmin:
-               userLogged.type === "admin" ||
-               userLogged.type === "admin&captain",
+               loggedUser.type === "admin" ||
+               loggedUser.type === "admin&captain",
+            ...(loggedUser.img &&
+               loggedUser.img.fileName !== "" && {
+                  previewSource: loggedUser.img.filePath,
+                  fileInputState: true,
+               }),
          }));
       }
-   }, [loading, userLogged]);
+   }, [loading, loggedUser]);
 
    const header = () => {
       switch (location.pathname) {
          case "/signup":
-            return (
-               <>
-                  <FaUserPlus className="heading-icon" />
-                  &nbsp;Create your account
-               </>
-            );
-         case "/myprofile":
-            return (
-               <>
-                  <FaUserAlt className="heading-icon" />
-                  &nbsp;My Profile
-               </>
-            );
          case "/new-user":
             return (
                <>
                   <FaUserPlus className="heading-icon" />
-                  &nbsp;Add a new User
+                  &nbsp;New account
+               </>
+            );
+         case "/profile":
+            return (
+               <>
+                  <FaUserAlt className="heading-icon" />
+                  &nbsp;My Profile
                </>
             );
          default:
@@ -111,9 +141,18 @@ const AccountInfo = ({
                     [e.target.id]: e.target.value,
                  },
               }
+            : e.target.name === "active"
+            ? { active: !active }
             : { [e.target.id]: e.target.value }),
       }));
-      if (error.length > 0) removeError(e.target.id);
+
+      if (
+         (error.constructor === Array && error.length > 0) ||
+         (userError.constructor === Array && userError.length > 0)
+      )
+         location.pathname === "/signup"
+            ? removeAuthError(e.target.id)
+            : removeUserError(e.target.id);
    };
 
    const onChangeImg = (e) => {
@@ -140,18 +179,24 @@ const AccountInfo = ({
       e.preventDefault();
 
       const uploadImg = new FormData();
-      if (selectedFile !== "") {
+      if (selectedFile !== "")
          uploadImg.append("file", selectedFile, selectedFile.name);
-      }
-      if (location.pathname === "/signup") {
-         signup({
-            ...formData,
-            ...(selectedFile !== "" && {
-               img: selectedFile.name,
-               formImg: uploadImg,
-            }),
-         });
-      }
+
+      const data = {
+         ...formData,
+         ...(selectedFile !== "" && {
+            img: selectedFile.name,
+            formImg: uploadImg,
+         }),
+      };
+
+      if (location.pathname === "/signup") signup(data);
+      else
+         registerUpdateUser(
+            data,
+            location.pathname === "/profile" && loggedUser._id,
+            location.pathname === "/profile"
+         );
    };
 
    return (
@@ -160,9 +205,7 @@ const AccountInfo = ({
             <h2 className="heading heading-primary">{header()}</h2>
             {!emailSent ? (
                <>
-                  <div className="form">
-                     <Alert type="2" />
-                  </div>
+                  <Alert type="2" />
                   <form className="form py-5" onSubmit={saveUser}>
                      <div className="form-img">
                         <img
@@ -201,8 +244,14 @@ const AccountInfo = ({
                               onChange={onChange}
                               value={name}
                               className={`form-input ${
-                                 error.length > 0 &&
-                                 error.some((value) => value.param === "name")
+                                 (error.constructor === Array &&
+                                    error.some(
+                                       (value) => value.param === "name"
+                                    )) ||
+                                 (userError.constructor === Array &&
+                                    userError.some(
+                                       (value) => value.param === "name"
+                                    ))
                                     ? "invalid"
                                     : ""
                               }`}
@@ -224,10 +273,14 @@ const AccountInfo = ({
                               onChange={onChange}
                               id="lastname"
                               className={`form-input ${
-                                 error.length > 0 &&
-                                 error.some(
-                                    (value) => value.param === "lastname"
-                                 )
+                                 (error.constructor === Array &&
+                                    error.some(
+                                       (value) => value.param === "lastname"
+                                    )) ||
+                                 (userError.constructor === Array &&
+                                    userError.some(
+                                       (value) => value.param === "lastname"
+                                    ))
                                     ? "invalid"
                                     : ""
                               }`}
@@ -242,6 +295,31 @@ const AccountInfo = ({
                               Lastname
                            </label>
                         </div>
+                     </div>
+                     <div className="form-group">
+                        <input
+                           className={`form-input ${
+                              (error.constructor === Array &&
+                                 error.some(
+                                    (value) => value.param === "email"
+                                 )) ||
+                              (userError.constructor === Array &&
+                                 userError.some(
+                                    (value) => value.param === "email"
+                                 ))
+                                 ? "invalid"
+                                 : ""
+                           }`}
+                           type="text"
+                           value={email}
+                           id="email"
+                           disabled={location.pathname === "/profile"}
+                           onChange={onChange}
+                           placeholder="Email"
+                        />
+                        <label htmlFor="email" className="form-label">
+                           Email
+                        </label>
                      </div>
                      {isAdmin && (
                         <div className="form-group">
@@ -271,33 +349,19 @@ const AccountInfo = ({
                            </label>
                         </div>
                      )}
-                     <div className="form-group">
-                        <input
-                           className={`form-input ${
-                              error.length > 0 &&
-                              error.some((value) => value.param === "email")
-                                 ? "invalid"
-                                 : ""
-                           }`}
-                           type="text"
-                           value={email}
-                           id="email"
-                           onChange={onChange}
-                           placeholder="Email"
-                        />
-                        <label htmlFor="email" className="form-label">
-                           Email
-                        </label>
-                     </div>
-                     {!isAdmin ? (
+                     {location.pathname === "/signup" && (
                         <>
                            <div className="form-group">
                               <input
                                  className={`form-input ${
-                                    error.length > 0 &&
-                                    error.some(
-                                       (value) => value.param === "password"
-                                    )
+                                    (error.constructor === Array &&
+                                       error.some(
+                                          (value) => value.param === "password"
+                                       )) ||
+                                    (userError.constructor === Array &&
+                                       userError.some(
+                                          (value) => value.param === "password"
+                                       ))
                                        ? "invalid"
                                        : ""
                                  }`}
@@ -314,10 +378,16 @@ const AccountInfo = ({
                            <div className="form-group">
                               <input
                                  className={`form-input ${
-                                    error.length > 0 &&
-                                    error.some(
-                                       (value) => value.param === "passwordConf"
-                                    )
+                                    (error.constructor === Array &&
+                                       error.some(
+                                          (value) =>
+                                             value.param === "passwordConf"
+                                       )) ||
+                                    (userError.constructor === Array &&
+                                       userError.some(
+                                          (value) =>
+                                             value.param === "passwordConf"
+                                       ))
                                        ? "invalid"
                                        : ""
                                  }`}
@@ -335,34 +405,34 @@ const AccountInfo = ({
                               </label>
                            </div>
                         </>
-                     ) : (
-                        <>
-                           <div className="form-group">
-                              <input
-                                 className="form-input"
-                                 type="text"
-                                 value={address}
-                                 onChange={onChange}
-                                 id="address"
-                                 placeholder="Address"
-                              />
-                              <label htmlFor="address" className="form-label">
-                                 Address
-                              </label>
-                           </div>
-                           <div className="form-group">
-                              <input
-                                 className="form-input"
-                                 type="date"
-                                 value={dob}
-                                 onChange={onChange}
-                                 id="dob"
-                              />
-                              <label htmlFor="dob" className="form-label-show">
-                                 DOB
-                              </label>
-                           </div>
-                        </>
+                     )}
+                     <div className="form-group">
+                        <input
+                           className="form-input"
+                           type="text"
+                           value={address}
+                           onChange={onChange}
+                           id="address"
+                           placeholder="Address"
+                        />
+                        <label htmlFor="address" className="form-label">
+                           Address
+                        </label>
+                     </div>
+
+                     {isAdmin && loggedUser && loggedUser.type !== "customer" && (
+                        <div className="form-group">
+                           <input
+                              className="form-input"
+                              type="date"
+                              value={dob}
+                              onChange={onChange}
+                              id="dob"
+                           />
+                           <label htmlFor="dob" className="form-label-show">
+                              DOB
+                           </label>
+                        </div>
                      )}
                      <div className="form-group-phone">
                         <div className="form-group-phone-section">
@@ -370,7 +440,7 @@ const AccountInfo = ({
                               htmlFor="countryCode"
                               className="form-label-show"
                            >
-                              Country Code
+                              C<span className="hide-sm">ountry</span> Code
                            </label>
                            <input
                               name="cel"
@@ -415,20 +485,43 @@ const AccountInfo = ({
                         </div>
                      </div>
                      <label className="form-label-show">Cellphone</label>
+
+                     {isAdmin && (
+                        <div className="form-group checkbox-group">
+                           <input
+                              className="form-input-checkbox"
+                              type="checkbox"
+                              value={active}
+                              onChange={onChange}
+                              checked={active}
+                              name="active"
+                              id="active"
+                           />
+                           <label
+                              className="form-lbl-checkbox"
+                              htmlFor="active"
+                           >
+                              Active
+                           </label>
+                        </div>
+                     )}
+
                      <div className="btn-center">
                         <button className="btn btn-primary" type="submit">
                            {location.pathname === "/signup" ? (
                               "Sign Up"
                            ) : (
-                              <BiSave className="icon-save" />
+                              <BiSave className="icon" />
                            )}
                         </button>
-                        <p className="signup-login">
-                           Do you already have an account? &nbsp;
-                           <Link className="btn-text" to="/login">
-                              Login
-                           </Link>
-                        </p>
+                        {location.pathname === "/signup" && (
+                           <p className="signup-login">
+                              Do you already have an account? &nbsp;
+                              <Link className="btn-text" to="/login">
+                                 Login
+                              </Link>
+                           </p>
+                        )}
                      </div>
                   </form>
                </>
@@ -465,15 +558,21 @@ const AccountInfo = ({
 
 AccountInfo.propTypes = {
    auth: PropTypes.object.isRequired,
+   users: PropTypes.object.isRequired,
    signup: PropTypes.func.isRequired,
-   removeError: PropTypes.func.isRequired,
+   removeAuthError: PropTypes.func.isRequired,
+   registerUpdateUser: PropTypes.func.isRequired,
+   removeUserError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    auth: state.auth,
-   users: state.auth,
+   users: state.users,
 });
 
-export default connect(mapStateToProps, { signup, removeError })(
-   withRouter(AccountInfo)
-);
+export default connect(mapStateToProps, {
+   signup,
+   removeAuthError,
+   registerUpdateUser,
+   removeUserError,
+})(withRouter(AccountInfo));
