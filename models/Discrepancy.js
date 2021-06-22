@@ -9,10 +9,11 @@ const DiscrepancySchema = new mongoose.Schema({
    reservation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "reservation",
+      required: true,
    },
-   vessel: {
+   maintenance: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "vessel",
+      ref: "maintenance",
    },
    description: {
       type: String,

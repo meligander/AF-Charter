@@ -7,21 +7,26 @@ import ReservationInfo from "../../shared/ReservationInfo";
 import Schedule from "../../shared/Schedule";
 import PaymentInfo from "../../shared/PaymentInfo";
 import CrewTab from "./CrewTab";
+import DiscrepaciesTab from "./DiscrepanciesTab";
+import ManifestTab from "./ManifestTab";
 import Tab from "../../shared/Tab";
 
 import { loadReservation } from "../../../actions/reservation";
 import { checkAvailableCaptains, loadUsers } from "../../../actions/user";
 import { checkAvailableVessels } from "../../../actions/vessel";
+import { loadDiscrepancies } from "../../../actions/discrepancy";
 
 const AdminReservation = ({
    reservations: { reservation, loadingReservation },
    users: { loading, loadingAux },
    vessels: { loading: loadingVessels },
+   discrepancies: { loading: loadingDiscrepancies },
    match,
    loadReservation,
    checkAvailableCaptains,
    checkAvailableVessels,
    loadUsers,
+   loadDiscrepancies,
 }) => {
    const _id = match.params.reservation_id;
 
@@ -38,6 +43,7 @@ const AdminReservation = ({
          checkAvailableCaptains(dateFrom, dateTo, _id);
          loadUsers({ active: true, type: "mate" }, false);
          checkAvailableVessels(dateFrom, dateTo, _id);
+         loadDiscrepancies(_id);
       }
    }, [
       loadReservation,
@@ -47,23 +53,44 @@ const AdminReservation = ({
       checkAvailableVessels,
       reservation,
       loadUsers,
+      loadDiscrepancies,
    ]);
 
    return (
       !loadingReservation &&
       !loading &&
       !loadingAux &&
-      !loadingVessels && (
+      !loadingVessels &&
+      !loadingDiscrepancies && (
          <div className="reserve-update">
             <h2 className="heading heading-primary text-primary">
                Administrate Reservation
             </h2>
             <ReservationInfo reservation={reservation} type="supdate" />
             <div className="mt-4">
-               <Tab
-                  tablist={["Reschedule", "Crew", "Payment"]}
-                  panellist={[Schedule, CrewTab, PaymentInfo]}
-               />
+               {reservation.active ? (
+                  <Tab
+                     tablist={[
+                        "Reschedule",
+                        "Crew",
+                        "Payment",
+                        "Discrepancies",
+                        "Manifest",
+                     ]}
+                     panellist={[
+                        Schedule,
+                        CrewTab,
+                        PaymentInfo,
+                        DiscrepaciesTab,
+                        ManifestTab,
+                     ]}
+                  />
+               ) : (
+                  <Tab
+                     tablist={["Payment", "Discrepancies"]}
+                     panellist={[PaymentInfo, DiscrepaciesTab]}
+                  />
+               )}
             </div>
          </div>
       )
@@ -74,16 +101,19 @@ AdminReservation.propTypes = {
    reservations: PropTypes.object.isRequired,
    users: PropTypes.object.isRequired,
    vessels: PropTypes.object.isRequired,
+   discrepancies: PropTypes.object.isRequired,
    loadReservation: PropTypes.func.isRequired,
    checkAvailableCaptains: PropTypes.func.isRequired,
    loadUsers: PropTypes.func.isRequired,
    checkAvailableVessels: PropTypes.func.isRequired,
+   loadDiscrepancies: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    reservations: state.reservations,
    users: state.users,
    vessels: state.vessels,
+   discrepancies: state.discrepancies,
 });
 
 export default connect(mapStateToProps, {
@@ -91,4 +121,5 @@ export default connect(mapStateToProps, {
    checkAvailableCaptains,
    loadUsers,
    checkAvailableVessels,
+   loadDiscrepancies,
 })(AdminReservation);

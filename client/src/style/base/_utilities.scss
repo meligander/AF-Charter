@@ -67,4 +67,17 @@
    &-white {
       @include background($white-color);
    }
+   &-danger {
+      background-color: $danger-color;
+      color: $white-color;
+   }
+
+   &-hover {
+      &-light {
+         padding: 2rem;
+         &:hover {
+            background-color: lighten($light-color, 10%);
+         }
+      }
+   }
 }

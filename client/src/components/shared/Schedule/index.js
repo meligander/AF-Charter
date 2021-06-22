@@ -18,8 +18,6 @@ import { checkAvailableCaptains } from "../../../actions/user";
 import Alert from "../../shared/Alert";
 import PopUp from "../../modal/PopUp";
 
-import "./style.scss";
-
 const Schedule = ({
    auth: { loggedUser },
    vessels: { vessel: vesselInfo },
@@ -79,19 +77,13 @@ const Schedule = ({
       const today = new Date();
 
       checkMonthAvailability(
-         reservation ? reservation.vessel._id : vesselInfo._id,
+         vessel._id,
          today.getMonth(),
          today.getFullYear(),
-         reservation && hoursDiff,
-         reservation && originalDateFrom
+         hoursDiff !== 0 && hoursDiff,
+         originalDateFrom !== undefined && originalDateFrom
       );
-   }, [
-      reservation,
-      checkMonthAvailability,
-      hoursDiff,
-      vesselInfo,
-      originalDateFrom,
-   ]);
+   }, [checkMonthAvailability, vessel, hoursDiff, originalDateFrom]);
 
    const onChange = (e) => {
       setFormData((prev) => ({

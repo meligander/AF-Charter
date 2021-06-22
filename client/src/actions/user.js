@@ -39,7 +39,7 @@ export const loadUser = (user_id) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const loadUsers = (filterData, primary) => async (dispatch) => {
+export const loadUsers = (filterData, primary, search) => async (dispatch) => {
    if (primary) dispatch(updateLoadingSpinner(true));
 
    let filter = "";
@@ -60,7 +60,7 @@ export const loadUsers = (filterData, primary) => async (dispatch) => {
          payload: res.data,
       });
    } catch (err) {
-      dispatch(setAlert(err.response.data.msg, "danger", "2"));
+      if (!search) dispatch(setAlert(err.response.data.msg, "danger", "2"));
       dispatch({
          type: primary ? USERS_ERROR : USERSSECONDARY_ERROR,
          payload: {

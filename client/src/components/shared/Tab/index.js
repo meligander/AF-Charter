@@ -15,9 +15,10 @@ const Tabs = ({ tablist, panellist }) => {
                .map((i) => React.createRef()),
          [tablist.length]
       ),
+      top: 0,
    });
 
-   const { isActive, width, position, refs } = adminValues;
+   const { isActive, width, position, refs, top } = adminValues;
 
    useEffect(() => {
       setAdminValues((prev) => ({
@@ -25,6 +26,7 @@ const Tabs = ({ tablist, panellist }) => {
          isActive: 0,
          width: refs[0].current.offsetWidth,
          position: refs[0].current.offsetLeft,
+         top: refs[0].current.offsetTop + refs[0].current.offsetHeight,
       }));
    }, [refs]);
 
@@ -34,6 +36,7 @@ const Tabs = ({ tablist, panellist }) => {
          isActive: nb,
          width: refs[nb].current.offsetWidth,
          position: refs[nb].current.offsetLeft,
+         top: refs[nb].current.offsetTop + refs[nb].current.offsetHeight,
       }));
    };
 
@@ -48,20 +51,22 @@ const Tabs = ({ tablist, panellist }) => {
                   onClick={() => changeActive(index)}
                   ref={refs[index]}
                >
-                  {tablist.length > 3 ? (
+                  {tab.length > 3 ? (
                      <>
-                        {tab.substring(0, 3)}
-                        <span className="hide-sm">{tab.substring(3)}</span>
+                        {tab}
+                        {/* {tab.substring(0, 4)}
+                        <span className="hide-md">{tab.substring(4)}</span> */}
                      </>
                   ) : (
                      tab
                   )}
                </button>
             ))}
+            <div className="tab-header-line" style={{ top }}>
+               <div style={{ width, left: position }} className="line"></div>
+            </div>
          </div>
-         <div className="tab-header-line">
-            <div style={{ width, left: position }} className="line"></div>
-         </div>
+
          {panellist.map((Panel, index) => (
             <div
                key={index}

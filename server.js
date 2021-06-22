@@ -23,6 +23,7 @@ app.use("/api/payment", require("./routes/api/payment"));
 app.use("/api/reservation", require("./routes/api/reservation"));
 app.use("/api/user", require("./routes/api/user"));
 app.use("/api/vessel", require("./routes/api/vessel"));
+app.use("/api/discrepancy", require("./routes/api/discrepancy"));
 
 const PORT = process.env.PORT || 5000;
 

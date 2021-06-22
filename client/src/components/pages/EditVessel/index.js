@@ -5,8 +5,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import { AiOutlineCloudUpload, AiOutlineDelete } from "react-icons/ai";
 import { BiPlus, BiSave } from "react-icons/bi";
-import { FaWrench } from "react-icons/fa";
-import { ImBook, ImImages } from "react-icons/im";
+import { ImImages } from "react-icons/im";
 
 import {
    loadVessel,
@@ -209,18 +208,6 @@ const EditVessel = ({
          <h2 className="heading heading-primary text-primary">
             {_id ? "Edit" : "New"} Vessel
          </h2>
-         {_id && (
-            <div className="btn-right">
-               <Link className="btn" to={`/manteinance/${_id}`}>
-                  <FaWrench className="icon" />
-                  <span className="hide-sm">&nbsp; Manteinance</span>
-               </Link>
-               <Link className="btn" to={`/reservations/${_id}`}>
-                  <ImBook className="icon" />
-                  <span className="hide-sm">&nbsp; Reservations</span>
-               </Link>
-            </div>
-         )}
          <Alert type="2" />
          <form className="form" onSubmit={onSubmit}>
             <div className="form-img">
@@ -375,8 +362,8 @@ const EditVessel = ({
             <p className="edit-vessel-subtitle">Prices:</p>
             {prices.length > 0 &&
                prices.map((item, i) => (
-                  <div className="edit-vessel-prices form-group" key={i}>
-                     <div className="edit-vessel-prices-1">
+                  <div className="form-group several-input" key={i}>
+                     <div>
                         <div className="two-in-row">
                            <input
                               className="form-input"
@@ -414,14 +401,12 @@ const EditVessel = ({
                            </label>
                         </div>
                      </div>
-                     <div className="edit-vessel-prices-2">
-                        <button
-                           className="btn-text danger"
-                           onClick={() => deletePriceSet(i)}
-                        >
-                           <AiOutlineDelete className="icon" />
-                        </button>
-                     </div>
+                     <button
+                        className="btn-text danger"
+                        onClick={() => deletePriceSet(i)}
+                     >
+                        <AiOutlineDelete className="icon" />
+                     </button>
                   </div>
                ))}
             <div className="btn-right">

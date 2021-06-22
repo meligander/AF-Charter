@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const MaintencanceSchema = new mongoose.Schema({
+   jobNumber: {
+      type: Number,
+      required: true,
+   },
    vessel: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "vessel",

@@ -11,6 +11,7 @@ import {
    RESERVATION_REGISTERED,
    RESERVATION_UPDATED,
    RESERVATION_CLEARED,
+   REMOVERESERVATION_ERROR,
 } from "./types";
 
 import { setAlert } from "./alert";
@@ -78,9 +79,9 @@ export const loadReservations = (filterData, noSign) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const registerReservation = (formData) => async (dispatch) => {
+export const registerReservation = (formData, admin) => async (dispatch) => {
    dispatch(updateLoadingSpinner(true));
-   if (!formData.customer) {
+   if (!formData.customer && !admin) {
       history.push("/login");
       dispatch(
          setAlert(
@@ -98,7 +99,8 @@ export const registerReservation = (formData) => async (dispatch) => {
             payload: res.data,
          });
 
-         history.push(`/payment/${res.data._id}`);
+         if (admin) history.push(`/admin-reservation/${res.data._id}`);
+         else history.push(`/payment/${res.data._id}`);
          window.scrollTo(0, 0);
       } catch (err) {
          if (err.response.data.errors) {
@@ -127,6 +129,7 @@ export const registerReservation = (formData) => async (dispatch) => {
                },
             });
          }
+         if (admin) window.scroll(0, 0);
       }
    }
 
@@ -144,9 +147,15 @@ export const updateReservation =
             payload: res.data,
          });
          if (type === "customer") history.push("/myreservations");
-         dispatch(setAlert("Reservation Updated", "success", "1"));
 
-         window.scrollTo(0, 0);
+         window.scrollTo(0, type === "customer" ? 0 : 550);
+         dispatch(
+            setAlert(
+               "Reservation Updated",
+               "success",
+               type === "customer" ? "1" : "3"
+            )
+         );
       } catch (err) {
          if (err.response.data.errors) {
             const errors = err.response.data.errors;
@@ -174,6 +183,7 @@ export const updateReservation =
                },
             });
          }
+         window.scrollTo(0, type === "customer" ? 0 : 550);
       }
 
       dispatch(updateLoadingSpinner(false));
@@ -183,11 +193,9 @@ export const cancelDeleteReservation = (reservation) => async (dispatch) => {
    dispatch(updateLoadingSpinner(true));
 
    try {
-      if (reservation.payment.downpayment.type === "stripe") {
+      if (reservation.downpayment.type === "stripe") {
          await api.put(`/reservation/cancel/${reservation._id}`);
-         await api.put(
-            `/payment/cancel/${reservation.payment._id}/downpayment`
-         );
+         await api.put(`/payment/cancel/${reservation.downpayment._id}`);
       } else await api.delete(`/reservation/${reservation._id}`);
 
       dispatch({
@@ -229,6 +237,13 @@ export const deleteUnpaidReservation = () => async (dispatch) => {
          },
       });
    }
+};
+
+export const removeReservationError = (param) => (dispatch) => {
+   dispatch({
+      type: REMOVERESERVATION_ERROR,
+      payload: param,
+   });
 };
 
 export const clearReservation = () => (dispatch) => {

@@ -44,7 +44,7 @@ const Dashboard = ({
                         }}
                      >
                         <ImBook />
-                        <span className="hide-sm">&nbsp; Reservations</span>
+                        <span className="hide-md">&nbsp; Reservations</span>
                      </Link>
                   </li>
                   <li className="side-nav-item">
@@ -57,7 +57,7 @@ const Dashboard = ({
                         }}
                      >
                         <IoBoat />
-                        <span className="hide-sm">&nbsp; Vessels</span>
+                        <span className="hide-md">&nbsp; Vessels</span>
                      </Link>
                   </li>
                   <li className="side-nav-item">
@@ -69,7 +69,7 @@ const Dashboard = ({
                         className="side-nav-link"
                      >
                         <FaWrench />
-                        <span className="hide-sm">&nbsp; Manteinance</span>
+                        <span className="hide-md">&nbsp; Manteinance</span>
                      </Link>
                   </li>
                   <li className="side-nav-item">
@@ -81,7 +81,7 @@ const Dashboard = ({
                         className="side-nav-link"
                      >
                         <FaDollarSign />
-                        <span className="hide-sm">&nbsp; Payment</span>
+                        <span className="hide-md">&nbsp; Payment</span>
                      </Link>
                   </li>
                   <li className="side-nav-item">
@@ -93,7 +93,7 @@ const Dashboard = ({
                         }}
                      >
                         <FaUser />
-                        <span className="hide-sm">&nbsp; Users</span>
+                        <span className="hide-md">&nbsp; Users</span>
                      </Link>
                   </li>
                </ul>
@@ -122,7 +122,7 @@ const Dashboard = ({
                                     </td>
                                  </tr>
                                  <tr>
-                                    <td className="hide-sm">
+                                    <td className="hide-md">
                                        {reservation.vessel.name}
                                     </td>
                                     <td>
@@ -155,16 +155,16 @@ const Dashboard = ({
                                           utc
                                        />
                                     </td>
-                                    <td className="hide-sm">
+                                    <td className="hide-md">
                                        {reservation.crew &&
                                           reservation.crew.captain &&
                                           reservation.crew.captain.name +
                                              " " +
                                              reservation.crew.captain.lastname}
                                     </td>
-                                    <td className="hide-sm">
-                                       {reservation.payment.downpayment
-                                          .status === "success"
+                                    <td className="hide-md">
+                                       {reservation.downpayment.status ===
+                                       "success"
                                           ? "Paid"
                                           : "Not Paid"}
                                     </td>

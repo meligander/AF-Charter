@@ -26,7 +26,7 @@ const MyReservations = ({
       else {
          let unpaid = false;
          for (let x = 0; x < reservations.length; x++) {
-            if (!reservations[x].payment.downpayment.status) {
+            if (!reservations[x].downpayment.status) {
                unpaid = true;
                break;
             }

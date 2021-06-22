@@ -23,9 +23,15 @@ const ReservationSchema = new mongoose.Schema({
       ref: "vessel",
       required: true,
    },
-   payment: {
+   downpayment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "payment",
+      required: true,
+   },
+   balance: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment",
+      required: true,
    },
    crew: {
       type: Object,
@@ -40,6 +46,23 @@ const ReservationSchema = new mongoose.Schema({
          },
       ],
    },
+   charterValue: {
+      type: Number,
+      required: true,
+   },
+   //or proccessing fee
+   serviceFee: {
+      type: Number,
+      required: true,
+   },
+   taxes: {
+      type: Number,
+      required: true,
+   },
+   total: {
+      type: Number,
+      required: true,
+   },
    manifest: [
       {
          type: Object,
@@ -51,9 +74,11 @@ const ReservationSchema = new mongoose.Schema({
             type: String,
             required: true,
          },
-         phone: {
-            type: String,
-            required: true,
+         cel: {
+            type: Object,
+            countryCode: { type: Number },
+            areaCode: { type: Number },
+            phoneNumb: { type: Number },
          },
          dateVisa: {
             type: Date,

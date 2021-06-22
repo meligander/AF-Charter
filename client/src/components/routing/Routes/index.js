@@ -16,6 +16,7 @@ import EditVessel from "../../pages/EditVessel";
 import ManageImages from "../../pages/ManageImages";
 import ReservationsList from "../../pages/ReservationsList";
 import AdminReservation from "../../pages/AdminReservation";
+import NewReservation from "../../pages/NewReservation";
 
 const Routes = () => {
    return (
@@ -80,6 +81,12 @@ const Routes = () => {
                   path="/new-vessel"
                   types={["admin", "admin&captain"]}
                   component={EditVessel}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/new-reservation"
+                  types={["admin", "admin&captain"]}
+                  component={NewReservation}
                />
                <PrivateRoutes
                   exact

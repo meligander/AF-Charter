@@ -23,7 +23,12 @@ router.get("/:reservation_id", [auth], async (req, res) => {
             path: "vessel",
          })
          .populate({
-            path: "payment",
+            model: "payment",
+            path: "downpayment",
+         })
+         .populate({
+            model: "payment",
+            path: "balance",
          })
          .populate({
             path: "crew.captain",
@@ -69,7 +74,12 @@ router.get("/", [auth], async (req, res) => {
             path: "vessel",
          })
          .populate({
-            path: "payment",
+            model: "payment",
+            path: "downpayment",
+         })
+         .populate({
+            model: "payment",
+            path: "balance",
          })
          .populate({
             path: "crew.captain",
@@ -96,7 +106,15 @@ router.get("/", [auth], async (req, res) => {
 //@access   Private
 router.post(
    "/",
-   [auth, [check("captain", "Captain is required").not().isEmpty()]],
+   [
+      auth,
+      [
+         check("customer", "Customer is required").not().isEmpty(),
+         check("vessel", "Vessel is required").not().isEmpty(),
+         check("dateFrom", "Dates are required").not().isEmpty(),
+         check("captain", "Captain is required").not().isEmpty(),
+      ],
+   ],
    async (req, res) => {
       let errors = [];
       const errorsResult = validationResult(req);
@@ -104,13 +122,15 @@ router.post(
 
       if (errors.length > 0) return res.status(400).json({ errors });
 
-      let { dateFrom, dateTo, customer, vessel, captain, charterValue } =
+      let { dateFrom, dateTo, customer, vessel, captain, charterValue, mates } =
          req.body;
+
+      console.log(customer);
 
       dateFrom = new Date(dateFrom);
       dateTo = new Date(dateTo);
 
-      const reservationFields = {
+      let reservationFields = {
          dateFrom,
          dateTo,
          customer: customer._id,
@@ -118,46 +138,41 @@ router.post(
          vessel,
          crew: {
             captain,
+            ...(mates && mates.length > 0 && { mates }),
          },
-      };
-
-      const paymentFields = {
          charterValue,
          serviceFee: Math.floor(charterValue * 0.1),
          taxes:
             Math.round((charterValue * 0.0705 + Number.EPSILON) * 100) / 100,
-         downpayment: {
-            amount: 0,
-         },
-         balance: {
-            amount: 0,
-         },
       };
 
-      paymentFields.total =
-         paymentFields.charterValue +
-         paymentFields.serviceFee +
-         paymentFields.taxes;
+      reservationFields.total =
+         reservationFields.charterValue +
+         reservationFields.serviceFee +
+         reservationFields.taxes;
 
-      paymentFields.downpayment.amount =
-         Math.round((paymentFields.total * 0.2 + Number.EPSILON) * 100) / 100;
+      const downpayment = new Payment({
+         amount:
+            Math.round((reservationFields.total * 0.2 + Number.EPSILON) * 100) /
+            100,
+      });
 
-      paymentFields.balance.amount =
-         Math.round(
-            (paymentFields.total -
-               paymentFields.downpayment.amount +
-               Number.EPSILON) *
-               100
-         ) / 100;
+      const balance = new Payment({
+         amount:
+            Math.round(
+               (reservationFields.total - downpayment.amount + Number.EPSILON) *
+                  100
+            ) / 100,
+      });
 
-      const payment = new Payment(paymentFields);
-
-      reservationFields.payment = payment._id;
+      reservationFields.downpayment = downpayment._id;
+      reservationFields.balance = balance._id;
 
       let reservation = new Reservation(reservationFields);
 
       try {
-         await payment.save();
+         await downpayment.save();
+         await balance.save();
          await reservation.save();
          await removeAvailability(reservation);
 
@@ -167,7 +182,12 @@ router.post(
                path: "vessel",
             })
             .populate({
-               path: "payment",
+               model: "payment",
+               path: "downpayment",
+            })
+            .populate({
+               model: "payment",
+               path: "balance",
             })
             .populate({
                path: "crew.captain",
@@ -188,19 +208,50 @@ router.post(
 //@desc     Update a reservation
 //@access   Private
 router.put("/:reservation_id", [auth], async (req, res) => {
-   let { dateFrom, dateTo, captain, mates, vessel } = req.body;
+   let { dateFrom, dateTo, captain, mates, vessel, active, manifest } =
+      req.body;
 
    dateFrom = dateFrom && new Date(dateFrom);
    dateTo = dateTo && new Date(dateTo);
+
+   let errors = [];
+   if (manifest) {
+      for (let x = 0; x < manifest.length; x++) {
+         if (manifest[x].name === "")
+            errors.push({ msg: "Name is required", param: "name", index: x });
+         if (manifest[x].address === "")
+            errors.push({
+               msg: "Address is required",
+               param: "address",
+               index: x,
+            });
+         if (
+            manifest[x].cel.countryCode === "" ||
+            manifest[x].cel.areaCode === "" ||
+            manifest[x].phoneNumb === ""
+         )
+            errors.push({
+               msg: "Cellphone is required",
+               param: "cel",
+               index: x,
+            });
+
+         if (errors.length > 0) return res.status(400).json({ errors });
+      }
+   }
 
    const reservationFields = {
       ...(dateFrom && { dateFrom }),
       ...(dateTo && { dateTo }),
       ...(vessel && { vessel }),
-      crew: {
-         ...(captain && { captain }),
-         ...(mates && mates.length > 0 && { mates }),
-      },
+      ...(active !== undefined && { active }),
+      ...(manifest && { manifest }),
+      ...((captain || (mates && mates.length > 0)) && {
+         crew: {
+            ...(captain && { captain }),
+            ...(mates && mates.length > 0 && { mates }),
+         },
+      }),
    };
 
    try {
@@ -213,7 +264,12 @@ router.put("/:reservation_id", [auth], async (req, res) => {
             path: "vessel",
          })
          .populate({
-            path: "payment",
+            model: "payment",
+            path: "downpayment",
+         })
+         .populate({
+            model: "payment",
+            path: "balance",
          })
          .populate({
             path: "crew.captain",
@@ -261,18 +317,27 @@ router.delete("/", async (req, res) => {
       const today = moment().utc();
 
       //Remove reservation
-      const reservations = await Reservation.find({ active: true }).populate({
-         path: "payment",
-      });
+      const reservations = await Reservation.find({ active: true })
+         .populate({
+            model: "payment",
+            path: "downpayment",
+         })
+         .populate({
+            model: "payment",
+            path: "balance",
+         });
 
       for (let x = 0; x < reservations.length; x++) {
          const date = moment(reservations[x].date).utc();
          if (
-            !reservations[x].payment.downpayment.status &&
+            !reservations[x].downpayment.status &&
             (today - date) / 36e5 > 24
          ) {
             await Payment.findOneAndRemove({
-               _id: reservations[x].payment._id,
+               _id: reservations[x].downpayment._id,
+            });
+            await Payment.findOneAndRemove({
+               _id: reservations[x].balance._id,
             });
             const day = await Day.findOne({
                date: {
@@ -319,7 +384,8 @@ router.delete("/:reservation_id", [auth], async (req, res) => {
          _id: req.params.reservation_id,
       });
 
-      await Payment.findOneAndDelete({ _id: reservation.payment });
+      await Payment.findOneAndDelete({ _id: reservation.downpayment });
+      await Payment.findOneAndDelete({ _id: reservation.balance });
 
       await addAvailability(reservation);
       await reservation.remove();

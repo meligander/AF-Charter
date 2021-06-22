@@ -34,6 +34,9 @@ router.get("/", [auth, adminAuth], async (req, res) => {
             ...(req.query.name && {
                name: { $regex: `.*${req.query.name}.*`, $options: "i" },
             }),
+            ...(req.query.email && {
+               email: { $regex: `.*${req.query.email}.*`, $options: "i" },
+            }),
             ...(req.query.lastname && {
                lastname: { $regex: `.*${req.query.lastname}.*`, $options: "i" },
             }),

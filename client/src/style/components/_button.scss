@@ -107,8 +107,8 @@
          font-size: inherit;
          background-color: inherit;
          border-bottom: 1px solid $primary-color;
-         transition: all 0.2s;
          backface-visibility: hidden;
+         @include easeOut;
       }
 
       &.light {
@@ -125,6 +125,11 @@
 
       &.danger {
          color: $danger-color;
+         border-bottom: none;
+      }
+
+      &.success {
+         color: $success-color;
          border-bottom: none;
       }
 

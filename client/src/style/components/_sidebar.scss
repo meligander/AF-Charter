@@ -1,7 +1,7 @@
 .section-sidebar {
    display: flex;
 
-   @include respond(small-phone) {
+   @include respond(phone) {
       flex-direction: column;
    }
 
@@ -16,14 +16,14 @@
       flex-direction: column;
       background-color: $dark-color;
 
-      @include respond(small-phone) {
+      @include respond(phone) {
          border: none;
       }
 
       &-info {
          width: 75%;
 
-         @include respond(small-phone) {
+         @include respond(phone) {
             width: 100%;
          }
       }
@@ -33,7 +33,7 @@
       font-size: 2rem;
       margin: 4rem 0.8rem;
 
-      @include respond(small-phone) {
+      @include respond(phone) {
          display: flex;
          margin: 0;
       }
@@ -41,9 +41,9 @@
       &-item {
          position: relative;
 
-         @include respond(small-phone) {
+         @include respond(phone) {
             flex: 1;
-            padding: 1rem 0;
+            margin: 1rem 0.2rem;
          }
 
          &:hover > .side-nav-link {
@@ -82,7 +82,7 @@
          //z-index solo funciona cuando hay position
          z-index: 10;
 
-         @include respond(small-phone) {
+         @include respond(phone) {
             flex-direction: column;
             padding: 1.5rem 0.5rem;
          }
@@ -91,7 +91,7 @@
       &-icon {
          margin-right: 2rem;
 
-         @include respond(small-phone) {
+         @include respond(phone) {
             margin-right: 0;
             width: 1.5rem;
             height: 1.5rem;

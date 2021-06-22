@@ -12,6 +12,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      flex-wrap: wrap;
       width: 100%;
 
       &-btn {
@@ -43,7 +45,7 @@
 
       &-line {
          display: block;
-         position: relative;
+         position: absolute;
          width: 100%;
 
          .line {

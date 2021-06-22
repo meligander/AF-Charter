@@ -5,6 +5,7 @@ import { MdAttachMoney } from "react-icons/md";
 import PropTypes from "prop-types";
 
 import { makeStripePayment } from "../../../../actions/payment";
+import { updateReservation } from "../../../../actions/reservation";
 import { updateLoadingSpinner } from "../../../../actions/mixvalues";
 import { setAlert } from "../../../../actions/alert";
 
@@ -35,6 +36,7 @@ const Form = ({
    auth: { loggedUser },
    makeStripePayment,
    updateLoadingSpinner,
+   updateReservation,
    setAlert,
    type,
 }) => {
@@ -43,8 +45,8 @@ const Form = ({
 
    const amount =
       type === "downpayment"
-         ? reservation.payment.downpayment.amount
-         : reservation.payment.balance.amount;
+         ? reservation.downpayment.amount
+         : reservation.balance.amount;
 
    const [adminValues, setAdminValues] = useState({
       modalConfirm: false,
@@ -64,13 +66,14 @@ const Form = ({
 
          makeStripePayment(
             {
-               amount: amount * 100,
+               amount,
                id,
-               type,
             },
-            reservation.payment._id,
-            loggedUser.type
+            reservation[type]._id,
+            loggedUser.type,
+            type
          );
+         updateReservation({ active: false }, reservation._id);
       } else {
          console.error(error);
          setAlert(error.message, "danger", "3");
@@ -92,10 +95,13 @@ const Form = ({
             confirm={handleSubmit}
             setToggleModal={toggleModal}
             toggleModal={modalConfirm}
-            text={`Are you sure you want to make the ${type} payment?`}
+            text={`Are you sure you want to make the ${type} payment${
+               type === "balance" && reservation.balance.status !== "success"
+                  ? " and complete the reservation"
+                  : ""
+            }?`}
             subtext={
-               reservation.payment[type] &&
-               reservation.payment[type].status === "success"
+               reservation[type].status === "success"
                   ? "If you change the payment method, the previous one will be canceled"
                   : undefined
             }
@@ -120,6 +126,7 @@ Form.propTypes = {
    makeStripePayment: PropTypes.func.isRequired,
    setAlert: PropTypes.func.isRequired,
    updateLoadingSpinner: PropTypes.func.isRequired,
+   updateReservation: PropTypes.func.isRequired,
    type: PropTypes.string.isRequired,
 };
 
@@ -132,4 +139,5 @@ export default connect(mapStateToProps, {
    setAlert,
    makeStripePayment,
    updateLoadingSpinner,
+   updateReservation,
 })(Form);

@@ -258,11 +258,11 @@ const ReservationList = ({
                                                 !toggleDeleteConf,
                                              toDelete: reservation._id,
                                              amount:
-                                                reservation.payment.downpayment
-                                                   .type === "stripe"
+                                                reservation.downpayment.type ===
+                                                "stripe"
                                                    ? Math.round(
-                                                        (reservation.payment
-                                                           .downpayment.amount *
+                                                        (reservation.downpayment
+                                                           .amount *
                                                            0.029 +
                                                            0.3 +
                                                            Number.EPSILON) *

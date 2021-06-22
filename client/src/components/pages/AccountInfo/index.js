@@ -447,6 +447,7 @@ const AccountInfo = ({
                               className="form-input"
                               type="number"
                               id="countryCode"
+                              placeholder={+1}
                               value={countryCode}
                               onChange={onChange}
                            />
@@ -463,6 +464,7 @@ const AccountInfo = ({
                               className="form-input"
                               type="number"
                               id="areaCode"
+                              placeholder={800}
                               value={areaCode}
                               onChange={onChange}
                            />
@@ -479,6 +481,7 @@ const AccountInfo = ({
                               className="form-input"
                               type="number"
                               id="phoneNumb"
+                              placeholder={8000000}
                               value={phoneNumb}
                               onChange={onChange}
                            />

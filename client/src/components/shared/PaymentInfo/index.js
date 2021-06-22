@@ -5,6 +5,7 @@ import { MdAttachMoney } from "react-icons/md";
 import PropTypes from "prop-types";
 
 import { makeCashPayment, cancelPayment } from "../../../actions/payment";
+import { updateReservation } from "../../../actions/reservation";
 
 import Payment from "../Payment";
 import Alert from "../../shared/Alert";
@@ -15,40 +16,20 @@ const PaymentInfo = ({
    auth: { loggedUser },
    makeCashPayment,
    cancelPayment,
+   updateReservation,
 }) => {
    const isAdmin =
       loggedUser.type === "admin" || loggedUser.type === "admin&captain";
-   const pay = {
-      ...reservation.payment,
-      downpayment: {
-         ...reservation.payment.downpayment,
-         fee:
-            Math.round(
-               (reservation.payment.downpayment.amount * 0.029 +
-                  0.3 +
-                  Number.EPSILON) *
-                  100
-            ) / 100,
-      },
-      balance: {
-         ...reservation.payment.balance,
-         fee:
-            Math.round(
-               (reservation.payment.balance.amount * 0.029 +
-                  0.3 +
-                  Number.EPSILON) *
-                  100
-            ) / 100,
-      },
-   };
 
    const [formData, setFormData] = useState({
-      downpaymentType: pay.downpayment.type ? pay.downpayment.type : "",
-      balanceType: pay.balance.type ? pay.balance.type : "",
+      downpaymentType: reservation.downpayment.type
+         ? reservation.downpayment.type
+         : "",
+      balanceType: reservation.balance.type ? reservation.balance.type : "",
    });
 
    const [adminValues, setAdminValues] = useState({
-      type: "",
+      type: "downpayment",
       modalConfirm: false,
       modalDelete: false,
    });
@@ -85,36 +66,43 @@ const PaymentInfo = ({
          <PopUp
             type="confirmation"
             confirm={() => {
-               makeCashPayment(
-                  {
-                     amount: pay[type].amount,
-                     type,
-                  },
-                  pay._id
-               );
-               if (pay[type].type === "stripe") cancelPayment(pay.id, type);
+               makeCashPayment(reservation[type]._id, type);
+               if (type === "balance")
+                  updateReservation({ active: false }, reservation._id);
+               if (reservation[type].type === "stripe")
+                  cancelPayment(reservation[type]._id, type);
             }}
             setToggleModal={toggleModalConfirm}
             toggleModal={modalConfirm}
             text={`Are you sure you want to ${
-               pay[type] && pay[type].status === "success" ? "change" : "make"
-            } the ${type} payment?`}
+               reservation[type] && reservation[type].status === "success"
+                  ? "change"
+                  : "make"
+            } the ${type} payment${
+               type === "balance" && reservation.balance.status !== "success"
+                  ? " and complete the reservation"
+                  : ""
+            }?`}
             subtext={
-               pay[type] && pay[type].status === "success"
+               reservation[type].status === "success"
                   ? "If you change the payment method, the previous one will be canceled"
                   : undefined
             }
          />
          <PopUp
             type="confirmation"
-            confirm={() => cancelPayment(pay._id, type)}
+            confirm={() => {
+               cancelPayment(reservation[type]._id, type);
+               if (type === "balance")
+                  updateReservation({ active: true }, reservation._id);
+            }}
             setToggleModal={toggleModalDelete}
             toggleModal={modalDelete}
             text="Are you sure you want to cancel the payment?"
             subtext={
-               type && pay[type].type === "stripe"
-                  ? `${isAdmin ? "The customer" : "You"} will pay $${
-                       pay[type].fee
+               type && reservation[type].type === "stripe"
+                  ? `${isAdmin ? "The customer" : "You"} will reservation $${
+                       reservation[type].fee
                     } anyways.`
                   : undefined
             }
@@ -127,19 +115,19 @@ const PaymentInfo = ({
                <tbody>
                   <tr>
                      <td>Charter Price:</td>
-                     <td>${pay.charterValue}</td>
+                     <td>${reservation.charterValue}</td>
                   </tr>
                   <tr>
                      <td>Service Fee:</td>
-                     <td>${pay.serviceFee}</td>
+                     <td>${reservation.serviceFee}</td>
                   </tr>
                   <tr>
                      <td>Taxes:</td>
-                     <td>${pay.taxes}</td>
+                     <td>${reservation.taxes}</td>
                   </tr>
                   <tr>
                      <td>Total:</td>
-                     <td>${pay.total}</td>
+                     <td>${reservation.total}</td>
                   </tr>
                </tbody>
             </table>
@@ -153,11 +141,11 @@ const PaymentInfo = ({
                      <td>
                         {isAdmin
                            ? "Amount:"
-                           : pay.downpayment.status === "success"
+                           : reservation.downpayment.status === "success"
                            ? "Paid Amount:"
-                           : "Amount to Pay:"}
+                           : "Amount to pay:"}
                      </td>
-                     <td>${pay.downpayment.amount}</td>
+                     <td>${reservation.downpayment.amount}</td>
                   </tr>
                   {isAdmin ? (
                      <>
@@ -165,23 +153,23 @@ const PaymentInfo = ({
                            <td>Status:</td>
                            <td
                               className={
-                                 pay.downpayment.status === "success"
+                                 reservation.downpayment.status === "success"
                                     ? "text-success"
                                     : "text-danger"
                               }
                            >
-                              {pay.downpayment.status
-                                 ? pay.downpayment.status[0].toUpperCase() +
-                                   pay.downpayment.status.substring(1)
+                              {reservation.downpayment.status
+                                 ? reservation.downpayment.status[0].toUpperCase() +
+                                   reservation.downpayment.status.substring(1)
                                  : "Not Paid"}
                            </td>
                         </tr>
-                        {pay.downpayment.date && (
+                        {reservation.downpayment.date && (
                            <tr>
                               <td>Date:</td>
                               <td>
                                  <Moment
-                                    date={pay.downpayment.date}
+                                    date={reservation.downpayment.date}
                                     format="MM/DD/YY  -  h:m a"
                                  />
                               </td>
@@ -203,18 +191,18 @@ const PaymentInfo = ({
                               </select>
                            </td>
                         </tr>
-                        {pay.downpayment.type === "stripe" && (
+                        {reservation.downpayment.type === "stripe" && (
                            <tr>
                               <td>Id:</td>
-                              <td>{pay.downpayment.id}</td>
+                              <td>{reservation.downpayment.id}</td>
                            </tr>
                         )}
                      </>
                   ) : (
-                     pay.downpayment.status === "success" && (
+                     reservation.downpayment.status === "success" && (
                         <tr>
                            <td>Pending Amount:</td>
-                           <td>${pay.balance.amount}</td>
+                           <td>${reservation.balance.amount}</td>
                         </tr>
                      )
                   )}
@@ -224,8 +212,8 @@ const PaymentInfo = ({
             <div className="btn-center">
                {loggedUser.type === "customer" ? (
                   <>
-                     {!pay.downpayment.status ||
-                     pay.downpayment.status !== "success" ? (
+                     {!reservation.downpayment.status ||
+                     reservation.downpayment.status !== "success" ? (
                         <Payment type="downpayment" />
                      ) : (
                         <button
@@ -238,9 +226,9 @@ const PaymentInfo = ({
                   </>
                ) : (
                   <>
-                     {((downpaymentType !== pay.downpayment.type &&
+                     {((downpaymentType !== reservation.downpayment.type &&
                         downpaymentType !== "") ||
-                        pay.downpayment.status === "canceled") && (
+                        reservation.downpayment.status === "canceled") && (
                         <>
                            {downpaymentType === "stripe" ? (
                               <Payment type="downpayment" />
@@ -251,13 +239,17 @@ const PaymentInfo = ({
                                  }
                                  className="btn btn-success"
                               >
-                                 Pay <MdAttachMoney className="icon" />
+                                 Pay
+                                 <MdAttachMoney
+                                    className="icon"
+                                    style={{ marginBottom: "-0.65rem" }}
+                                 />
                               </button>
                            )}
                         </>
                      )}
-                     {pay.downpayment.status === "success" &&
-                        pay.downpayment.type === downpaymentType && (
+                     {reservation.downpayment.status === "success" &&
+                        reservation.downpayment.type === downpaymentType && (
                            <button
                               className="btn btn-danger"
                               onClick={() => toggleModalDelete("downpayment")}
@@ -275,35 +267,35 @@ const PaymentInfo = ({
                      <tbody>
                         <tr>
                            <td>Amount:</td>
-                           <td>${pay.balance.amount}</td>
+                           <td>${reservation.balance.amount}</td>
                         </tr>
                         <tr>
                            <td>Status:</td>
                            <td
                               className={
-                                 pay.balance.status === "success"
+                                 reservation.balance.status === "success"
                                     ? "text-success"
                                     : "text-danger"
                               }
                            >
-                              {pay.balance.status
-                                 ? pay.balance.status[0].toUpperCase() +
-                                   pay.balance.status.substring(1)
+                              {reservation.balance.status
+                                 ? reservation.balance.status[0].toUpperCase() +
+                                   reservation.balance.status.substring(1)
                                  : "Not Paid"}
                            </td>
                         </tr>
-                        {pay.balance.status && (
+                        {reservation.balance.status && (
                            <tr>
                               <td>Date:</td>
                               <td>
                                  <Moment
-                                    date={pay.downpayment.date}
+                                    date={reservation.downpayment.date}
                                     format="MM/DD/YY  -  h:m a"
                                  />
                               </td>
                            </tr>
                         )}
-                        {pay.downpayment.status === "success" && (
+                        {reservation.downpayment.status === "success" && (
                            <tr>
                               <td>Type:</td>
                               <td>
@@ -325,8 +317,8 @@ const PaymentInfo = ({
 
                   <div className="btn-center">
                      {((balanceType !== "" &&
-                        balanceType !== pay.balance.type) ||
-                        pay.balance.status === "canceled") && (
+                        balanceType !== reservation.balance.type) ||
+                        reservation.balance.status === "canceled") && (
                         <>
                            {balanceType === "stripe" ? (
                               <Payment type="balance" />
@@ -335,13 +327,17 @@ const PaymentInfo = ({
                                  onClick={() => toggleModalConfirm("balance")}
                                  className="btn btn-success"
                               >
-                                 Pay <MdAttachMoney className="icon" />
+                                 Pay
+                                 <MdAttachMoney
+                                    className="icon"
+                                    style={{ marginBottom: "-0.65rem" }}
+                                 />
                               </button>
                            )}
                         </>
                      )}
-                     {pay.balance.status === "success" &&
-                        pay.balance.type === balanceType && (
+                     {reservation.balance.status === "success" &&
+                        reservation.balance.type === balanceType && (
                            <button
                               className="btn btn-danger"
                               onClick={() => toggleModalDelete("balance")}
@@ -362,6 +358,7 @@ PaymentInfo.propTypes = {
    auth: PropTypes.object.isRequired,
    makeCashPayment: PropTypes.func.isRequired,
    cancelPayment: PropTypes.func.isRequired,
+   updateReservation: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -369,6 +366,8 @@ const mapStateToProps = (state) => ({
    auth: state.auth,
 });
 
-export default connect(mapStateToProps, { makeCashPayment, cancelPayment })(
-   PaymentInfo
-);
+export default connect(mapStateToProps, {
+   makeCashPayment,
+   cancelPayment,
+   updateReservation,
+})(PaymentInfo);

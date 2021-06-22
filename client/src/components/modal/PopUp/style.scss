@@ -22,10 +22,15 @@
    }
 
    &-text {
-      padding: 4rem 0 0 0;
+      padding: 4rem 3rem 0;
+      line-height: 3.5rem;
       font-size: 2.2rem;
       margin-bottom: 1rem;
       color: $dark-color;
+
+      @include respond(phone) {
+         padding: 4rem 0 0;
+      }
 
       p:first-child {
          font-size: 2.5rem;

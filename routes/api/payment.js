@@ -55,11 +55,11 @@ router.get("/:payment_id", [auth], async (req, res) => {
 //@desc     Make a stripe payment
 //@access   Private
 router.put("/:payment_id", [auth, cors()], async (req, res) => {
-   let { amount, id, type } = req.body;
+   let { amount, id } = req.body;
 
    try {
       const stripePayment = await stripe.paymentIntents.create({
-         amount,
+         amount: amount * 100,
          currency: "USD",
          description: "AF Charter",
          payment_method: id,
@@ -68,17 +68,18 @@ router.put("/:payment_id", [auth, cors()], async (req, res) => {
 
       let payment;
 
+      const fee =
+         Math.round((amount * 0.029 + 0.3 + Number.EPSILON) * 100) / 100;
+
       if (stripePayment.status === "succeeded") {
          payment = await Payment.findOneAndUpdate(
             { _id: req.params.payment_id },
             {
-               [type]: {
-                  amount: amount / 100,
-                  type: "stripe",
-                  id: stripePayment.id,
-                  status: "success",
-                  date: new Date(),
-               },
+               type: "stripe",
+               id: stripePayment.id,
+               status: "success",
+               fee,
+               date: new Date(),
             },
             { new: true }
          );
@@ -107,18 +108,13 @@ router.put("/:payment_id", [auth, cors()], async (req, res) => {
 //@desc     Make a cash payment
 //@access   Private & Admin
 router.put("/cash/:payment_id", [auth, adminAuth], async (req, res) => {
-   let { amount, type } = req.body;
-
    try {
       payment = await Payment.findOneAndUpdate(
          { _id: req.params.payment_id },
          {
-            [type]: {
-               amount,
-               type: "cash",
-               status: "success",
-               date: new Date(),
-            },
+            type: "cash",
+            status: "success",
+            date: new Date(),
          },
          { new: true }
       );
@@ -136,15 +132,13 @@ router.put("/cash/:payment_id", [auth, adminAuth], async (req, res) => {
 //@route    PUT api/payment/cancel/:payment_id
 //@desc     Cancel a payment
 //@access   Private
-router.put("/cancel/:payment_id/:type", [auth, cors()], async (req, res) => {
+router.put("/cancel/:payment_id", [auth, cors()], async (req, res) => {
    try {
-      const type = req.params.type;
-
       let payment = await Payment.findOne({
          _id: req.params.payment_id,
-      }).lean();
+      });
 
-      if (payment[type].type === "stripe") {
+      if (payment.type === "stripe") {
          await stripe.refunds.create({
             payment_intent: payment.downpayment.id,
          });
@@ -161,12 +155,7 @@ router.put("/cancel/:payment_id/:type", [auth, cors()], async (req, res) => {
 
       payment = await Payment.findOneAndUpdate(
          { _id: payment._id },
-         {
-            [type]: {
-               ...payment[type],
-               status: "canceled",
-            },
-         },
+         { status: "canceled" },
          { new: true }
       );
 

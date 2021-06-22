@@ -14,6 +14,7 @@ import {
    removeAuthError,
 } from "../../../actions/auth";
 import { setAlert } from "../../../actions/alert";
+import { clearReservations } from "../../../actions/reservation";
 
 import Alert from "../../shared/Alert";
 
@@ -27,6 +28,7 @@ const Login = ({
    setAlert,
    sendPasswordLink,
    removeAuthError,
+   clearReservations,
 }) => {
    const [formData, setFormData] = useState({
       email: "",
@@ -54,15 +56,18 @@ const Login = ({
       e.preventDefault();
 
       if (forgotPassword) sendPasswordLink(email);
-      else loginUser(formData);
+      else {
+         loginUser(formData);
+         clearReservations();
+      }
    };
 
    const responseSuccessGoogle = (response) => {
       googleLogin({ tokenId: response.tokenId });
+      clearReservations();
    };
 
    const responseErrorGoogle = (err) => {
-      console.log(err);
       setAlert(err, "danger", "2");
    };
 
@@ -71,6 +76,7 @@ const Login = ({
          accessToken: response.accessToken,
          userID: response.userID,
       });
+      clearReservations();
    };
 
    return (
@@ -229,6 +235,7 @@ Login.propTypes = {
    setAlert: PropTypes.func.isRequired,
    sendPasswordLink: PropTypes.func.isRequired,
    removeAuthError: PropTypes.func.isRequired,
+   clearReservations: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -242,4 +249,5 @@ export default connect(mapStateToProps, {
    setAlert,
    sendPasswordLink,
    removeAuthError,
+   clearReservations,
 })(Login);

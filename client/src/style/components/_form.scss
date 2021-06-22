@@ -12,6 +12,9 @@
    @include respond(phone) {
       width: 85%;
    }
+   @include respond(small-phone) {
+      width: 100%;
+   }
 
    &.filter {
       border: 1px dotted $light-color;
@@ -53,9 +56,15 @@
 
             &:nth-child(1) {
                width: 7rem;
+               @include respond(small-phone) {
+                  width: 12rem;
+               }
             }
             &:nth-child(2) {
                width: 8rem;
+               @include respond(small-phone) {
+                  width: 12rem;
+               }
             }
          }
       }
@@ -66,6 +75,91 @@
 
          .form-label {
             width: 100%;
+         }
+      }
+
+      &.several-input {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin: 0 !important;
+         padding: 1rem 1rem 0.5rem;
+
+         .icon {
+            font-size: 3rem;
+            margin: 0;
+         }
+      }
+   }
+
+   &-search {
+      position: relative;
+
+      &-display {
+         display: none;
+         width: 100%;
+         transform: scale(0.98);
+         font-weight: 300;
+         color: $white-color;
+         background-color: lighten($primary-color, 10%);
+         position: absolute;
+         z-index: 200;
+         top: 4rem;
+      }
+
+      &:focus + &-display {
+         display: block;
+         width: 100%;
+         transform: scale(0.98);
+         font-weight: 300;
+         color: $white-color;
+         background-color: lighten($primary-color, 10%);
+         position: absolute;
+         z-index: 200;
+         top: 4rem;
+      }
+
+      &-item {
+         cursor: pointer;
+         padding: 1rem;
+         margin: 0.5rem;
+
+         &:hover {
+            color: $dark-color;
+            background-color: lighten($secondary-color, 30%);
+         }
+
+         &.bg-danger {
+            cursor: initial;
+            &:hover {
+               background-color: inherit;
+            }
+         }
+      }
+
+      &-close {
+         &,
+         &:link,
+         &:visited {
+            color: $dark-color;
+            background-color: inherit;
+            text-decoration: none;
+            font-size: 2rem;
+            cursor: pointer;
+            border: none;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            @include easeOut;
+         }
+
+         &:hover {
+            transform: scale(1.1);
+         }
+
+         &:active,
+         &:focus {
+            outline: none;
          }
       }
    }
@@ -107,6 +201,16 @@
       }
    }
 
+   input::-webkit-outer-spin-button,
+   input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+   }
+
+   input[type="number"] {
+      -moz-appearance: textfield;
+   }
+
    &-label,
    &-label-show {
       font-size: 1.45rem;
@@ -143,10 +247,6 @@
       border-radius: 2.5rem;
       white-space: nowrap;
       margin: 1rem 1.5rem;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       transition: all 0.2s;
@@ -192,9 +292,52 @@
 
    &-input-checkbox,
    &-input-radio {
-      display: absolute;
+      display: none;
       position: absolute;
       opacity: 0;
+   }
+
+   &-lbl-switch {
+      position: relative;
+      display: inline-block;
+      background-color: $light-color;
+      cursor: pointer;
+      border-radius: 2.5rem;
+      width: 6rem;
+      height: 3.4rem;
+      @include easeOut;
+
+      @include respond(small-phone) {
+         transform: scale(0.8);
+      }
+
+      &:hover {
+         background-color: darken($light-color, 5%);
+      }
+
+      &::before {
+         position: absolute;
+         content: "";
+         height: 2.6rem;
+         width: 2.6rem;
+         left: 0.4rem;
+         bottom: 0.4rem;
+         background-color: $white-color;
+         border-radius: 50%;
+         @include easeOut;
+      }
+   }
+
+   &-input-checkbox:checked + &-lbl-switch {
+      background-color: $secondary-color;
+
+      &:hover {
+         background-color: lighten($secondary-color, 5%);
+      }
+   }
+
+   &-input-checkbox:checked + &-lbl-switch::before {
+      transform: translateX(2.6rem);
    }
 
    //Form Img

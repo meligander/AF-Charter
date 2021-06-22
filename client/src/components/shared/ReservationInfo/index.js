@@ -22,18 +22,9 @@ const ReservationInfo = ({
 
    const [adminValues, setAdminValues] = useState({
       toggleModal: false,
-      amount:
-         reservation.payment.downpayment.type === "stripe"
-            ? Math.round(
-                 (reservation.payment.downpayment.amount * 0.029 +
-                    0.3 +
-                    Number.EPSILON) *
-                    100
-              ) / 100
-            : 0,
    });
 
-   const { toggleModal, amount } = adminValues;
+   const { toggleModal } = adminValues;
 
    return (
       <div className="row reservation-info">
@@ -49,7 +40,9 @@ const ReservationInfo = ({
             toggleModal={toggleModal}
             text="Are you sure you want to cancel the reservation?"
             subtext={
-               amount !== 0 ? `You have to pay $${amount} anyways.` : undefined
+               reservation.downpayment.fee
+                  ? `You have to pay $${reservation.downpayment.fee} anyways.`
+                  : undefined
             }
          />
          <div className="row-item vessel">
@@ -104,7 +97,7 @@ const ReservationInfo = ({
                   <tr>
                      <td className="myreservations-info-title">Paid:</td>
                      <td>
-                        {reservation.payment.downpayment.status === "success"
+                        {reservation.downpayment.status === "success"
                            ? "Yes"
                            : "No"}
                      </td>

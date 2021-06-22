@@ -1,6 +1,7 @@
 import {
    PAYMENT_CANCELED,
    PAYMENT_REGISTERED,
+   REMOVERESERVATION_ERROR,
    RESERVATIONS_CLEARED,
    RESERVATIONS_ERROR,
    RESERVATIONS_LOADED,
@@ -59,7 +60,7 @@ const reservationReducer = (state = initialState, action) => {
             ...state,
             reservation: {
                ...state.reservation,
-               payment: payload,
+               [payload.payType]: payload.data,
             },
          };
       case RESERVATIONS_CLEARED:
@@ -74,11 +75,16 @@ const reservationReducer = (state = initialState, action) => {
       case RESERVATIONS_ERROR:
          return {
             ...state,
-            reservation: null,
+            //reservation: null,
             reservations: [],
             loadingReservation: false,
             loading: false,
             error: payload,
+         };
+      case REMOVERESERVATION_ERROR:
+         return {
+            ...state,
+            error: state.error.filter((errorI) => errorI.param !== payload),
          };
       default:
          return state;
