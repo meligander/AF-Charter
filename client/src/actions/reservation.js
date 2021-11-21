@@ -42,42 +42,43 @@ export const loadReservation = (reservation_id) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const loadReservations = (filterData, noSign) => async (dispatch) => {
-   dispatch(updateLoadingSpinner(true));
+export const loadReservations =
+   (filterData, noSign, bulkLoad) => async (dispatch) => {
+      if (!bulkLoad) dispatch(updateLoadingSpinner(true));
 
-   let filter = "";
-   const filternames = Object.keys(filterData);
-   for (let x = 0; x < filternames.length; x++) {
-      const name = filternames[x];
-      if (filterData[name] !== "") {
-         if (filter !== "") filter = filter + "&";
-         filter = filter + filternames[x] + "=" + filterData[name];
+      let filter = "";
+      const filternames = Object.keys(filterData);
+      for (let x = 0; x < filternames.length; x++) {
+         const name = filternames[x];
+         if (filterData[name] !== "") {
+            if (filter !== "") filter = filter + "&";
+            filter = filter + filternames[x] + "=" + filterData[name];
+         }
       }
-   }
-   try {
-      dispatch(deleteUnpaidReservation());
+      try {
+         dispatch(deleteUnpaidReservation());
 
-      const res = await api.get(`/reservation?${filter}`);
+         const res = await api.get(`/reservation?${filter}`);
 
-      dispatch({
-         type: RESERVATIONS_LOADED,
-         payload: res.data,
-      });
-   } catch (err) {
-      if (!noSign) dispatch(setAlert(err.response.data.msg, "danger", "2"));
-      dispatch({
-         type: RESERVATIONS_ERROR,
-         payload: {
-            type: err.response.statusText,
-            status: err.response.status,
-            msg: err.response.data.msg,
-         },
-      });
-      window.scrollTo(0, 0);
-   }
+         dispatch({
+            type: RESERVATIONS_LOADED,
+            payload: res.data,
+         });
+      } catch (err) {
+         if (!noSign) dispatch(setAlert(err.response.data.msg, "danger", "2"));
+         dispatch({
+            type: RESERVATIONS_ERROR,
+            payload: {
+               type: err.response.statusText,
+               status: err.response.status,
+               msg: err.response.data.msg,
+            },
+         });
+         window.scrollTo(0, 0);
+      }
 
-   dispatch(updateLoadingSpinner(false));
-};
+      if (!bulkLoad) dispatch(updateLoadingSpinner(false));
+   };
 
 export const registerReservation = (formData, admin) => async (dispatch) => {
    dispatch(updateLoadingSpinner(true));

@@ -41,7 +41,9 @@ const ReservationInfo = ({
             text="Are you sure you want to cancel the reservation?"
             subtext={
                reservation.downpayment.fee
-                  ? `You have to pay $${reservation.downpayment.fee} anyways.`
+                  ? `You have to pay $${reservation.downpayment.fee.toFixed(
+                       2
+                    )} anyways.`
                   : undefined
             }
          />

@@ -70,8 +70,7 @@ const Form = ({
                id,
             },
             reservation[type]._id,
-            loggedUser.type,
-            type
+            loggedUser.type
          );
          updateReservation({ active: false }, reservation._id);
       } else {

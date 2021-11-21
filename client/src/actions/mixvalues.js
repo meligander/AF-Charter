@@ -6,3 +6,9 @@ export const updateLoadingSpinner = (bool) => (dispatch) => {
       payload: bool,
    });
 };
+
+export const formatNumber = (number) => {
+   return Number(number)
+      .toFixed(2)
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};

@@ -59,6 +59,12 @@ router.post(
 
          if (!user) errors.push({ msg: "Invalid credentials" });
          else {
+            /*
+            //generate bycrypt password with '12345678'
+            const salt = await bcrypt.genSalt(10);
+
+             user.password = await bcrypt.hash("12345678", salt);
+            console.log(user.password); */
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (!isMatch) errors.push({ msg: "Invalid credentials" });
@@ -107,8 +113,16 @@ router.post(
          .isEmpty(),
    ],
    async (req, res) => {
-      const { name, lastname, email, password, passwordConf, cel, img } =
-         req.body;
+      const {
+         name,
+         lastname,
+         email,
+         password,
+         passwordConf,
+         cel,
+         img,
+         address,
+      } = req.body;
 
       let errors = [];
       const errorsResult = validationResult(req);
@@ -146,11 +160,17 @@ router.post(
             lastname,
             password,
             email,
+            ...(address & { address }),
             type: "customer",
-            ...(cel && { cel }),
-            ...(img && {
-               img: { fileName: img, filePath: `/uploads/users/${img}` },
-            }),
+            cel: {
+               countryCode: cel && cel.countryCode ? cel.countryCode : "",
+               areaCode: cel && cel.areaCode ? cel.areaCode : "",
+               phoneNumb: cel && cel.phoneNumb ? cel.phoneNumb : "",
+            },
+            img: {
+               fileName: img ? img : "",
+               filePath: img ? `/uploads/users/${img}` : "",
+            },
          };
 
          const token = jwt.sign(data, process.env.JWT_SECRET, {

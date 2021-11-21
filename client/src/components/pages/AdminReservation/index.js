@@ -71,16 +71,16 @@ const AdminReservation = ({
                {reservation.active ? (
                   <Tab
                      tablist={[
-                        "Reschedule",
                         "Crew",
                         "Payment",
+                        "Reschedule",
                         "Discrepancies",
                         "Manifest",
                      ]}
                      panellist={[
-                        Schedule,
                         CrewTab,
                         PaymentInfo,
+                        Schedule,
                         DiscrepaciesTab,
                         ManifestTab,
                      ]}

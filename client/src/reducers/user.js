@@ -9,6 +9,7 @@ import {
    REMOVEUSER_ERROR,
    USERSSECONDARY_ERROR,
    USERSSECONDARY_LOADED,
+   USER_CLEARED,
 } from "../actions/types";
 
 const initialState = {
@@ -62,6 +63,13 @@ const userReducer = (state = initialState, action) => {
          };
       case USERS_CLEARED:
          return initialState;
+      case USER_CLEARED:
+         return {
+            ...state,
+            user: null,
+            loadingUser: true,
+            error: {},
+         };
       case USERS_ERROR:
          return {
             ...state,

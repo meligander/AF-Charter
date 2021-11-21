@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { BiSave } from "react-icons/bi";
 
 import { updateReservation } from "../../../../actions/reservation";
 
@@ -107,7 +108,7 @@ const CrewTab = ({
          </div>
          <div className="btn-center mt-4">
             <button type="submit" className="btn btn-primary">
-               Update
+               <BiSave className="icon" /> Update
             </button>
          </div>
       </form>

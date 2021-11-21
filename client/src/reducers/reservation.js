@@ -60,7 +60,7 @@ const reservationReducer = (state = initialState, action) => {
             ...state,
             reservation: {
                ...state.reservation,
-               [payload.payType]: payload.data,
+               [payload.payment]: payload,
             },
          };
       case RESERVATIONS_CLEARED:

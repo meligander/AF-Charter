@@ -26,7 +26,7 @@
       line-height: 4.2rem;
 
       .underline {
-         top: 3.5rem;
+         top: 4.5rem;
       }
    }
 
@@ -69,6 +69,9 @@
    }
    &-dark {
       color: $dark-color !important;
+   }
+   &-light {
+      color: $light-color !important;
    }
    &-danger {
       color: $danger-color !important;

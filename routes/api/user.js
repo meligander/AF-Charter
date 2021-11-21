@@ -30,6 +30,10 @@ router.get("/", [auth, adminAuth], async (req, res) => {
                ? {
                     $in: ["captain", "admin&captain"],
                  }
+               : req.query.type === "admin"
+               ? {
+                    $in: ["admin", "admin&captain"],
+                 }
                : req.query.type,
             ...(req.query.name && {
                name: { $regex: `.*${req.query.name}.*`, $options: "i" },
@@ -45,7 +49,7 @@ router.get("/", [auth, adminAuth], async (req, res) => {
 
          users = await User.find(filter)
             .select("-password")
-            .sort({ lastname: 1, name: 1 });
+            .sort({ type: 1, lastname: 1, name: 1 });
       }
 
       if (users.length === 0) {
@@ -56,7 +60,7 @@ router.get("/", [auth, adminAuth], async (req, res) => {
       res.json(users);
    } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server Error");
+      return res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -76,7 +80,7 @@ router.get("/:id", [auth], async (req, res) => {
       res.json(user);
    } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server Error");
+      return res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -126,7 +130,7 @@ router.get("/:dateFrom/:dateTo/:reservation_id", async (req, res) => {
       res.json(users);
    } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server Error");
+      return res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -162,6 +166,8 @@ router.put(
       auth,
       check("name", "Name is required").not().isEmpty(),
       check("lastname", "Lastame is required").not().isEmpty(),
+      check("email", "Email is required").not().isEmpty(),
+      check("type", "Type is required").not().isEmpty(),
    ],
    async (req, res) => {
       const { name, lastname, email, cel, type, address, dob, active, img } =
@@ -178,11 +184,7 @@ router.put(
 
       try {
          let salt;
-
          if (req.params.id === "0") {
-            if (!email)
-               errors.push({ msg: "Email is required", param: "email" });
-
             if (!regex1.test(email))
                errors.push({ msg: "Invalid email", param: "email" });
 
@@ -201,11 +203,12 @@ router.put(
             lastname,
             active,
             type,
+            email,
             cel,
             address,
             dob,
             ...(req.params.id === "0" && {
-               password: await bcrypt.hash(user.password, salt),
+               password: await bcrypt.hash("12345678", salt),
             }),
             ...(img && {
                img: { fileName: img, filePath: `/uploads/users/${img}` },
@@ -216,12 +219,11 @@ router.put(
             user = new User(data);
             user.save();
          } else {
-            user = await User.findOne({ _id: req.user.id });
+            user = await User.findOne({ _id: req.params.id });
             if (img)
                fs.unlinkSync(
                   `${__dirname}../../../client/public${user.img.filePath}`
                );
-
             user = await User.findOneAndUpdate(
                { _id: user._id },
                { $set: data },
@@ -232,7 +234,7 @@ router.put(
          res.json(user);
       } catch (err) {
          console.error(err.message);
-         return res.status(500).send("Server Error");
+         return res.status(500).json({ msg: "Server Error" });
       }
    }
 );
@@ -240,15 +242,15 @@ router.put(
 //@route    DELETE /api/user/:id
 //@desc     Delete a user
 //@access   Private && Admin
-router.delete("/:id/:type", [auth, adminAuth], async (req, res) => {
+router.delete("/:user_id", [auth, adminAuth], async (req, res) => {
    try {
       //Remove user
-      await User.findOneAndRemove({ _id: req.params.id });
+      await User.findOneAndRemove({ _id: req.params.user_id });
 
       res.json({ msg: "User deleted" });
    } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({ msg: "Server Error" });
    }
 });
 

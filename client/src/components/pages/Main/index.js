@@ -3,6 +3,7 @@ import React, { Fragment } from "react";
 import Header from "../../layout/Header";
 import Fleet from "./Fleet";
 import Features from "./Features";
+import Destinations from "./Destinations";
 import ContactUs from "./ContactUs";
 
 const Main = () => {
@@ -11,6 +12,7 @@ const Main = () => {
          <Header />
          <Fleet />
          <Features />
+         <Destinations />
          <ContactUs />
       </Fragment>
    );

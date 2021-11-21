@@ -8,13 +8,17 @@ import mixvalues from "./mixvalues";
 import reservations from "./reservation";
 import days from "./day";
 import discrepancies from "./discrepancy";
+import maintenances from "./maintenance";
+import payments from "./payment";
 
 export default combineReducers({
    alert,
    auth,
    days,
    discrepancies,
+   maintenances,
    mixvalues,
+   payments,
    reservations,
    users,
    vessels,

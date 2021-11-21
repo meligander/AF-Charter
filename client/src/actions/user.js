@@ -1,5 +1,5 @@
 import api from "../utils/api";
-//import history from "../utils/history";
+import history from "../utils/history";
 
 import {
    USERS_CLEARED,
@@ -12,6 +12,8 @@ import {
    USER_UPDATED,
    USERSSECONDARY_LOADED,
    USERSSECONDARY_ERROR,
+   USER_DELETED,
+   USER_CLEARED,
 } from "./types";
 
 import { setAlert } from "./alert";
@@ -107,7 +109,7 @@ export const checkAvailableCaptains =
    };
 
 export const registerUpdateUser =
-   (formData, user_id, self) => async (dispatch) => {
+   (formData, user_id, self, isAdmin) => async (dispatch) => {
       dispatch(updateLoadingSpinner(true));
       try {
          if (formData.formImg)
@@ -127,7 +129,16 @@ export const registerUpdateUser =
             payload: res.data,
          });
 
-         dispatch(setAlert("Profile Successfully Updated", "success", "2"));
+         dispatch(
+            setAlert(
+               `${self ? "Profile" : "User"} Successfully ${
+                  user_id ? "Updated" : "Registered"
+               }`,
+               "success",
+               "2"
+            )
+         );
+         if (isAdmin && !self) history.push("/users-list");
       } catch (err) {
          if (err.response.data.errors) {
             const errors = err.response.data.errors;
@@ -155,11 +166,43 @@ export const registerUpdateUser =
       dispatch(updateLoadingSpinner(false));
    };
 
+export const deleteUser = (user_id) => async (dispatch) => {
+   dispatch(updateLoadingSpinner(true));
+
+   try {
+      await api.delete(`/user/${user_id}`);
+
+      dispatch({
+         type: USER_DELETED,
+         payload: user_id,
+      });
+
+      dispatch(setAlert("User Deleted", "success", "2"));
+   } catch (err) {
+      dispatch(setAlert(err.response.data.msg, "danger", "2"));
+      dispatch({
+         type: USERS_ERROR,
+         payload: {
+            type: err.response.statusText,
+            status: err.response.status,
+            msg: err.response.data.msg,
+         },
+      });
+   }
+
+   window.scrollTo(0, 0);
+   dispatch(updateLoadingSpinner(false));
+};
+
 export const removeUserError = (param) => (dispatch) => {
    dispatch({
       type: REMOVEUSER_ERROR,
       payload: param,
    });
+};
+
+export const clearUser = () => (dispatch) => {
+   dispatch({ type: USER_CLEARED });
 };
 
 export const clearUsers = () => (dispatch) => {

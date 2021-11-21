@@ -68,7 +68,8 @@ const Login = ({
    };
 
    const responseErrorGoogle = (err) => {
-      setAlert(err, "danger", "2");
+      console.log(err.error);
+      setAlert("Error login in", "danger", "2");
    };
 
    const responseFacebook = (response) => {

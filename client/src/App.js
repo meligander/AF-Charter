@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect } from "react";
-import { Router } from "react-router-dom";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 
 //Redux
 import store from "./store";

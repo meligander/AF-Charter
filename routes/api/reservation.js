@@ -53,6 +53,7 @@ router.get("/:reservation_id", [auth], async (req, res) => {
 router.get("/", [auth], async (req, res) => {
    try {
       const filter = {
+         ...(req.query.active !== undefined && { active: req.query.active }),
          ...(req.query.customer && { customer: req.query.customer }),
          ...(req.query.vessel && { vessel: req.query.vessel }),
          ...(req.query.captain && { "crew.captain": req.query.captain }),
@@ -125,8 +126,6 @@ router.post(
       let { dateFrom, dateTo, customer, vessel, captain, charterValue, mates } =
          req.body;
 
-      console.log(customer);
-
       dateFrom = new Date(dateFrom);
       dateTo = new Date(dateTo);
 
@@ -155,6 +154,7 @@ router.post(
          amount:
             Math.round((reservationFields.total * 0.2 + Number.EPSILON) * 100) /
             100,
+         payment: "downpayment",
       });
 
       const balance = new Payment({
@@ -163,6 +163,7 @@ router.post(
                (reservationFields.total - downpayment.amount + Number.EPSILON) *
                   100
             ) / 100,
+         payment: "balance",
       });
 
       reservationFields.downpayment = downpayment._id;

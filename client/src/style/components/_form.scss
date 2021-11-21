@@ -96,7 +96,6 @@
       position: relative;
 
       &-display {
-         display: none;
          width: 100%;
          transform: scale(0.98);
          font-weight: 300;
@@ -105,34 +104,22 @@
          position: absolute;
          z-index: 200;
          top: 4rem;
-      }
 
-      &:focus + &-display {
-         display: block;
-         width: 100%;
-         transform: scale(0.98);
-         font-weight: 300;
-         color: $white-color;
-         background-color: lighten($primary-color, 10%);
-         position: absolute;
-         z-index: 200;
-         top: 4rem;
+         &.danger {
+            background-color: $danger-color;
+         }
       }
 
       &-item {
-         cursor: pointer;
          padding: 1rem;
          margin: 0.5rem;
 
-         &:hover {
-            color: $dark-color;
-            background-color: lighten($secondary-color, 30%);
-         }
+         &:not(.bg-danger) {
+            cursor: pointer;
 
-         &.bg-danger {
-            cursor: initial;
             &:hover {
-               background-color: inherit;
+               color: $dark-color;
+               background-color: lighten($secondary-color, 30%);
             }
          }
       }
@@ -268,6 +255,10 @@
          font-size: 1.5rem;
          content: "\2716";
          transition: transform 0.3s ease-in-out;
+      }
+
+      &.invalid {
+         border: 1.5px solid $danger-color;
       }
    }
 

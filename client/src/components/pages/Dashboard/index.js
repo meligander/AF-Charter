@@ -12,21 +12,53 @@ import {
    loadReservations,
    clearReservations,
 } from "../../../actions/reservation";
-import { clearUsers } from "../../../actions/user";
-import { clearVessels } from "../../../actions/vessel";
+import {
+   clearMaintenances,
+   loadMaintenances,
+} from "../../../actions/maintenance";
+import { clearUsers, loadUsers } from "../../../actions/user";
+import { clearVessels, loadVessels } from "../../../actions/vessel";
+import { loadTotalTime } from "../../../actions/payment";
+import { formatNumber } from "../../../actions/mixvalues";
 
 import "./style.scss";
 
 const Dashboard = ({
    reservations: { reservations, loading },
+   vessels: { vessels },
+   maintenances: { maintenances },
+   users: { users },
+   payments: {
+      otherData: { dailyPayments, weeklyPayments, monthlyPayments },
+   },
    loadReservations,
    clearVessels,
    clearUsers,
    clearReservations,
+   clearMaintenances,
+   loadMaintenances,
+   loadUsers,
+   loadVessels,
+   loadTotalTime,
 }) => {
    useEffect(() => {
-      if (loading) loadReservations({ active: true, limit: 5 });
-   }, [loading, loadReservations]);
+      if (loading) {
+         loadTotalTime("days");
+         loadTotalTime("weeks");
+         loadTotalTime("months");
+         loadMaintenances({ closed: false }, true);
+         loadReservations({ active: true }, null, true);
+         loadVessels({ active: true }, true);
+         loadUsers({ active: true, type: "captain" }, true);
+      }
+   }, [
+      loading,
+      loadReservations,
+      loadVessels,
+      loadUsers,
+      loadMaintenances,
+      loadTotalTime,
+   ]);
    return (
       <div className="dashboard">
          <section className="section-sidebar">
@@ -62,9 +94,10 @@ const Dashboard = ({
                   </li>
                   <li className="side-nav-item">
                      <Link
-                        to="/manteinance"
+                        to="/maintenance-list"
                         onClick={() => {
                            window.scroll(0, 0);
+                           clearMaintenances();
                         }}
                         className="side-nav-link"
                      >
@@ -87,9 +120,10 @@ const Dashboard = ({
                   <li className="side-nav-item">
                      <Link
                         className="side-nav-link"
-                        to="/cashregister-info"
+                        to="/users-list"
                         onClick={() => {
                            window.scroll(0, 0);
+                           clearUsers();
                         }}
                      >
                         <FaUser />
@@ -112,65 +146,69 @@ const Dashboard = ({
                      <tbody>
                         {!loading &&
                            reservations.length > 0 &&
-                           reservations.map((reservation) => (
-                              <React.Fragment key={reservation._id}>
-                                 <tr className="show-sm">
-                                    <td>
-                                       <span className="border-btm">
-                                          {reservation.vessel.name}
-                                       </span>
-                                    </td>
-                                 </tr>
-                                 <tr>
-                                    <td className="hide-md">
-                                       {reservation.vessel.name}
-                                    </td>
-                                    <td>
-                                       <Moment
-                                          date={reservation.dateFrom}
-                                          format="MM/DD/YY"
-                                          utc
-                                       />
-                                    </td>
-                                    <td>
-                                       <Moment
-                                          date={reservation.dateFrom}
-                                          format="H a"
-                                          utc
-                                       />
-                                    </td>
-                                    <td>
-                                       <Moment
-                                          date={reservation.dateTo}
-                                          format={
-                                             moment(reservation.dateFrom)
-                                                .utc()
-                                                .format("MM/DD/YY") !==
-                                             moment(reservation.dateTo)
-                                                .utc()
-                                                .format("MM/DD/YY")
-                                                ? "MM/DD/YY - h a"
-                                                : "h a"
-                                          }
-                                          utc
-                                       />
-                                    </td>
-                                    <td className="hide-md">
-                                       {reservation.crew &&
-                                          reservation.crew.captain &&
-                                          reservation.crew.captain.name +
-                                             " " +
-                                             reservation.crew.captain.lastname}
-                                    </td>
-                                    <td className="hide-md">
-                                       {reservation.downpayment.status ===
-                                       "success"
-                                          ? "Paid"
-                                          : "Not Paid"}
-                                    </td>
-                                 </tr>
-                              </React.Fragment>
-                           ))}
+                           reservations.map(
+                              (reservation, i) =>
+                                 i < 5 && (
+                                    <React.Fragment key={reservation._id}>
+                                       <tr className="show-sm">
+                                          <td>
+                                             <span className="border-btm">
+                                                {reservation.vessel.name}
+                                             </span>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td className="hide-md">
+                                             {reservation.vessel.name}
+                                          </td>
+                                          <td>
+                                             <Moment
+                                                date={reservation.dateFrom}
+                                                format="MM/DD/YY"
+                                                utc
+                                             />
+                                          </td>
+                                          <td>
+                                             <Moment
+                                                date={reservation.dateFrom}
+                                                format="H a"
+                                                utc
+                                             />
+                                          </td>
+                                          <td>
+                                             <Moment
+                                                date={reservation.dateTo}
+                                                format={
+                                                   moment(reservation.dateFrom)
+                                                      .utc()
+                                                      .format("MM/DD/YY") !==
+                                                   moment(reservation.dateTo)
+                                                      .utc()
+                                                      .format("MM/DD/YY")
+                                                      ? "MM/DD/YY - h a"
+                                                      : "h a"
+                                                }
+                                                utc
+                                             />
+                                          </td>
+                                          <td className="hide-md">
+                                             {reservation.crew &&
+                                                reservation.crew.captain &&
+                                                reservation.crew.captain.name +
+                                                   " " +
+                                                   reservation.crew.captain
+                                                      .lastname}
+                                          </td>
+                                          <td className="hide-md">
+                                             {reservation.downpayment.status ===
+                                             "success"
+                                                ? "Paid"
+                                                : "Not Paid"}
+                                          </td>
+                                       </tr>
+                                    </React.Fragment>
+                                 )
+                           )}
                      </tbody>
                   </table>
                   <div className="btn-right">
@@ -194,27 +232,33 @@ const Dashboard = ({
                      <tbody>
                         <tr>
                            <td>Vessels:</td>
-                           <td>2</td>
+                           <td>{vessels.length}</td>
                         </tr>
                         <tr>
                            <td>Captains:</td>
-                           <td>2</td>
+                           <td>{users.length}</td>
                         </tr>
                         <tr>
                            <td>Active Reservations:</td>
-                           <td>14</td>
+                           <td>{reservations.length}</td>
                         </tr>
                         <tr>
-                           <td>Daily Income:</td>
-                           <td>$ 8,400</td>
+                           <td>Day's Income:</td>
+                           <td>$ {formatNumber(dailyPayments)}</td>
                         </tr>
                         <tr>
-                           <td>Weekly Income:</td>
-                           <td>$ 21,400</td>
+                           <td>Week's Income:</td>
+                           <td>$ {formatNumber(weeklyPayments)}</td>
+                        </tr>
+                        <tr>
+                           <td>Month's Income:</td>
+                           <td>$ {formatNumber(monthlyPayments)}</td>
                         </tr>
                         <tr>
                            <td>Pending Manteinance:</td>
-                           <td>4 Issues</td>
+                           <td>{`${maintenances.length} Issue${
+                              maintenances.length === 1 ? "" : "s"
+                           }`}</td>
                         </tr>
                      </tbody>
                   </table>
@@ -227,14 +271,27 @@ const Dashboard = ({
 
 Dashboard.propTypes = {
    reservations: PropTypes.object.isRequired,
+   maintenances: PropTypes.object.isRequired,
+   vessels: PropTypes.object.isRequired,
+   users: PropTypes.object.isRequired,
+   payments: PropTypes.object.isRequired,
    loadReservations: PropTypes.func.isRequired,
    clearVessels: PropTypes.func.isRequired,
    clearReservations: PropTypes.func.isRequired,
    clearUsers: PropTypes.func.isRequired,
+   clearMaintenances: PropTypes.func.isRequired,
+   loadUsers: PropTypes.func.isRequired,
+   loadMaintenances: PropTypes.func.isRequired,
+   loadVessels: PropTypes.func.isRequired,
+   loadTotalTime: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
    reservations: state.reservations,
+   vessels: state.vessels,
+   maintenances: state.maintenances,
+   users: state.users,
+   payments: state.payments,
 });
 
 export default connect(mapStateToProps, {
@@ -242,4 +299,9 @@ export default connect(mapStateToProps, {
    clearVessels,
    clearReservations,
    clearUsers,
+   clearMaintenances,
+   loadMaintenances,
+   loadVessels,
+   loadUsers,
+   loadTotalTime,
 })(Dashboard);

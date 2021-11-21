@@ -8,21 +8,35 @@ import { BiMailSend, BiSave } from "react-icons/bi";
 import PropTypes from "prop-types";
 
 import { signup, removeAuthError } from "../../../actions/auth";
-import { registerUpdateUser, removeUserError } from "../../../actions/user";
+import {
+   loadUser,
+   registerUpdateUser,
+   removeUserError,
+} from "../../../actions/user";
 
 import Alert from "../../shared/Alert";
 
 import "./style.scss";
 
-const AccountInfo = ({
+const EditUser = ({
    auth: { loggedUser, isAuthenticated, loading, emailSent, error },
-   users: { error: userError },
+   users: { user, loadingUser, error: userError },
    location,
+   match,
    signup,
-   removeAuthError,
+   loadUser,
    registerUpdateUser,
    removeUserError,
+   removeAuthError,
 }) => {
+   const isAdmin =
+      loggedUser &&
+      (loggedUser.type === "admin" || loggedUser.type === "admin&captain");
+   const _id = match.params.user_id;
+   let adminType = location.pathname.replace("/", "");
+
+   if (_id) adminType = adminType.replace(`/${_id}`, "");
+
    const [formData, setFormData] = useState({
       name: "",
       lastname: "",
@@ -38,11 +52,10 @@ const AccountInfo = ({
       address: "",
       dob: "",
       img: "",
-      active: "",
+      active: true,
    });
 
    const [adminValues, setAdminValues] = useState({
-      isAdmin: false,
       previewSource: "",
       fileInputState: "",
       selectedFile: "",
@@ -62,59 +75,63 @@ const AccountInfo = ({
       active,
    } = formData;
 
-   const { isAdmin, previewSource, fileInputState, selectedFile } = adminValues;
+   const { previewSource, fileInputState, selectedFile } = adminValues;
 
    useEffect(() => {
-      if (!loading && loggedUser) {
-         setFormData((prev) => ({
-            ...prev,
-            name: loggedUser.name,
-            lastname: loggedUser.lastname,
-            type: loggedUser.type,
-            email: loggedUser.email,
-            active: loggedUser.active,
-            ...(loggedUser.address && { address: loggedUser.address }),
-            ...(loggedUser.dob && {
-               dob: moment(loggedUser.dob).utc().format("YYYY-MM-DD"),
-            }),
-            cel: {
-               ...prev.cel,
-               ...(loggedUser.cel.areaCode && {
-                  countryCode: loggedUser.cel.countryCode,
+      if (adminType === "profile" || adminType === "edit-user") {
+         let userLoaded;
+
+         if (_id) {
+            if (loadingUser) loadUser(_id);
+            else userLoaded = user;
+         } else if (!loading) userLoaded = loggedUser;
+
+         if (userLoaded) {
+            setFormData((prev) => ({
+               ...prev,
+               name: userLoaded.name,
+               lastname: userLoaded.lastname,
+               type: userLoaded.type,
+               email: userLoaded.email,
+               active: userLoaded.active,
+               ...(userLoaded.address && { address: userLoaded.address }),
+               ...(userLoaded.dob && {
+                  dob: moment(userLoaded.dob).utc().format("YYYY-MM-DD"),
                }),
-               ...(loggedUser.cel.areaCode && {
-                  areaCode: loggedUser.cel.areaCode,
-               }),
-               ...(loggedUser.cel.phoneNumb && {
-                  phoneNumb: loggedUser.cel.phoneNumb,
-               }),
-            },
-         }));
-         setAdminValues((prev) => ({
-            ...prev,
-            isAdmin:
-               loggedUser.type === "admin" ||
-               loggedUser.type === "admin&captain",
-            ...(loggedUser.img &&
-               loggedUser.img.fileName !== "" && {
-                  previewSource: loggedUser.img.filePath,
+               cel: {
+                  ...prev.cel,
+                  ...(userLoaded.cel.areaCode && {
+                     countryCode: userLoaded.cel.countryCode,
+                  }),
+                  ...(userLoaded.cel.areaCode && {
+                     areaCode: userLoaded.cel.areaCode,
+                  }),
+                  ...(userLoaded.cel.phoneNumb && {
+                     phoneNumb: userLoaded.cel.phoneNumb,
+                  }),
+               },
+            }));
+            if (userLoaded.img && userLoaded.img.fileName !== "")
+               setAdminValues((prev) => ({
+                  ...prev,
+                  previewSource: userLoaded.img.filePath,
                   fileInputState: true,
-               }),
-         }));
+               }));
+         }
       }
-   }, [loading, loggedUser]);
+   }, [loading, loggedUser, loadingUser, user, _id, adminType, loadUser]);
 
    const header = () => {
-      switch (location.pathname) {
-         case "/signup":
-         case "/new-user":
+      switch (adminType) {
+         case "signup":
+         case "new-user":
             return (
                <>
                   <FaUserPlus className="heading-icon" />
                   &nbsp;New account
                </>
             );
-         case "/profile":
+         case "profile":
             return (
                <>
                   <FaUserAlt className="heading-icon" />
@@ -150,7 +167,7 @@ const AccountInfo = ({
          (error.constructor === Array && error.length > 0) ||
          (userError.constructor === Array && userError.length > 0)
       )
-         location.pathname === "/signup"
+         adminType === "signup"
             ? removeAuthError(e.target.id)
             : removeUserError(e.target.id);
    };
@@ -190,18 +207,19 @@ const AccountInfo = ({
          }),
       };
 
-      if (location.pathname === "/signup") signup(data);
+      if (adminType === "signup") signup(data);
       else
          registerUpdateUser(
             data,
-            location.pathname === "/profile" && loggedUser._id,
-            location.pathname === "/profile"
+            adminType === "profile" ? loggedUser._id : _id && _id,
+            adminType === "profile",
+            isAdmin
          );
    };
 
    return (
       (!isAuthenticated || !loading) && (
-         <div className="signup">
+         <div className="user">
             <h2 className="heading heading-primary">{header()}</h2>
             {!emailSent ? (
                <>
@@ -235,7 +253,7 @@ const AccountInfo = ({
                            </span>
                         </div>
                      </div>
-                     <div className="signup-name">
+                     <div className="user-name">
                         <div className="form-group half">
                            <input
                               type="text"
@@ -313,7 +331,7 @@ const AccountInfo = ({
                            type="text"
                            value={email}
                            id="email"
-                           disabled={location.pathname === "/profile"}
+                           disabled={adminType === "profile" && !isAdmin}
                            onChange={onChange}
                            placeholder="Email"
                         />
@@ -331,13 +349,14 @@ const AccountInfo = ({
                               onChange={onChange}
                            >
                               <option value="">* Select user type</option>
-                              <option value="customer">Customer</option>
-                              <option value="Mate">Mate</option>
-                              <option value="Captain">Captain</option>
                               <option value="admin">Admin</option>
                               <option value="admin&captain">
                                  Admin and Captain
                               </option>
+                              <option value="captain">Captain</option>
+                              <option value="customer">Customer</option>
+                              <option value="mate">Mate</option>
+                              <option value="mechanic">Mechanic</option>
                            </select>
                            <label
                               htmlFor="type"
@@ -349,7 +368,7 @@ const AccountInfo = ({
                            </label>
                         </div>
                      )}
-                     {location.pathname === "/signup" && (
+                     {adminType === "signup" && (
                         <>
                            <div className="form-group">
                               <input
@@ -365,6 +384,7 @@ const AccountInfo = ({
                                        ? "invalid"
                                        : ""
                                  }`}
+                                 autoComplete="new-password"
                                  id="password"
                                  type="password"
                                  value={password}
@@ -511,14 +531,14 @@ const AccountInfo = ({
 
                      <div className="btn-center">
                         <button className="btn btn-primary" type="submit">
-                           {location.pathname === "/signup" ? (
+                           {adminType === "signup" ? (
                               "Sign Up"
                            ) : (
                               <BiSave className="icon" />
                            )}
                         </button>
-                        {location.pathname === "/signup" && (
-                           <p className="signup-login">
+                        {adminType === "signup" && (
+                           <p className="user-login">
                               Do you already have an account? &nbsp;
                               <Link className="btn-text" to="/login">
                                  Login
@@ -529,16 +549,16 @@ const AccountInfo = ({
                   </form>
                </>
             ) : (
-               <div className="signup-email text-center">
+               <div className="user-email text-center">
                   <div>
-                     <BiMailSend className="signup-email-icon" />
-                     <p className="signup-email-text">
+                     <BiMailSend className="user-email-icon" />
+                     <p className="user-email-text">
                         We've sent an email to {email}.
                         <br />
                         Click the confirmation link in that email to begin using
                         our servicies.
                      </p>
-                     <p className="signup-email-text-smaller">
+                     <p className="user-email-text-smaller">
                         If you did not recieve the email,
                      </p>
                      <button
@@ -548,7 +568,7 @@ const AccountInfo = ({
                      >
                         resend another email
                      </button>
-                     <p className="signup-email-text-smaller">
+                     <p className="user-email-text-smaller">
                         Check the spam folder to be sure it was not sent.
                      </p>
                   </div>
@@ -559,13 +579,14 @@ const AccountInfo = ({
    );
 };
 
-AccountInfo.propTypes = {
+EditUser.propTypes = {
    auth: PropTypes.object.isRequired,
    users: PropTypes.object.isRequired,
    signup: PropTypes.func.isRequired,
    removeAuthError: PropTypes.func.isRequired,
    registerUpdateUser: PropTypes.func.isRequired,
    removeUserError: PropTypes.func.isRequired,
+   loadUser: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -578,4 +599,5 @@ export default connect(mapStateToProps, {
    removeAuthError,
    registerUpdateUser,
    removeUserError,
-})(withRouter(AccountInfo));
+   loadUser,
+})(withRouter(EditUser));

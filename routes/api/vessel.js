@@ -44,7 +44,7 @@ router.get("/:vessel_id", async (req, res) => {
 router.get("/", async (req, res) => {
    try {
       const filter = {
-         ...(req.query.active && { active: req.query.active }),
+         ...(req.query.active !== undefined && { active: req.query.active }),
          ...(req.query.year && { year: req.query.year }),
          ...(req.query.name && {
             name: { $regex: `.*${req.query.name}.*`, $options: "i" },

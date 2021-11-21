@@ -22,7 +22,7 @@ router.get("/:reservation_id", [auth, adminAuth], async (req, res) => {
       res.json(discrepancies);
    } catch (err) {
       console.error(err.message);
-      return res.status(500).send("Server Error");
+      return res.status(500).json({ msg: "Server Error" });
    }
 });
 
@@ -103,7 +103,7 @@ router.post(
          res.json(discrepancy);
       } catch (err) {
          console.error(err.message);
-         return res.status(500).send("Server Error");
+         return res.status(500).json({ msg: "Server Error" });
       }
    }
 );
@@ -123,7 +123,7 @@ router.delete("/:discrepancy_id", [auth, adminAuth], async (req, res) => {
       res.json({ msg: "Discrepancy deleted" });
    } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({ msg: "Server Error" });
    }
 });
 

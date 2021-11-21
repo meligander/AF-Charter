@@ -8,7 +8,7 @@ import Schedule from "../../shared/Schedule";
 
 import { loadReservation } from "../../../actions/reservation";
 
-const ChangeReservation = ({
+const EditReservation = ({
    reservations: { reservation, loadingReservation },
    match,
    loadReservation,
@@ -36,7 +36,7 @@ const ChangeReservation = ({
    );
 };
 
-ChangeReservation.propTypes = {
+EditReservation.propTypes = {
    reservations: PropTypes.object.isRequired,
    loadReservation: PropTypes.func.isRequired,
 };
@@ -47,4 +47,4 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, {
    loadReservation,
-})(ChangeReservation);
+})(EditReservation);

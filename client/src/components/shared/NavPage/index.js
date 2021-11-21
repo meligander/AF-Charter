@@ -69,13 +69,17 @@ const NavPage = ({ showMenu, loggedUser, location, setShowMenu }) => {
             <div
                className="menu-profile-img img"
                style={{
-                  backgroundImage: `url( ${loggedUser.img.filePath})`,
+                  backgroundImage: `url( ${
+                     loggedUser.img.filePath !== ""
+                        ? loggedUser.img.filePath
+                        : "https://pngimage.net/wp-content/uploads/2018/06/no-user-image-png-3-300x200.png"
+                  })`,
                }}
             ></div>
-            <h2 className="heading heading-secondary text-secondary">
+            <h2 className="heading heading-primary text-light text-center">
                {loggedUser.name + " " + loggedUser.lastname}
             </h2>
-            <ul className="menu-list p-0">
+            <ul className="menu-list p-1">
                <li
                   className={`navbar-list-item show ${
                      currentNav === "profile" ? "current" : ""
@@ -95,6 +99,7 @@ const NavPage = ({ showMenu, loggedUser, location, setShowMenu }) => {
                </li>
             </ul>
          </div>
+         <div className="menu-list-line"></div>
          <ul className={`menu-list ${showMenu ? "show" : ""}`}>{type()}</ul>
       </div>
    );

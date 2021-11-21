@@ -5,18 +5,21 @@ import PrivateRoutes from "../PrivateRoutes";
 
 import Vessels from "../../pages/Vessels";
 import Vessel from "../../pages/Vessel";
-import AccountInfo from "../../pages/AccountInfo";
+import EditUser from "../../pages/EditUser";
 import Activation from "../../pages/Activation";
 import Alert from "../../shared/Alert";
 import ChangePassword from "../../pages/ChangePassword";
 import MyReservations from "../../pages/MyReservations";
-import ChangeReservation from "../../pages/ChangeReservation";
+import EditReservation from "../../pages/EditReservation";
 import VesselsList from "../../pages/VesselsList";
 import EditVessel from "../../pages/EditVessel";
 import ManageImages from "../../pages/ManageImages";
 import ReservationsList from "../../pages/ReservationsList";
 import AdminReservation from "../../pages/AdminReservation";
 import NewReservation from "../../pages/NewReservation";
+import MaintenanceList from "../../pages/MaintenanceList";
+import EditMaintenance from "../../pages/EditMaintenance";
+import UsersList from "../../pages/UsersList";
 
 const Routes = () => {
    return (
@@ -26,13 +29,25 @@ const Routes = () => {
             <Switch>
                <Route exact path="/vessels" component={Vessels} />
                <Route exact path="/vessel/:vessel_id" component={Vessel} />
-               <Route exact path="/signup" component={AccountInfo} />
-               <Route exact path="/profile" component={AccountInfo} />
+               <Route exact path="/signup" component={EditUser} />
+               <Route exact path="/profile" component={EditUser} />
                <Route exact path="/activation/:token" component={Activation} />
                <Route
                   exact
                   path="/resetpassword/:token"
                   component={ChangePassword}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/new-user"
+                  component={EditUser}
+                  types={["admin", "admin&captain"]}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/edit-user/:user_id"
+                  component={EditUser}
+                  types={["admin", "admin&captain"]}
                />
                <PrivateRoutes
                   exact
@@ -44,13 +59,13 @@ const Routes = () => {
                   exact
                   path="/reservation/:reservation_id"
                   types={["customer", "captain", "admin", "admin&captain"]}
-                  component={ChangeReservation}
+                  component={EditReservation}
                />
                <PrivateRoutes
                   exact
                   path="/payment/:reservation_id"
                   types={["customer", "captain", "admin", "admin&captain"]}
-                  component={ChangeReservation}
+                  component={EditReservation}
                />
                <PrivateRoutes
                   exact
@@ -72,6 +87,18 @@ const Routes = () => {
                />
                <PrivateRoutes
                   exact
+                  path="/maintenance-list"
+                  types={["admin", "admin&captain"]}
+                  component={MaintenanceList}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/users-list"
+                  types={["admin", "admin&captain"]}
+                  component={UsersList}
+               />
+               <PrivateRoutes
+                  exact
                   path="/edit-vessel/:vessel_id"
                   types={["admin", "admin&captain"]}
                   component={EditVessel}
@@ -81,6 +108,18 @@ const Routes = () => {
                   path="/new-vessel"
                   types={["admin", "admin&captain"]}
                   component={EditVessel}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/new-maintenance"
+                  types={["admin", "admin&captain"]}
+                  component={EditMaintenance}
+               />
+               <PrivateRoutes
+                  exact
+                  path="/edit-maintenance/:maintenance_id"
+                  types={["admin", "admin&captain"]}
+                  component={EditMaintenance}
                />
                <PrivateRoutes
                   exact

@@ -7,69 +7,64 @@ import { MdSearch } from "react-icons/md";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BiPlus } from "react-icons/bi";
 
-import {
-   loadVessels,
-   deleteVessel,
-   clearVessel,
-} from "../../../actions/vessel";
+import { loadUsers, clearUser, deleteUser } from "../../../actions/user";
 
 import PopUp from "../../modal/PopUp";
 import Alert from "../../shared/Alert";
 
 const VesselsList = ({
-   vessels: { vessels, loading, error },
-   loadVessels,
-   deleteVessel,
-   clearVessel,
+   users: { users, loading, error },
+   loadUsers,
+   clearUser,
+   deleteUser,
 }) => {
    const [formData, setFormData] = useState({
       name: "",
-      brand: "",
+      lastname: "",
+      type: "",
       active: true,
    });
 
    const [adminValues, setAdminValues] = useState({
-      toggleDeleteConf: false,
+      modalDelete: false,
       toDelete: "",
    });
 
-   const { name, brand, active } = formData;
+   const { name, lastname, type, active } = formData;
 
-   const { toggleDeleteConf, toDelete } = adminValues;
+   const { modalDelete, toDelete } = adminValues;
 
    useEffect(() => {
-      if (loading) loadVessels({ active: true });
-   }, [loading, loadVessels]);
+      if (loading) loadUsers({ active: true }, true);
+   }, [loading, loadUsers]);
 
    const onChange = (e) => {
       setFormData((prev) => ({
          ...prev,
-         ...(e.target.id === "active"
-            ? { active: !active }
-            : { [e.target.id]: e.target.value }),
+         [e.target.name]: e.target.id ? e.target.checked : e.target.value,
       }));
    };
 
    const onSubmit = (e) => {
       e.preventDefault();
-      loadVessels(formData);
+      loadUsers(formData, true);
    };
 
    return (
-      <div className="vessels-list">
+      <>
          <PopUp
-            text="Are you sure you want to delete the vessel?"
+            text="Are you sure you want to delete the user?"
             type="confirmation"
-            confirm={() => deleteVessel(toDelete)}
-            toggleModal={toggleDeleteConf}
+            confirm={() => deleteUser(toDelete)}
+            toggleModal={modalDelete}
             setToggleModal={() =>
                setAdminValues((prev) => ({
                   ...prev,
-                  toggleDeleteConf: !toggleDeleteConf,
+                  modalDelete: !modalDelete,
                }))
             }
          />
-         <h2 className="heading heading-primary text-primary">Vessels</h2>
+         <h2 className="heading heading-primary text-primary">Users</h2>
 
          <Alert type="2" />
          <form className="form filter" onSubmit={onSubmit}>
@@ -79,7 +74,7 @@ const VesselsList = ({
                   <input
                      className="form-input"
                      type="text"
-                     id="name"
+                     name="name"
                      placeholder="Name"
                      value={name}
                      onChange={onChange}
@@ -87,9 +82,9 @@ const VesselsList = ({
                   <input
                      className="form-input"
                      type="text"
-                     id="brand"
-                     placeholder="Brand"
-                     value={brand}
+                     name="lastname"
+                     placeholder="Lastname"
+                     value={lastname}
                      onChange={onChange}
                   />
                </div>
@@ -97,10 +92,33 @@ const VesselsList = ({
                   <label className={`form-label ${name === "" ? "lbl" : ""}`}>
                      Name
                   </label>
-                  <label className={`form-label ${brand === "" ? "lbl" : ""}`}>
-                     Brand
+                  <label
+                     className={`form-label ${lastname === "" ? "lbl" : ""}`}
+                  >
+                     Lastname
                   </label>
                </div>
+            </div>
+            <div className="form-group">
+               <select
+                  className="form-input"
+                  name="type"
+                  value={type}
+                  onChange={onChange}
+               >
+                  <option value="">* Select user type</option>
+                  <option value="admin">Admin</option>
+                  <option value="captain">Captain</option>
+                  <option value="customer">Customer</option>
+                  <option value="mate">Mate</option>
+                  <option value="mechanic">Mechanic</option>
+               </select>
+               <label
+                  htmlFor="type"
+                  className={`form-label ${type === "" ? "lbl" : ""}`}
+               >
+                  User Type
+               </label>
             </div>
             <div className="form-group checkbox-group">
                <input
@@ -109,6 +127,7 @@ const VesselsList = ({
                   value={active}
                   onChange={onChange}
                   checked={active}
+                  name="active"
                   id="active"
                />
                <label className="form-lbl-checkbox" htmlFor="active">
@@ -123,33 +142,36 @@ const VesselsList = ({
          </form>
          {!loading && (
             <>
-               {vessels.length > 0 ? (
+               {users.length > 0 ? (
                   <div className="wrapper">
-                     <table className="stick icon-5">
+                     <table className="stick icon-4">
                         <thead>
                            <tr>
                               <th>Name</th>
-                              <th>Brand</th>
-                              <th>Year</th>
-                              <th>Active</th>
+                              <th>Type</th>
+                              <th>Email</th>
                               <th></th>
                               <th></th>
                            </tr>
                         </thead>
                         <tbody>
-                           {vessels.map((vessel) => (
-                              <tr key={vessel._id}>
-                                 <td>{vessel.name}</td>
-                                 <td>{vessel.brand}</td>
-                                 <td>{vessel.year}</td>
-                                 <td>{vessel.active ? "Yes" : "No"}</td>
+                           {users.map((user) => (
+                              <tr key={user._id}>
+                                 <td>{`${user.name} ${user.lastname}`}</td>
+                                 <td>
+                                    {user.type === "admin&captain"
+                                       ? "Admin/Captain"
+                                       : user.type[0].toUpperCase() +
+                                         user.type.substring(1)}
+                                 </td>
+                                 <td>{user.email}</td>
                                  <td>
                                     <Link
                                        className="btn-text secondary"
-                                       to={`/edit-vessel/${vessel._id}`}
+                                       to={`/edit-user/${user._id}`}
                                        onClick={() => {
                                           window.scroll(0, 0);
-                                          clearVessel();
+                                          clearUser();
                                        }}
                                     >
                                        <FiEdit />
@@ -162,9 +184,8 @@ const VesselsList = ({
                                        onClick={() =>
                                           setAdminValues((prev) => ({
                                              ...prev,
-                                             toggleDeleteConf:
-                                                !toggleDeleteConf,
-                                             toDelete: vessel._id,
+                                             modalDelete: !modalDelete,
+                                             toDelete: user._id,
                                           }))
                                        }
                                     >
@@ -182,29 +203,29 @@ const VesselsList = ({
                   </h3>
                )}
                <div className="btn-right">
-                  <Link to="/new-vessel" className="btn btn-primary">
-                     <BiPlus className="icon" /> Vessel
+                  <Link to="/new-user" className="btn btn-primary">
+                     <BiPlus className="icon" /> User
                   </Link>
                </div>
             </>
          )}
-      </div>
+      </>
    );
 };
 
 VesselsList.propTypes = {
-   vessels: PropTypes.object.isRequired,
-   loadVessels: PropTypes.func.isRequired,
-   clearVessel: PropTypes.func.isRequired,
-   deleteVessel: PropTypes.func.isRequired,
+   users: PropTypes.object.isRequired,
+   loadUsers: PropTypes.func.isRequired,
+   clearUser: PropTypes.func.isRequired,
+   deleteUser: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-   vessels: state.vessels,
+   users: state.users,
 });
 
 export default connect(mapStateToProps, {
-   loadVessels,
-   deleteVessel,
-   clearVessel,
+   loadUsers,
+   deleteUser,
+   clearUser,
 })(VesselsList);

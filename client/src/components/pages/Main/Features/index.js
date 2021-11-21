@@ -27,7 +27,7 @@ const Features = () => {
             </div>
             <div className="feature-box">
                <GiIsland className="feature-box-icon" />
-               <h3 className="feature-box-header">Visit other places</h3>
+               <h3 className="feature-box-header">Visit several places</h3>
                <p className="feature-box-text">
                   Lorem ipsum dolor sit amet consectetur adipisicing elit. Non,
                   quia.

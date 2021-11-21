@@ -44,8 +44,8 @@ export const loadVessel = (vessel_id) => async (dispatch) => {
    dispatch(updateLoadingSpinner(false));
 };
 
-export const loadVessels = (filterData) => async (dispatch) => {
-   dispatch(updateLoadingSpinner(true));
+export const loadVessels = (filterData, bulkLoad) => async (dispatch) => {
+   if (!bulkLoad) dispatch(updateLoadingSpinner(true));
 
    let filter = "";
    const filternames = Object.keys(filterData);
@@ -75,7 +75,7 @@ export const loadVessels = (filterData) => async (dispatch) => {
       window.scrollTo(0, 0);
    }
 
-   dispatch(updateLoadingSpinner(false));
+   if (!bulkLoad) dispatch(updateLoadingSpinner(false));
 };
 
 export const checkAvailableVessels =

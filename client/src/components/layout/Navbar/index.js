@@ -87,6 +87,7 @@ const Navbar = ({
                to={isAdmin ? "/dashboard" : "/"}
                onClick={() => {
                   window.scroll(0, 0);
+                  clearReservations();
                }}
             >
                <img src={yatch} alt="AF Charter Logo" />

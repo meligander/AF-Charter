@@ -24,6 +24,7 @@ app.use("/api/reservation", require("./routes/api/reservation"));
 app.use("/api/user", require("./routes/api/user"));
 app.use("/api/vessel", require("./routes/api/vessel"));
 app.use("/api/discrepancy", require("./routes/api/discrepancy"));
+app.use("/api/maintenance", require("./routes/api/maintenance"));
 
 const PORT = process.env.PORT || 5000;
 

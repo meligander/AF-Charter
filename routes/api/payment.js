@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const cors = require("cors");
 const path = require("path");
+const moment = require("moment");
 
 require("dotenv").config({
    path: path.resolve(__dirname, "../../config/.env"),
@@ -45,6 +46,32 @@ router.get("/:payment_id", [auth], async (req, res) => {
       }
 
       res.json(payment);
+   } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ msg: "Server Error" });
+   }
+});
+
+//@route    GET api/payment/:time/:amount
+//@desc     Get the amount of money made in a period of time
+//@access   Private
+router.get("/:time/:amount", [auth], async (req, res) => {
+   try {
+      const today = new Date();
+      const time = moment().subtract(req.params.amount, req.params.time);
+
+      const payments = await Payment.find({
+         date: {
+            $gte: new Date(time).setHours(0, 0, 0),
+            $lte: today,
+         },
+      });
+
+      let total = 0;
+      for (let x = 0; x < payments.length; x++)
+         if (payments[x].status === "success") total += payments[x].amount;
+
+      res.json(total);
    } catch (err) {
       console.error(err.message);
       res.status(500).json({ msg: "Server Error" });
@@ -114,6 +141,7 @@ router.put("/cash/:payment_id", [auth, adminAuth], async (req, res) => {
          {
             type: "cash",
             status: "success",
+            fee: null,
             date: new Date(),
          },
          { new: true }

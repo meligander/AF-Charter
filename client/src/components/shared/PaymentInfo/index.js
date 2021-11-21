@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 
 import { makeCashPayment, cancelPayment } from "../../../actions/payment";
 import { updateReservation } from "../../../actions/reservation";
+import { formatNumber } from "../../../actions/mixvalues";
 
 import Payment from "../Payment";
 import Alert from "../../shared/Alert";
@@ -66,11 +67,11 @@ const PaymentInfo = ({
          <PopUp
             type="confirmation"
             confirm={() => {
-               makeCashPayment(reservation[type]._id, type);
+               makeCashPayment(reservation[type]._id);
                if (type === "balance")
                   updateReservation({ active: false }, reservation._id);
                if (reservation[type].type === "stripe")
-                  cancelPayment(reservation[type]._id, type);
+                  cancelPayment(reservation[type]._id);
             }}
             setToggleModal={toggleModalConfirm}
             toggleModal={modalConfirm}
@@ -92,7 +93,7 @@ const PaymentInfo = ({
          <PopUp
             type="confirmation"
             confirm={() => {
-               cancelPayment(reservation[type]._id, type);
+               cancelPayment(reservation[type]._id);
                if (type === "balance")
                   updateReservation({ active: true }, reservation._id);
             }}
@@ -145,7 +146,7 @@ const PaymentInfo = ({
                            ? "Paid Amount:"
                            : "Amount to pay:"}
                      </td>
-                     <td>${reservation.downpayment.amount}</td>
+                     <td>$ {formatNumber(reservation.downpayment.amount)}</td>
                   </tr>
                   {isAdmin ? (
                      <>
@@ -170,7 +171,7 @@ const PaymentInfo = ({
                               <td>
                                  <Moment
                                     date={reservation.downpayment.date}
-                                    format="MM/DD/YY  -  h:m a"
+                                    format="MM/DD/YY  -  h:mm a"
                                  />
                               </td>
                            </tr>
@@ -202,7 +203,7 @@ const PaymentInfo = ({
                      reservation.downpayment.status === "success" && (
                         <tr>
                            <td>Pending Amount:</td>
-                           <td>${reservation.balance.amount}</td>
+                           <td>$ {formatNumber(reservation.balance.amount)}</td>
                         </tr>
                      )
                   )}
@@ -267,7 +268,7 @@ const PaymentInfo = ({
                      <tbody>
                         <tr>
                            <td>Amount:</td>
-                           <td>${reservation.balance.amount}</td>
+                           <td>$ {formatNumber(reservation.balance.amount)}</td>
                         </tr>
                         <tr>
                            <td>Status:</td>
@@ -289,8 +290,8 @@ const PaymentInfo = ({
                               <td>Date:</td>
                               <td>
                                  <Moment
-                                    date={reservation.downpayment.date}
-                                    format="MM/DD/YY  -  h:m a"
+                                    date={reservation.balance.date}
+                                    format="MM/DD/YY  -  h:mm a"
                                  />
                               </td>
                            </tr>

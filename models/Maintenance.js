@@ -12,10 +12,12 @@ const MaintencanceSchema = new mongoose.Schema({
    },
    system: {
       type: String,
-      //Electric, Engeneering, Auxiliary, Fire System
+      required: true,
+      //Electric, Engeneering, Auxiliary, Fire System, Sewer
    },
    type: {
       type: String,
+      required: true,
       //Mayor, Restrictive, Disabling, Minor
    },
    houlout: {

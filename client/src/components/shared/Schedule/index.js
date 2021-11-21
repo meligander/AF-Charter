@@ -17,6 +17,7 @@ import { checkAvailableCaptains } from "../../../actions/user";
 
 import Alert from "../../shared/Alert";
 import PopUp from "../../modal/PopUp";
+import { BiSave } from "react-icons/bi";
 
 const Schedule = ({
    auth: { loggedUser },
@@ -344,7 +345,9 @@ const Schedule = ({
 
                      <div className="btn-center mt-4">
                         <button type="submit" className="btn btn-primary">
-                           {type === "update" ? "Update" : "Reserve Now!"}
+                           {type === "update"
+                              ? <BiSave className="icon" /> + " Update"
+                              : "Reserve Now!"}
                         </button>
                      </div>
                   </form>

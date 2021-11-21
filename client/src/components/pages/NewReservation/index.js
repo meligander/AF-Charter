@@ -6,7 +6,10 @@ import PropTypes from "prop-types";
 
 import { loadVessels } from "../../../actions/vessel";
 import { loadUsers } from "../../../actions/user";
-import { registerReservation } from "../../../actions/reservation";
+import {
+   registerReservation,
+   removeReservationError,
+} from "../../../actions/reservation";
 
 import Alert from "../../shared/Alert";
 import Schedule from "./Schedule";
@@ -20,6 +23,7 @@ const NewReservation = ({
    loadVessels,
    loadUsers,
    registerReservation,
+   removeReservationError,
 }) => {
    const [formData, setFormData] = useState({
       vessel: "",
@@ -38,9 +42,9 @@ const NewReservation = ({
       searchDisplay: false,
    });
 
-   const { vessel, captain, mates, customer, searchDisplay } = formData;
+   const { vessel, captain, mates, customer, dateFrom } = formData;
 
-   const { email, results, allMates } = adminValues;
+   const { email, results, allMates, searchDisplay } = adminValues;
 
    useEffect(() => {
       if (loadingAux) {
@@ -70,10 +74,6 @@ const NewReservation = ({
             );
          }
       } else {
-         console.log({
-            [e.target.name]:
-               e.target.name !== "mates" ? e.target.value : e.target.checked,
-         });
          setFormData((prev) => ({
             ...prev,
             [e.target.name]:
@@ -84,11 +84,14 @@ const NewReservation = ({
                   : prev.mates.filter((item) => item !== e.target.value),
          }));
       }
+      if (error.constructor === Array && error.length > 0)
+         removeReservationError(
+            e.target.name === "email" ? "customer" : e.target.name
+         );
    };
 
    const onSubmit = (e) => {
       e.preventDefault();
-      console.log(formData);
       registerReservation(
          {
             ...formData,
@@ -138,31 +141,10 @@ const NewReservation = ({
          <Alert type="3" />
          <form className="form" onSubmit={onSubmit}>
             <div className="form-group form-search">
-               <div className="form-search-display">
-                  {email.length > 1 && customer === "" && (
-                     <>
-                        {results.length > 0 ? (
-                           results.map((user) => (
-                              <p
-                                 className="form-search-item"
-                                 onClick={() => selectCustomer(user)}
-                                 key={user._id}
-                              >
-                                 {user.email}
-                              </p>
-                           ))
-                        ) : (
-                           <p className="bg-danger form-search-item">
-                              No matching results
-                           </p>
-                        )}
-                     </>
-                  )}
-               </div>
                <input
                   className={`form-input ${
                      error.constructor === Array &&
-                     error.some((value) => value.param === "email")
+                     error.some((value) => value.param === "customer")
                         ? "invalid"
                         : ""
                   }`}
@@ -171,7 +153,13 @@ const NewReservation = ({
                   disabled={customer !== ""}
                   name="email"
                   id="email"
-                  autoComplete="off"
+                  onFocus={() =>
+                     setAdminValues((prev) => ({
+                        ...prev,
+                        searchDisplay: true,
+                     }))
+                  }
+                  autoComplete="new-password"
                   onChange={onChange}
                   placeholder="Customer's Email"
                />
@@ -181,8 +169,31 @@ const NewReservation = ({
                >
                   Customer's Email
                </label>
+               {searchDisplay && email.length > 1 && customer === "" && (
+                  <ul
+                     className={`form-search-display ${
+                        results.length === 0 ? "danger" : ""
+                     }`}
+                  >
+                     {results.length > 0 ? (
+                        results.map((user) => (
+                           <li
+                              className="form-search-item"
+                              onClick={() => selectCustomer(user)}
+                              key={user._id}
+                           >
+                              {user.email}
+                           </li>
+                        ))
+                     ) : (
+                        <li className="bg-danger form-search-item">
+                           No matching results
+                        </li>
+                     )}
+                  </ul>
+               )}
 
-               {customer !== "" && (
+               {(customer !== "" || (email.length > 1 && customer === "")) && (
                   <button
                      type="button"
                      onClick={cancelCustomer}
@@ -196,9 +207,20 @@ const NewReservation = ({
                <select
                   name="vessel"
                   id="vessel"
-                  className="form-input"
+                  className={`form-input ${
+                     error.constructor === Array &&
+                     error.some((value) => value.param === "vessel")
+                        ? "invalid"
+                        : ""
+                  }`}
                   onChange={onChange}
                   value={vessel}
+                  onFocus={() =>
+                     setAdminValues((prev) => ({
+                        ...prev,
+                        searchDisplay: false,
+                     }))
+                  }
                >
                   <option value="">* Select Vessel</option>
                   {vessels.length > 0 &&
@@ -226,7 +248,11 @@ const NewReservation = ({
             <div className="form-group">
                <h3 className="heading heading-secondary">Captain:</h3>
                <div className="radio-group" id="radio-group">
-                  {users.length > 0 ? (
+                  {dateFrom === "" ? (
+                     <p className="text-danger">
+                        Pick up a vessel and a date first
+                     </p>
+                  ) : users.length > 0 ? (
                      users.map((user, i) => (
                         <React.Fragment key={user._id}>
                            <input
@@ -238,7 +264,18 @@ const NewReservation = ({
                               name="captain"
                               id={`rb${i}`}
                            />
-                           <label className="form-lbl-radio" htmlFor={`rb${i}`}>
+                           <label
+                              className={`form-lbl-radio ${
+                                 error.constructor === Array &&
+                                 error.some(
+                                    (value) => value.param === "captain"
+                                 )
+                                    ? "invalid"
+                                    : ""
+                              }`}
+                              onFocus={() => console.log("hola")}
+                              htmlFor={`rb${i}`}
+                           >
                               {`${user.name} ${user.lastname}`}
                            </label>
                         </React.Fragment>
@@ -294,6 +331,7 @@ NewReservation.propTypes = {
    loadVessels: PropTypes.func.isRequired,
    loadUsers: PropTypes.func.isRequired,
    registerReservation: PropTypes.func.isRequired,
+   removeReservationError: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -306,4 +344,5 @@ export default connect(mapStateToProps, {
    loadVessels,
    loadUsers,
    registerReservation,
+   removeReservationError,
 })(NewReservation);

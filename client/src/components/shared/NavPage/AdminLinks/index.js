@@ -9,6 +9,7 @@ import { FaWrench, FaUser, FaDollarSign } from "react-icons/fa";
 import { clearVessels } from "../../../../actions/vessel";
 import { clearUsers } from "../../../../actions/user";
 import { clearReservations } from "../../../../actions/reservation";
+import { clearMaintenances } from "../../../../actions/maintenance";
 
 const AdminLinks = ({
    showMenu,
@@ -16,6 +17,7 @@ const AdminLinks = ({
    setShowMenu,
    clearVessels,
    clearReservations,
+   clearMaintenances,
    clearUsers,
 }) => {
    return (
@@ -71,10 +73,11 @@ const AdminLinks = ({
          >
             <Link
                className="navbar-list-link"
-               to="/manteinance"
+               to="/maintenance-list"
                onClick={() => {
                   window.scroll(0, 0);
                   setShowMenu(false);
+                  clearMaintenances();
                }}
             >
                <FaWrench className="icon" />
@@ -109,9 +112,10 @@ const AdminLinks = ({
          >
             <Link
                className="navbar-list-link"
-               to="/users"
+               to="/users-list"
                onClick={() => {
                   window.scroll(0, 0);
+                  clearUsers();
                   setShowMenu(false);
                }}
             >
@@ -130,8 +134,12 @@ AdminLinks.propTypes = {
    clearVessels: PropTypes.func.isRequired,
    clearReservations: PropTypes.func.isRequired,
    clearUsers: PropTypes.func.isRequired,
+   clearMaintenances: PropTypes.func.isRequired,
 };
 
-export default connect(null, { clearVessels, clearReservations, clearUsers })(
-   AdminLinks
-);
+export default connect(null, {
+   clearVessels,
+   clearReservations,
+   clearUsers,
+   clearMaintenances,
+})(AdminLinks);
